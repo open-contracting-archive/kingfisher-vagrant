@@ -1,0 +1,13 @@
+*.sqlite3
+*.swp
+*.mo
+*~
+.ve
+*.pyc
+__pycache__
+media
+.coverage
+htmlcov
+docs/_build
+.cache/*
+.hypothesis/*
