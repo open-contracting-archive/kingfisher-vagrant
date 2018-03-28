@@ -6,7 +6,7 @@ from .base import Fetcher
 
 class Basic(Fetcher):
     publisher_name = 'test'
-    url = 'test'
+    url = 'test_url'
     output_directory = 'test'
 
     def gather_all_download_urls(self):
@@ -17,18 +17,30 @@ class Basic(Fetcher):
 
 def test_basic():
     with tempfile.TemporaryDirectory() as tmpdir:
-        Basic(tmpdir).run_gather()
+        fetcher = Basic(tmpdir)
         metadata_file = join(tmpdir, 'test', '_fetch_metadata.json')
         assert exists(metadata_file)
 
         with open(metadata_file) as f:
             data = json.load(f)
+            assert data['publisher_name'] == 'test'
+            assert data['url'] == 'test_url'
+            assert data['metadata_creation_datetime']
+
+        fetcher.run_gather()
+        with open(metadata_file) as f:
+            data = json.load(f)
+            assert data['gather_start_datetime']
+            assert data['gather_finished_datetime']
             assert data['gather_success']
 
-        Basic(tmpdir).run_fetch()
+        fetcher.run_fetch()
         assert exists(join(tmpdir, 'test', 'file1.json'))
 
         with open(metadata_file) as f:
             data = json.load(f)
+            assert data['download_status']
             assert data['fetch_success']
+            assert data['fetch_start_datetime']
+            assert data['fetch_finished_datetime']
 

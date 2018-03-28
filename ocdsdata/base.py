@@ -46,12 +46,17 @@ class Fetcher:
             exists = False
 
         if not exists:
-            os.path.mkdir(self.full_directory)
+            os.mkdir(self.full_directory)
 
         self.metadata_file = os.path.join(self.full_directory, '_fetch_metadata.json')
         metadata_exists = os.path.exists(self.metadata_file)
         if not metadata_exists:
             self.save_metadata(DEFAULT_FETCH_FILE_DATA)
+        metadata = self.get_metadata()
+        metadata['publisher_name'] = self.publisher_name
+        metadata['url'] = self.url
+        metadata['metadata_creation_datetime'] = str(datetime.datetime.utcnow())
+        self.save_metadata(metadata)
 
     def get_metadata(self):
         with open(self.metadata_file) as f:
@@ -89,7 +94,7 @@ class Fetcher:
                     'fetch_start_datetime': None,
                     'fetch_errors': None,
                     'fetch_finished_datetime': None,
-                    'fetched': False
+                    'fetch_success': None
                 }
                 if errors and not metadata['gather_failure_datetime']:
                     metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
@@ -106,6 +111,7 @@ class Fetcher:
 
         metadata['gather_success'] = not failed
         metadata['gather_finished_datetime'] = str(datetime.datetime.utcnow())
+        self.save_metadata(metadata)
 
     def run_fetch(self):
         metadata = self.get_metadata()
@@ -124,13 +130,14 @@ class Fetcher:
         failed = False
 
         for url, data in metadata['download_status'].items():
-            if data['fetched']:
+            if data['fetch_success']:
                 continue
 
-            data['fetch_start_datetime'] = str(datetime.datetime.utcnow())
             for key in list(data):
                 if key.startswith('fetch_'):
                     data[key] = None
+
+            data['fetch_start_datetime'] = str(datetime.datetime.utcnow())
             data['fetch_errors'] = []
 
             self.save_metadata(metadata)
@@ -141,7 +148,11 @@ class Fetcher:
 
             if errors:
                 data['fetch_errors'] = errors
+                data['fetch_success'] = False
                 failed = True
+            else:
+                data['fetch_success'] = True
+                data['fetch_errors'] = []
 
             data['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
             self.save_metadata(metadata)
