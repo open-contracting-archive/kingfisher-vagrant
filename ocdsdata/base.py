@@ -5,20 +5,22 @@ import datetime
 import util
 
 DEFAULT_FETCH_FILE_DATA = {
-    "publisher_name": None, 
-    "url": None, 
-    "metadata_creation_datetime": None, 
+    "publisher_name": None,
+    "url": None,
+    "metadata_creation_datetime": None,
 
-    "gather_start_datetime": None, 
+    "gather_start_datetime": None,
     "gather_failure_exception": None,
-    "gather_failure_datetime": None, 
-    "gather_finished_datetime": None, 
-    "gather_success": None, 
+    "gather_failure_datetime": None,
+    "gather_finished_datetime": None,
+    "gather_success": None,
 
     "download_status": {},
+    "load_status": {},
 
-    "fetch_start_datetime": None, 
-    "fetch_start_datetime": None, 
+    "fetch_start_datetime": None,
+    "fetch_finished_datetime": None,
+    "fetch_success": None,
 }
 
 
@@ -49,8 +51,7 @@ class Fetcher:
         self.metadata_file = os.path.join(self.full_directory, '_fetch_metadata.json')
         metadata_exists = os.path.exists(self.metadata_file)
         if not metadata_exists:
-            with open(self.metadata_file, 'w+') as f:
-                f.write(json.dumps(DEFAULT_FETCH_FILE_DATA))
+            self.save_metadata(DEFAULT_FETCH_FILE_DATA)
 
     def get_metadata(self):
         with open(self.metadata_file) as f:
@@ -80,13 +81,13 @@ class Fetcher:
 
         failed = False
         try:
-            for url, filename, errors in self, self.gather_all_download_urls():
+            for url, filename, data_type, errors in self, self.gather_all_download_urls():
                 metadata['download_status'][url] = {
-                    'filename': filename, 
-                    'gather_errors': errors, 
+                    'filename': filename,
+                    'data_type': data_type,
+                    'gather_errors': errors,
                     'fetch_start_datetime': None,
-                    'fetch_finished': False,
-                    'fetch_errors': [],
+                    'fetch_errors': None,
                     'fetch_finished_datetime': None,
                 }
                 if errors and not metadata['gather_failure_datetime']:
@@ -126,6 +127,11 @@ class Fetcher:
                 continue
 
             data['fetch_start_datetime'] = str(datetime.datetime.utcnow())
+            for key in list(data):
+                if key.startshwith('fetch_'):
+                    data[key] = None
+            data['fetch_errors'] = []
+
             self.save_metadata(metadata)
             try:
                 errors = self.save_url(url, os.path.join(self.full_directory, metadata['filename']))
@@ -139,14 +145,12 @@ class Fetcher:
             data['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
             self.save_metadata(metadata)
 
-        data['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
-        data['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
-
-
+        metadata['fetch_success'] = not failed
+        metadata['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
+        self.save_metadata(metadata)
 
     def save_url(self, url, file_path):
         return util.save_content(url, file_path)
-
 
     def run_all(self):
         self.run_gather()
