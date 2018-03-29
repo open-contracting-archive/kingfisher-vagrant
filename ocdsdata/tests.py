@@ -43,7 +43,7 @@ def test_basic():
 
         with open(metadata_file) as f:
             data = json.load(f)
-            assert data['download_status']
+            assert data['file_status']
             assert data['fetch_success']
             assert data['fetch_start_datetime']
             assert data['fetch_finished_datetime']
@@ -75,7 +75,7 @@ def test_bad_url():
         with open(metadata_file) as f:
             data = json.load(f)
             assert not data['fetch_success']
-            for value in data['download_status'].values():
+            for value in data['file_status'].values():
                 assert not value['fetch_success']
                 assert value['fetch_errors']
 

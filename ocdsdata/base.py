@@ -15,8 +15,7 @@ DEFAULT_FETCH_FILE_DATA = {
     "gather_finished_datetime": None,
     "gather_success": None,
 
-    "download_status": {},
-    "load_status": {},
+    "file_status": {},
 
     "fetch_start_datetime": None,
     "fetch_finished_datetime": None,
@@ -87,8 +86,8 @@ class Fetcher:
         failed = False
         try:
             for url, filename, data_type, errors in self.gather_all_download_urls():
-                metadata['download_status'][url] = {
-                    'filename': filename,
+                metadata['file_status'][filename] = {
+                    'url': url,
                     'data_type': data_type,
                     'gather_errors': errors,
                     'fetch_start_datetime': None,
@@ -129,7 +128,7 @@ class Fetcher:
 
         failed = False
 
-        for url, data in metadata['download_status'].items():
+        for file_name, data in metadata['file_status'].items():
             if data['fetch_success']:
                 continue
 
@@ -142,7 +141,7 @@ class Fetcher:
 
             self.save_metadata(metadata)
             try:
-                errors = self.save_url(url, os.path.join(self.full_directory, data['filename']))
+                errors = self.save_url(data['url'], os.path.join(self.full_directory, file_name))
             except Exception as e:
                 errors = [str(e)]
 
