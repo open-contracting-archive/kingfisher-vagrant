@@ -8,4 +8,5 @@ setup(name='ocdsdata',
       author='Open Contracting',
       url='',
       packages=['ocdsdata', 'ocdsdata.sources'],
+      scripts=['ocdsdata-cli']
      )
