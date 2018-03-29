@@ -2,6 +2,8 @@ from os.path import join, exists
 import tempfile
 import json
 
+import pytest
+
 from .base import Fetcher
 from . import util
 
@@ -78,4 +80,59 @@ def test_bad_url():
             for value in data['file_status'].values():
                 assert not value['fetch_success']
                 assert value['fetch_errors']
+
+
+class BadGather(Fetcher):
+    publisher_name = 'test'
+    url = 'test_url'
+    output_directory = 'test'
+
+    def gather_all_download_urls(self):
+        yield ('https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+               'file1.json',
+               'releases',
+               ['not worked'])
+
+
+def test_bad_gather():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fetcher = BadGather(tmpdir)
+        fetcher.run_gather()
+        metadata_file = join(tmpdir, 'test', '_fetch_metadata.json')
+
+        with open(metadata_file) as f:
+            data = json.load(f)
+            assert not data['gather_success']
+            assert data['gather_finished_datetime']
+            assert data['gather_failure_datetime']
+            assert data['file_status']['file1.json']['gather_errors'] == ['not worked']
+
+        with pytest.raises(Exception):
+            fetcher.run_fetch()
+
+
+class ExceptionGather(Fetcher):
+    publisher_name = 'test'
+    url = 'test_url'
+    output_directory = 'test'
+
+    def gather_all_download_urls(self):
+        raise IndexError
+
+
+def test_exception_gather():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fetcher = ExceptionGather(tmpdir)
+        fetcher.run_gather()
+        metadata_file = join(tmpdir, 'test', '_fetch_metadata.json')
+
+        with open(metadata_file) as f:
+            data = json.load(f)
+            assert not data['gather_success']
+            assert data['gather_failure_exception'] == 'IndexError()'
+            assert data['gather_finished_datetime']
+            assert data['gather_failure_datetime']
+
+        with pytest.raises(Exception):
+            fetcher.run_fetch()
 

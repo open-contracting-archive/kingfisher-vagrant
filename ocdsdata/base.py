@@ -100,13 +100,12 @@ class Fetcher:
                     failed = True
                 self.save_metadata(metadata)
         except Exception as e:
-            metadata['gather_failure_exception'] = str(e)
+            metadata['gather_failure_exception'] = repr(e)
             metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
             metadata['gather_success'] = False
             metadata['gather_finished_datetime'] = str(datetime.datetime.utcnow())
             self.save_metadata(metadata)
             failed = True
-            raise
 
         metadata['gather_success'] = not failed
         metadata['gather_finished_datetime'] = str(datetime.datetime.utcnow())
@@ -117,6 +116,9 @@ class Fetcher:
 
         if metadata['fetch_success']:
             return
+
+        if not metadata['gather_success']:
+            raise Exception('Can not run fetch without a successful gather')
 
         #reset gather data
         for key in list(metadata):
@@ -143,7 +145,7 @@ class Fetcher:
             try:
                 errors = self.save_url(data['url'], os.path.join(self.full_directory, file_name))
             except Exception as e:
-                errors = [str(e)]
+                errors = [repr(e)]
 
             if errors:
                 data['fetch_errors'] = errors
