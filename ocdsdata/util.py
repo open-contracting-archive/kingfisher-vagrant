@@ -2,6 +2,8 @@ import time
 import json
 import requests
 
+RETRY_TIME = 10
+
 def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
     '''
     Handle transient network errors, and URLs with
@@ -12,7 +14,7 @@ def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
 
     error_msg = None
 
-    if tries > 10:
+    if tries > 3:
         return (None, errors)
     try:
         r = requests.get(url, headers=headers, stream=stream)
@@ -20,7 +22,7 @@ def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
     except requests.exceptions.Timeout:
         error_msg = 'Request timeout'
     except requests.ConnectionError:
-        error_msg = 'Connection error (attempt %s)'
+        error_msg = 'Connection error'
     except requests.exceptions.TooManyRedirects:
         error_msg = 'Too many redirects'
     except requests.exceptions.RequestException as e:
@@ -33,8 +35,8 @@ def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
     if not errors or (errors and errors[-1] != error_msg):
         errors.append(error_msg)
 
-    time.sleep(5)
-    return get_url_request(url, headers, tries + 1, errors)
+    time.sleep(RETRY_TIME)
+    return get_url_request(url, headers, stream, tries + 1, errors)
 
 
 def save_content(url, filepath, headers=None):

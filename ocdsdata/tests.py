@@ -3,6 +3,10 @@ import tempfile
 import json
 
 from .base import Fetcher
+from . import util
+
+#Monkey patch to make tests run a lot faster
+util.RETRY_TIME = 0.1
 
 class Basic(Fetcher):
     publisher_name = 'test'
@@ -43,4 +47,35 @@ def test_basic():
             assert data['fetch_success']
             assert data['fetch_start_datetime']
             assert data['fetch_finished_datetime']
+
+
+class BadUrls(Fetcher):
+    publisher_name = 'test'
+    url = 'test_url'
+    output_directory = 'test'
+
+    def gather_all_download_urls(self):
+        yield ('https://thisaddressreallyshouldnotexists.com',
+               'file1.json',
+               'releases',
+               [])
+        yield ('https://httpstat.us/500',
+               'file2.json',
+               'releases',
+               [])
+
+
+def test_bad_url():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fetcher = BadUrls(tmpdir)
+        fetcher.run_gather()
+        fetcher.run_fetch()
+        metadata_file = join(tmpdir, 'test', '_fetch_metadata.json')
+
+        with open(metadata_file) as f:
+            data = json.load(f)
+            assert not data['fetch_success']
+            for value in data['download_status'].values():
+                assert not value['fetch_success']
+                assert value['fetch_errors']
 
