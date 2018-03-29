@@ -33,8 +33,13 @@ class Fetcher:
         self.base_dir = base_dir
 
         self.publisher_name = publisher_name or self.publisher_name
-        self.url = url or self.url
+        if not self.publisher_name:
+            raise AttributeError('A publisher name needs to be specified')
         self.output_directory = output_directory or self.output_directory
+        if not self.output_directory:
+            raise AttributeError('An output directory needs to be specified')
+
+        self.url = url or self.url
 
         self.full_directory = os.path.join(base_dir, self.output_directory)
 

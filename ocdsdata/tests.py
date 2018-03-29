@@ -51,6 +51,15 @@ def test_basic():
             assert data['fetch_finished_datetime']
 
 
+class Empty(Fetcher):
+    pass
+
+def test_empty():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pytest.raises(AttributeError):
+            fetcher = Empty(tmpdir)
+
+
 class BadUrls(Fetcher):
     publisher_name = 'test'
     url = 'test_url'
