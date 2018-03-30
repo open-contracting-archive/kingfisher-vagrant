@@ -3,9 +3,7 @@ from ocdsdata.base import Fetcher
 class TaiwanFetcher(Fetcher):
     publisher_name = 'Taiwan'
     url = 'http://data.dsp.im'
-
-    def __init__(self, base_dir, remove_dir=False, output_directory=None):
-        super().__init__(base_dir, remove_dir=remove_dir, output_directory=output_directory)
+    source_id = 'taiwan'
 
     def gather_all_download_urls(self):
         return [

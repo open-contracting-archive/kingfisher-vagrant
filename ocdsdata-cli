@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 import argparse
-import ocdsdata.sources.all
 import importlib
 import os
+import glob
+import inspect
+from ocdsdata.base import Fetcher
 
 def main():
+
+    sources = gather_sources()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", help="increase output verbosity",
@@ -20,13 +24,11 @@ def main():
     run = []
 
     if args.runall:
-        for sourceId, sourceInfo in ocdsdata.sources.all.SOURCES.items():
-            sourceInfo['id'] = sourceId
-            run.append(sourceInfo)
+        for source_id, source_class in sources.items():
+            run.append({'id': source_id, 'source_class': source_class})
     elif args.run:
-        if args.run in ocdsdata.sources.all.SOURCES:
-            ocdsdata.sources.all.SOURCES[args.run]['id'] = args.run
-            run.append(ocdsdata.sources.all.SOURCES[args.run])
+        if args.run in sources:
+            run.append({'id': args.run, 'source_class': sources[args.run]})
         else:
             print("We can not find a source that you requested! You requested: %s" % [args.run])
             quit(-1)
@@ -34,8 +36,8 @@ def main():
     if not run:
         print("You have not specified anything to run! Try --run=??? or --runall")
         print("You can run:")
-        for sourceId, sourceInfo in ocdsdata.sources.all.SOURCES.items():
-            print(" - %s" % sourceId)
+        for source_id, source_info in sources.items():
+            print(" - %s" % source_id)
         quit(-1)
 
     if args.verbose:
@@ -46,19 +48,30 @@ def main():
     base_dir = args.basedir or os.getcwd()
     remove_dir = False
 
-    for sourceInfo in run:
-        output_directory = sourceInfo['id']
+    for source_info in run:
+        output_directory = source_info['id']
         if len(run) == 1 and args.outputdir:
             output_directory = args.outputdir
             
         if args.verbose:
-            print("Now running: %s (Output Dir: %s)" % (sourceInfo['id'], output_directory))
+            print("Now running: %s (Output Dir: %s)" % (source_info['id'], output_directory))
 
-        module = importlib.import_module(sourceInfo['import'])
-        class_ = getattr(module, sourceInfo['class'])
-        instance = class_(base_dir, remove_dir, output_directory)
+        instance = source_info['source_class'](base_dir, remove_dir=remove_dir, output_directory=output_directory)
         instance.run_all()
 
+
+def gather_sources():
+    sources = {}
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    sources_dir = os.path.join(dir_path, 'ocdsdata', 'sources')
+    for file in glob.glob(sources_dir + '/*.py'):
+        module = importlib.import_module('ocdsdata.sources.' + file.split('/')[-1].split('.')[0])
+        for item in dir(module):
+            value = getattr(module, item)
+            if inspect.isclass(value) and issubclass(value, Fetcher) and value is not Fetcher:
+                sources[getattr(value, 'source_id')] = value
+    return sources
 
 if __name__ == '__main__':
     main()
