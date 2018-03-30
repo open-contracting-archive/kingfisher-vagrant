@@ -1,14 +1,15 @@
 from ocdsdata.base import Fetcher
 import requests
-import http.client
+import lxml.html
+from ocdsdata.util import save_content
+import shutil
 
 
 class MexicoAdministracionPublicaFederalFetcher(Fetcher):
     publisher_name = 'Mexico - Administracion Publica Federal'
     url = 'http://datos.gob.mx'
+    source_id = 'mexico_administracion_publica_federal'
 
-    def __init__(self, base_dir, remove_dir=False, output_directory=None):
-        super().__init__(base_dir, remove_dir=remove_dir, output_directory=output_directory)
 
     def gather_all_download_urls(self):
         url = 'https://datos.gob.mx/busca/api/3/action/package_search?q=organization:contrataciones-abiertas&rows=500'
@@ -29,3 +30,19 @@ class MexicoAdministracionPublicaFederalFetcher(Fetcher):
         return out
 
 
+    def save_url(self, url, file_path):
+
+        if url[:25] == 'https://drive.google.com/':
+
+            r = requests.get(url)
+            doc = lxml.html.fromstring(r.text)
+            link = doc.get_element_by_id('uc-download-link')
+            actual_url = 'https://drive.google.com' + link.get('href')
+
+            actual_r = requests.get(actual_url)
+            with open(file_path, 'wb') as f:
+                f.write(actual_r.content)
+
+            return []
+        else:
+            return save_content(url, file_path)
