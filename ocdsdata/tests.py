@@ -6,6 +6,7 @@ import pytest
 
 from .base import Fetcher
 from . import util
+from . import database
 
 #Monkey patch to make tests run a lot faster
 util.RETRY_TIME = 0.1
@@ -145,3 +146,16 @@ def test_exception_gather():
         with pytest.raises(Exception):
             fetcher.run_fetch()
 
+def test_create_tables():
+    database.create_tables(drop=True)
+    database.insert_releases([
+        {'output_directory': 'test',
+         'file': 'moo',
+         'package_data': {},
+         'release': {"moo":"moo"}},
+        {'output_directory': 'test2',
+         'file': 'moo',
+         'package_data': {},
+         'release': {"moo":"moo"}},
+    ])
+    database.delete_releases('test')

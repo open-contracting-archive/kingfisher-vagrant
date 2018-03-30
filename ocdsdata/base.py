@@ -3,6 +3,7 @@ import json
 import datetime
 
 from .util import save_content
+from . import database
 
 DEFAULT_FETCH_FILE_DATA = {
     "publisher_name": None,
@@ -20,6 +21,11 @@ DEFAULT_FETCH_FILE_DATA = {
     "fetch_start_datetime": None,
     "fetch_finished_datetime": None,
     "fetch_success": None,
+
+    "upload_start_datetime": None,
+    "upload_error": None,
+    "upload_success": None,
+    "upload_finish_datetime": None,
 }
 
 
@@ -95,10 +101,16 @@ class Fetcher:
                     'url': url,
                     'data_type': data_type,
                     'gather_errors': errors,
+
                     'fetch_start_datetime': None,
                     'fetch_errors': None,
                     'fetch_finished_datetime': None,
-                    'fetch_success': None
+                    'fetch_success': None,
+
+                    "upload_start_datetime": None,
+                    "upload_error": None,
+                    "upload_finish_datetime": None,
+                    "upload_success": None,
                 }
                 if errors and not metadata['gather_failure_datetime']:
                     metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
@@ -125,7 +137,6 @@ class Fetcher:
         if not metadata['gather_success']:
             raise Exception('Can not run fetch without a successful gather')
 
-        #reset gather data
         for key in list(metadata):
             if key.startswith('fetch_'):
                 metadata[key] = None
@@ -166,6 +177,55 @@ class Fetcher:
         metadata['fetch_success'] = not failed
         metadata['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
+
+    def run_upload(self):
+        metadata = self.get_metadata()
+
+        if metadata['upload_success']:
+            return
+
+        if not metadata['fetch_success']:
+            raise Exception('Can not run upload without a successful fetch')
+
+        for key in list(metadata):
+            if key.startswith('upload_'):
+                metadata[key] = None
+
+        for file_name, data in metadata['file_status'].items():
+            for key in list(data):
+                if key.startswith('upload_'):
+                    data[key] = None
+
+        metadata['upload_start_datetime'] = str(datetime.datetime.utcnow())
+        self.save_metadata(metadata)
+
+        for file_name, data in metadata['file_status'].items():
+
+            data['upload_start_datetime'] = str(datetime.datetime.utcnow())
+
+            self.save_metadata(metadata)
+            
+            try:
+                with file(os.path.join(self.full_directory, file_name)) as f:
+                    json_data = json.load(f)
+            except Exception as e:
+                data['upload_error'] = 'Unable to load JSON from disk: ()' + repr(e)
+                metadata['upload_error'] = ['Unable to load JSON from disk ({}): {}' + repr(e)]
+                metadata['upload_success'] = False
+                metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
+                self.save_metadata(metadata)
+                database.delete_releases(self.output_directory)
+                return
+
+            error_msg = ''
+
+            data['upload_finished_datetime'] = str(datetime.datetime.utcnow())
+            self.save_metadata(metadata)
+
+        metadata['upload_success'] = True
+        metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
+        self.save_metadata(metadata)
+
 
     def save_url(self, url, file_path):
         return save_content(url, file_path)
