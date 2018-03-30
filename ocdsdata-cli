@@ -19,6 +19,11 @@ def main():
     parser.add_argument("--basedir", help="base dir - defaults to current directory")
     parser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
 
+    parser.add_argument("--onlygather", help="only run the gather stage", action="store_true")
+    parser.add_argument("--ignoregather", help="don't run the gather stage", action="store_true")
+    parser.add_argument("--onlyfetch", help="only run the fetch stage", action="store_true")
+    parser.add_argument("--ignorefetch", help="don't run the fetch stage", action="store_true")
+
     args = parser.parse_args()
 
     run = []
@@ -48,6 +53,18 @@ def main():
     base_dir = args.basedir or os.getcwd()
     remove_dir = False
 
+    run_gather = True
+    run_fetch = True
+    if args.onlygather:
+        run_fetch = False
+    elif args.onlyfetch:
+        run_gather = False
+    else:
+        if args.ignoregather:
+            run_gather = False
+        if args.ignorefetch:
+            run_fetch = False
+
     for source_info in run:
         output_directory = source_info['id']
         if len(run) == 1 and args.outputdir:
@@ -57,7 +74,20 @@ def main():
             print("Now running: %s (Output Dir: %s)" % (source_info['id'], output_directory))
 
         instance = source_info['source_class'](base_dir, remove_dir=remove_dir, output_directory=output_directory)
-        instance.run_all()
+        if run_gather:
+            if args.verbose:
+                print(" - gathering ...")
+            instance.run_gather()
+        else:
+            if args.verbose:
+                print(" - skipping gather.")
+        if run_fetch:
+            if args.verbose:
+                print(" - fetching ...")
+            instance.run_fetch()
+        else:
+            if args.verbose:
+                print(" - skipping fetch.")
 
 
 def gather_sources():
