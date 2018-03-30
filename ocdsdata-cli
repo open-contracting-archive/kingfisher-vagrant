@@ -56,7 +56,7 @@ def main():
         if args.verbose:
             print("Now running: %s (Output Dir: %s)" % (source_info['id'], output_directory))
 
-        instance = source_info['source_class'](base_dir, remove_dir, output_directory)
+        instance = source_info['source_class'](base_dir, remove_dir=remove_dir, output_directory=output_directory)
         instance.run_all()
 
 
