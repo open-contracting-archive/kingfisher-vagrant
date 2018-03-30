@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import argparse
-import ocdsdata.sources.all
 import importlib
 import os
+import glob
+import inspect
+from ocdsdata.base import Fetcher
 
 def main():
 
@@ -58,11 +60,6 @@ def main():
         instance.run_all()
 
 
-import glob
-import inspect
-
-from ocdsdata.base import Fetcher
-
 def gather_sources():
     sources = {}
 
@@ -73,7 +70,7 @@ def gather_sources():
         for item in dir(module):
             value = getattr(module, item)
             if inspect.isclass(value) and issubclass(value, Fetcher) and value is not Fetcher:
-                sources[getattr(value, 'output_directory')] = value
+                sources[getattr(value, 'source_id')] = value
     return sources
 
 if __name__ == '__main__':

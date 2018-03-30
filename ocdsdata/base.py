@@ -33,6 +33,7 @@ class Fetcher:
     publisher_name = None
     url = None
     output_directory = None
+    source_id = None
 
     def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None):
 
@@ -41,7 +42,7 @@ class Fetcher:
         self.publisher_name = publisher_name or self.publisher_name
         if not self.publisher_name:
             raise AttributeError('A publisher name needs to be specified')
-        self.output_directory = output_directory or self.output_directory
+        self.output_directory = output_directory or self.output_directory or self.source_id
         if not self.output_directory:
             raise AttributeError('An output directory needs to be specified')
 

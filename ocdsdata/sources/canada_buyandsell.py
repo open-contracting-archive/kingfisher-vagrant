@@ -3,7 +3,7 @@ from ocdsdata.base import Fetcher
 class CanadaBuyAndSellFetcher(Fetcher):
     publisher_name = 'Buy And Sell'
     url = 'https://buyandsell.gc.ca'
-    output_directory = 'canada'
+    source_id = 'canada'
 
     def gather_all_download_urls(self):
         return [

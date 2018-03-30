@@ -5,7 +5,7 @@ import requests
 class CanadaMontreal(Fetcher):
     publisher_name = 'Montreal'
     url = 'https://ville.montreal.qc.ca'
-    output_directory = 'montreal'
+    source_id = 'montreal'
 
     def gather_all_download_urls(self):
         url = 'https://ville.montreal.qc.ca/vuesurlescontrats/api/releases.json?limit=1'
