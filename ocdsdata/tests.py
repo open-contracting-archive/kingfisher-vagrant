@@ -4,14 +4,14 @@ import json
 
 import pytest
 
-from .base import Fetcher
+from .base import Source
 from . import util
 from . import database
 
 #Monkey patch to make tests run a lot faster
 util.RETRY_TIME = 0.1
 
-class Basic(Fetcher):
+class Basic(Source):
     publisher_name = 'test'
     url = 'test_url'
     output_directory = 'test'
@@ -52,7 +52,7 @@ def test_basic():
             assert data['fetch_finished_datetime']
 
 
-class Empty(Fetcher):
+class Empty(Source):
     pass
 
 def test_empty():
@@ -61,7 +61,7 @@ def test_empty():
             fetcher = Empty(tmpdir)
 
 
-class BadUrls(Fetcher):
+class BadUrls(Source):
     publisher_name = 'test'
     url = 'test_url'
     output_directory = 'test'
@@ -92,7 +92,7 @@ def test_bad_url():
                 assert value['fetch_errors']
 
 
-class BadGather(Fetcher):
+class BadGather(Source):
     publisher_name = 'test'
     url = 'test_url'
     output_directory = 'test'
@@ -121,7 +121,7 @@ def test_bad_gather():
             fetcher.run_fetch()
 
 
-class ExceptionGather(Fetcher):
+class ExceptionGather(Source):
     publisher_name = 'test'
     url = 'test_url'
     output_directory = 'test'

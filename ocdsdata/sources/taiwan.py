@@ -1,6 +1,6 @@
-from ocdsdata.base import Fetcher
+from ocdsdata.base import Source
 
-class TaiwanFetcher(Fetcher):
+class TaiwanSource(Source):
     publisher_name = 'Taiwan'
     url = 'http://data.dsp.im'
     source_id = 'taiwan'

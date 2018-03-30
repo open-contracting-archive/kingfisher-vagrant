@@ -4,7 +4,7 @@ import importlib
 import os
 import glob
 import inspect
-from ocdsdata.base import Fetcher
+from ocdsdata.base import Source
 
 def main():
 
@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--runall", help="run all sources",
                     action="store_true")
     parser.add_argument("--basedir", help="base dir - defaults to current directory")
-    parser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one runner.")
+    parser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
 
     args = parser.parse_args()
 
@@ -69,7 +69,7 @@ def gather_sources():
         module = importlib.import_module('ocdsdata.sources.' + file.split('/')[-1].split('.')[0])
         for item in dir(module):
             value = getattr(module, item)
-            if inspect.isclass(value) and issubclass(value, Fetcher) and value is not Fetcher:
+            if inspect.isclass(value) and issubclass(value, Source) and value is not Source:
                 sources[getattr(value, 'source_id')] = value
     return sources
 

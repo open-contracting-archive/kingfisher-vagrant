@@ -1,6 +1,6 @@
-from ocdsdata.base import Fetcher
+from ocdsdata.base import Source
 
-class CanadaBuyAndSellFetcher(Fetcher):
+class CanadaBuyAndSellSource(Source):
     publisher_name = 'Buy And Sell'
     url = 'https://buyandsell.gc.ca'
     source_id = 'canada_buyandsell'

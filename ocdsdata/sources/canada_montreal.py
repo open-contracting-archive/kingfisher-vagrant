@@ -1,8 +1,8 @@
-from ocdsdata.base import Fetcher
+from ocdsdata.base import Source
 import requests
 
 
-class CanadaMontreal(Fetcher):
+class CanadaMontrealSource(Source):
     publisher_name = 'Montreal'
     url = 'https://ville.montreal.qc.ca'
     source_id = 'canada_montreal'

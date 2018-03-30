@@ -29,7 +29,7 @@ DEFAULT_FETCH_FILE_DATA = {
 }
 
 
-class Fetcher:
+class Source:
     publisher_name = None
     url = None
     output_directory = None

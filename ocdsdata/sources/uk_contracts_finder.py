@@ -1,8 +1,8 @@
-from ocdsdata.base import Fetcher
+from ocdsdata.base import Source
 import requests
 
 
-class UKContractsFinderFetcher(Fetcher):
+class UKContractsFinderSource(Source):
     publisher_name = 'UK Contracts Finder'
     url = 'https://www.contractsfinder.service.gov.uk'
     source_id = 'uk_contracts_finder'
