@@ -97,11 +97,11 @@ class Source:
 
         failed = False
         try:
-            for url, filename, data_type, errors in self.gather_all_download_urls():
-                metadata['file_status'][filename] = {
-                    'url': url,
-                    'data_type': data_type,
-                    'gather_errors': errors,
+            for info in self.gather_all_download_urls():
+                metadata['file_status'][info['filename']] = {
+                    'url': info['url'],
+                    'data_type': info['data_type'],
+                    'gather_errors': info['errors'],
 
                     'fetch_start_datetime': None,
                     'fetch_errors': None,
@@ -113,7 +113,7 @@ class Source:
                     "upload_finish_datetime": None,
                     "upload_success": None,
                 }
-                if errors and not metadata['gather_failure_datetime']:
+                if info['errors'] and not metadata['gather_failure_datetime']:
                     metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
                     failed = True
                 self.save_metadata(metadata)

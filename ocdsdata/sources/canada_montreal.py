@@ -16,11 +16,11 @@ class CanadaMontrealSource(Source):
         out = []
         limit = 10000
         while offset < total:
-            out.append([
-                'https://ville.montreal.qc.ca/vuesurlescontrats/api/releases.json?limit=%d&offset=%d' % (limit, offset),
-                'offset%d.json' % offset,
-                'release_package',
-                []
-            ])
+            out.append({
+                'url': 'https://ville.montreal.qc.ca/vuesurlescontrats/api/releases.json?limit=%d&offset=%d' % (limit, offset),
+                'filename': 'offset%d.json' % offset,
+                'data_type': 'release_package',
+                'errors': []
+            })
             offset += limit
         return out

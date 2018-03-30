@@ -17,10 +17,10 @@ class Basic(Source):
     output_directory = 'test'
 
     def gather_all_download_urls(self):
-        yield ('https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json', 
-               'file1.json',
-               'releases',
-               [])
+        yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+               'filename': 'file1.json',
+               'data_type': 'releases',
+               'errors': []}
 
 def test_basic():
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -67,14 +67,14 @@ class BadUrls(Source):
     output_directory = 'test'
 
     def gather_all_download_urls(self):
-        yield ('https://thisaddressreallyshouldnotexists.com',
-               'file1.json',
-               'releases',
-               [])
-        yield ('https://httpstat.us/500',
-               'file2.json',
-               'releases',
-               [])
+        yield {'url': 'https://thisaddressreallyshouldnotexists.com',
+               'filename': 'file1.json',
+               'data_type': 'releases',
+               'errors': []}
+        yield {'url': 'https://httpstat.us/500',
+               'filename': 'file2.json',
+               'data_type': 'releases',
+               'errors': []}
 
 
 def test_bad_url():
@@ -98,10 +98,10 @@ class BadGather(Source):
     output_directory = 'test'
 
     def gather_all_download_urls(self):
-        yield ('https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
-               'file1.json',
-               'releases',
-               ['not worked'])
+        yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+               'filename': 'file1.json',
+               'data_type': 'releases',
+               'errors': ['not worked']}
 
 
 def test_bad_gather():

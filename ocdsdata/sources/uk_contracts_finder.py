@@ -14,10 +14,10 @@ class UKContractsFinderSource(Source):
         total = data['maxPage']
         out = []
         for page in range(1, total+1):
-            out.append([
-                'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=%d' % page,
-                'page%d.json' % page,
-                'release_package',
-                []
-            ])
+            out.append({
+                'url': 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=%d' % page,
+                'filename': 'page%d.json' % page,
+                'data_type': 'release_package',
+                'errors': []
+            })
         return out
