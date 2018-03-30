@@ -36,8 +36,8 @@ def main():
     if not run:
         print("You have not specified anything to run! Try --run=??? or --runall")
         print("You can run:")
-        for sourceId, sourceInfo in ocdsdata.sources.all.SOURCES.items():
-            print(" - %s" % sourceId)
+        for source_id, source_info in ocdsdata.sources.all.SOURCES.items():
+            print(" - %s" % source_id)
         quit(-1)
 
     if args.verbose:
