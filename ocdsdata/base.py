@@ -242,6 +242,9 @@ class Source:
 
         for file_name, data in metadata['file_status'].items():
 
+            if data['data_type'].startswith('meta'):
+                continue
+
             data['upload_start_datetime'] = str(datetime.datetime.utcnow())
 
             self.save_metadata(metadata)
