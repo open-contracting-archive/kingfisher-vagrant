@@ -29,6 +29,21 @@ DEFAULT_FETCH_FILE_DATA = {
     "upload_finish_datetime": None,
 }
 
+DEFAULT_FILE_STATUS = {
+    'url': None,
+    'data_type': None,
+    'gather_errors': None,
+
+    'fetch_start_datetime': None,
+    'fetch_errors': None,
+    'fetch_finished_datetime': None,
+    'fetch_success': None,
+
+    "upload_start_datetime": None,
+    "upload_error": None,
+    "upload_finish_datetime": None,
+    "upload_success": None,
+}
 
 class Source:
     publisher_name = None
@@ -105,21 +120,13 @@ class Source:
         failed = False
         try:
             for info in self.gather_all_download_urls():
-                metadata['file_status'][info['filename']] = {
-                    'url': info['url'],
-                    'data_type': info['data_type'],
-                    'gather_errors': info['errors'],
+                file_status = DEFAULT_FILE_STATUS.copy()
+                file_status['url'] = info['url']
+                file_status['data_type'] = info['data_type']
+                file_status['gather_errors'] = info['errors']
 
-                    'fetch_start_datetime': None,
-                    'fetch_errors': None,
-                    'fetch_finished_datetime': None,
-                    'fetch_success': None,
+                metadata['file_status'][info['filename']] = file_status
 
-                    "upload_start_datetime": None,
-                    "upload_error": None,
-                    "upload_finish_datetime": None,
-                    "upload_success": None,
-                }
                 if info['errors'] and not metadata['gather_failure_datetime']:
                     metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
                     failed = True
@@ -153,34 +160,51 @@ class Source:
         self.save_metadata(metadata)
 
         failed = False
+        stop = False
 
-        for file_name, data in metadata['file_status'].items():
-            if data['fetch_success']:
-                continue
+        while not stop:
+            stop = True
+            # List() is needed here to copy the array of keys, so that if they change inside the loop it doesn't crash.
+            for file_name in list(metadata['file_status'].keys()):
 
-            for key in list(data):
-                if key.startswith('fetch_'):
-                    data[key] = None
+                data = metadata['file_status'][file_name]
 
-            data['fetch_start_datetime'] = str(datetime.datetime.utcnow())
-            data['fetch_errors'] = []
+                if data['fetch_success']:
+                    continue
 
-            self.save_metadata(metadata)
-            try:
-                errors = self.save_url(data['url'], os.path.join(self.full_directory, file_name))
-            except Exception as e:
-                errors = [repr(e)]
+                for key in list(data):
+                    if key.startswith('fetch_'):
+                        data[key] = None
 
-            if errors:
-                data['fetch_errors'] = errors
-                data['fetch_success'] = False
-                failed = True
-            else:
-                data['fetch_success'] = True
+                data['fetch_start_datetime'] = str(datetime.datetime.utcnow())
                 data['fetch_errors'] = []
 
-            data['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
-            self.save_metadata(metadata)
+                self.save_metadata(metadata)
+                try:
+                    to_add_list, errors = self.save_url(data, os.path.join(self.full_directory, file_name))
+                    if to_add_list:
+                        stop = False
+                        for info in to_add_list:
+                            file_status = DEFAULT_FILE_STATUS.copy()
+                            file_status['url'] = info['url']
+                            file_status['data_type'] = info['data_type']
+                            file_status['gather_errors'] = info['errors']
+
+                            metadata['file_status'][info['filename']] = file_status
+
+                except Exception as e:
+                    errors = [repr(e)]
+
+                if errors:
+                    data['fetch_errors'] = errors
+                    data['fetch_success'] = False
+                    failed = True
+                else:
+                    data['fetch_success'] = True
+                    data['fetch_errors'] = []
+
+                data['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
+                self.save_metadata(metadata)
 
         metadata['fetch_success'] = not failed
         metadata['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
@@ -241,11 +265,11 @@ class Source:
                     error_msg = "Release list which is not a list found in file {}".format(file_name)
                 data_list = json_data['releases']
             elif data['data_type'] == 'record_package':
-                if 'releases' not in json_data:
+                if 'records' not in json_data:
                     error_msg = "Record list not found in file {}".format(file_name)
-                elif not isinstance(json_data['releases'], list):
+                elif not isinstance(json_data['records'], list):
                     error_msg = "Record list which is not a list found in file {}".format(file_name)
-                data_list = json_data['resources']
+                data_list = json_data['records']
             else:
                 error_msg = "data_type not release_package or record_package"
 
@@ -298,9 +322,8 @@ class Source:
         metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
 
-
-    def save_url(self, url, file_path):
-        return save_content(url, file_path)
+    def save_url(self, data, file_path):
+        return [], save_content(data['url'], file_path)
 
     def run_all(self):
         self.run_gather()
