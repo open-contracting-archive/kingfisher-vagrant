@@ -5,6 +5,8 @@ import os
 import glob
 import inspect
 from ocdsdata.base import Source
+from ocdsdata.database import  create_tables
+
 
 def main():
 
@@ -23,8 +25,21 @@ def main():
     parser.add_argument("--ignoregather", help="don't run the gather stage", action="store_true")
     parser.add_argument("--onlyfetch", help="only run the fetch stage", action="store_true")
     parser.add_argument("--ignorefetch", help="don't run the fetch stage", action="store_true")
+    parser.add_argument("--onlyupload", help="only run the upload stage", action="store_true")
+    parser.add_argument("--ignoreupload", help="don't run the upload stage", action="store_true")
+    parser.add_argument("--createdatabase", help="Create Database", action="store_true")
+    parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
 
     args = parser.parse_args()
+
+    if args.createdatabase:
+        if args.verbose:
+            print("Creating Database")
+        create_tables(False)
+    elif args.dropandcreatedatabase:
+        if args.verbose:
+            print("Dropping and Recreating Database")
+        create_tables(True)
 
     run = []
 
@@ -55,15 +70,23 @@ def main():
 
     run_gather = True
     run_fetch = True
+    run_upload = True
     if args.onlygather:
         run_fetch = False
+        run_upload = False
     elif args.onlyfetch:
         run_gather = False
+        run_upload = False
+    elif args.onlyupload:
+        run_gather = False
+        run_fetch = False
     else:
         if args.ignoregather:
             run_gather = False
         if args.ignorefetch:
             run_fetch = False
+        if args.ignoreupload:
+            run_upload = False
 
     for source_info in run:
         output_directory = source_info['id']
@@ -88,6 +111,13 @@ def main():
         else:
             if args.verbose:
                 print(" - skipping fetch.")
+        if run_upload:
+            if args.verbose:
+                print(" - uploading ...")
+            instance.run_upload()
+        else:
+            if args.verbose:
+                print(" - skipping upload.")
 
 
 def gather_sources():

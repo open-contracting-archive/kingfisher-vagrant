@@ -9,7 +9,7 @@ metadata = sa.MetaData()
 
 releases_table = sa.Table('releases', metadata,
     sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('output_directory', sa.Text, nullable=False),
+    sa.Column('source_id', sa.Text, nullable=False),
     sa.Column('file', sa.Text, nullable=False),
     sa.Column('publisher_name', sa.Text),
     sa.Column('url', sa.Text),
@@ -21,7 +21,7 @@ releases_table = sa.Table('releases', metadata,
 
 records_table = sa.Table('records', metadata,
     sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('output_directory', sa.Text, nullable=False),
+    sa.Column('source_id', sa.Text, nullable=False),
     sa.Column('file', sa.Text, nullable=False),
     sa.Column('publisher_name', sa.Text),
     sa.Column('url', sa.Text),
@@ -37,13 +37,13 @@ def create_tables(drop=True):
             metadata.drop_all(engine)
         metadata.create_all(engine)
 
-def delete_releases(output_directory):
+def delete_releases(source_id):
     with engine.begin() as connection:
-        connection.execute(releases_table.delete().where(releases_table.c.output_directory == output_directory))
+        connection.execute(releases_table.delete().where(releases_table.c.source_id == source_id))
 
-def delete_records(output_directory):
+def delete_records(source_id):
     with engine.begin() as connection:
-        connection.execute(records_table.delete().where(records_table.c.output_directory == output_directory))
+        connection.execute(records_table.delete().where(records_table.c.source_id == source_id))
 
 def insert_releases(releases):
     with engine.begin() as connection:

@@ -179,6 +179,15 @@ class Source:
         metadata['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
 
+    def _upload_abort(self, error_msg, metadata, data):
+        data['upload_error'] = error_msg
+        metadata['upload_error'] = error_msg
+        metadata['upload_success'] = False
+        metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
+        database.delete_releases(self.source_id)
+        database.delete_records(self.source_id)
+        self.save_metadata(metadata)
+
     def run_upload(self):
         metadata = self.get_metadata()
 
@@ -205,22 +214,76 @@ class Source:
             data['upload_start_datetime'] = str(datetime.datetime.utcnow())
 
             self.save_metadata(metadata)
-            
+
             try:
-                with file(os.path.join(self.full_directory, file_name)) as f:
+                with open(os.path.join(self.full_directory, file_name)) as f:
                     json_data = json.load(f)
             except Exception as e:
-                data['upload_error'] = 'Unable to load JSON from disk: ()' + repr(e)
-                metadata['upload_error'] = ['Unable to load JSON from disk ({}): {}' + repr(e)]
-                metadata['upload_success'] = False
-                metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
-                self.save_metadata(metadata)
-                database.delete_releases(self.output_directory)
+                error_msg = 'Unable to load JSON from disk ({}): {}'.format(file_name, repr(e))
+                self._upload_abort(error_msg, metadata, data)
                 return
 
             error_msg = ''
+            if not isinstance(json_data, dict):
+                error_msg = "Can not process data in file {} as JSON is not an object".format(file_name)
+
+            if data['data_type'] == 'release_package':
+                if 'releases' not in json_data:
+                    error_msg = "Release list not found in file {}".format(file_name)
+                elif not isinstance(json_data['releases'], list):
+                    error_msg = "Release list which is not a list found in file {}".format(file_name)
+                data_list = json_data['releases']
+            elif data['data_type'] == 'record_package':
+                if 'releases' not in json_data:
+                    error_msg = "Record list not found in file {}".format(file_name)
+                elif not isinstance(json_data['releases'], list):
+                    error_msg = "Record list which is not a list found in file {}".format(file_name)
+                data_list = json_data['resources']
+            else:
+                error_msg = "data_type not release_package or record_package"
+
+            if error_msg:
+                self._upload_abort(error_msg, metadata, data)
+                return
+
+            package_data = {}
+            for key, value in json_data.items():
+                if key not in ('releases', 'records'):
+                    package_data[key] = value
+
+            data_for_database = []
+            for row in data_list:
+                if not isinstance(row, dict):
+                    error_msg = "Row in data is not a object {}".format(file_name)
+                    self._upload_abort(error_msg, metadata, data)
+                    return
+
+                row_in_database = {
+                    "source_id": self.source_id,
+                    "file": file_name,
+                    "publisher_name": self.publisher_name,
+                    "url": self.url,
+                    "package_data": package_data
+                }
+
+                if data['data_type'] == 'record_package':
+                    row_in_database['record'] = row
+                    row_in_database['ocid'] = row.get('ocid')
+
+                if data['data_type'] == 'release_package':
+                    row_in_database['release'] = row
+                    row_in_database['ocid'] = row.get('ocid')
+                    row_in_database['release_id'] = row.get('id')
+
+                data_for_database.append(row_in_database)
+
+            if data['data_type'] == 'record_package':
+                database.insert_records(data_for_database)
+            else:
+                database.insert_releases(data_for_database)
 
             data['upload_finished_datetime'] = str(datetime.datetime.utcnow())
+            data['upload_success'] = True
             self.save_metadata(metadata)
 
         metadata['upload_success'] = True

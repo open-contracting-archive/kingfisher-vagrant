@@ -14,7 +14,7 @@ util.RETRY_TIME = 0.1
 class Basic(Source):
     publisher_name = 'test'
     url = 'test_url'
-    output_directory = 'test'
+    source_id = 'test'
 
     def gather_all_download_urls(self):
         yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
@@ -51,6 +51,10 @@ def test_basic():
             assert data['fetch_start_datetime']
             assert data['fetch_finished_datetime']
 
+        database.create_tables(drop=True)
+        fetcher.run_upload()
+        
+
 
 class Empty(Source):
     pass
@@ -64,7 +68,7 @@ def test_empty():
 class BadUrls(Source):
     publisher_name = 'test'
     url = 'test_url'
-    output_directory = 'test'
+    source_id = 'test'
 
     def gather_all_download_urls(self):
         yield {'url': 'https://thisaddressreallyshouldnotexists.com',
@@ -95,7 +99,7 @@ def test_bad_url():
 class BadGather(Source):
     publisher_name = 'test'
     url = 'test_url'
-    output_directory = 'test'
+    source_id = 'test'
 
     def gather_all_download_urls(self):
         yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
@@ -124,7 +128,7 @@ def test_bad_gather():
 class ExceptionGather(Source):
     publisher_name = 'test'
     url = 'test_url'
-    output_directory = 'test'
+    source_id = 'test'
 
     def gather_all_download_urls(self):
         raise IndexError
@@ -149,11 +153,11 @@ def test_exception_gather():
 def test_create_tables():
     database.create_tables(drop=True)
     database.insert_releases([
-        {'output_directory': 'test',
+        {'source_id': 'test',
          'file': 'moo',
          'package_data': {},
          'release': {"moo":"moo"}},
-        {'output_directory': 'test2',
+        {'source_id': 'test2',
          'file': 'moo',
          'package_data': {},
          'release': {"moo":"moo"}},
