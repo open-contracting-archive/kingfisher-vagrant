@@ -6,6 +6,15 @@ class CanadaBuyAndSellSource(Source):
     source_id = 'canada_buyandsell'
 
     def gather_all_download_urls(self):
+        if self.sample:
+            return [
+                {
+                    'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-13-14.json',
+                    'filename': '2013-14.json',
+                    'data_type': 'release_package',
+                    'errors': []
+                }]
+
         return [
             {
                 'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-13-14.json',

@@ -154,10 +154,12 @@ def test_create_tables():
     database.create_tables(drop=True)
     database.insert_releases([
         {'source_id': 'test',
+         'sample': False,
          'file': 'moo',
          'package_data': {},
          'release': {"moo":"moo"}},
         {'source_id': 'test2',
+         'sample': False,
          'file': 'moo',
          'package_data': {},
          'release': {"moo":"moo"}},

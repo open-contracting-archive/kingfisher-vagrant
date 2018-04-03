@@ -7,6 +7,7 @@ from . import database
 
 DEFAULT_FETCH_FILE_DATA = {
     "publisher_name": None,
+    "sample": False,
     "url": None,
     "metadata_creation_datetime": None,
 
@@ -34,10 +35,12 @@ class Source:
     url = None
     output_directory = None
     source_id = None
+    sample = False
 
-    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None):
+    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False):
 
         self.base_dir = base_dir
+        self.sample = sample
 
         self.publisher_name = publisher_name or self.publisher_name
         if not self.publisher_name:
@@ -47,6 +50,9 @@ class Source:
             raise AttributeError('An output directory needs to be specified')
 
         self.url = url or self.url
+
+        if self.sample and not self.output_directory.endswith('_sample'):
+            self.output_directory += '_sample'
 
         self.full_directory = os.path.join(base_dir, self.output_directory)
 
@@ -65,6 +71,7 @@ class Source:
             self.save_metadata(DEFAULT_FETCH_FILE_DATA)
         metadata = self.get_metadata()
         metadata['publisher_name'] = self.publisher_name
+        metadata['sample'] = self.sample
         metadata['url'] = self.url
         metadata['metadata_creation_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
@@ -260,6 +267,7 @@ class Source:
 
                 row_in_database = {
                     "source_id": self.source_id,
+                    "sample": self.sample,
                     "file": file_name,
                     "publisher_name": self.publisher_name,
                     "url": self.url,

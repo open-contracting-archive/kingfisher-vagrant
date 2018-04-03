@@ -8,6 +8,14 @@ class UKContractsFinderSource(Source):
     source_id = 'uk_contracts_finder'
 
     def gather_all_download_urls(self):
+        if self.sample:
+            return [{
+                'url': 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=1',
+                'filename': 'page1.json',
+                'data_type': 'release_package',
+                'errors': []
+            }]
+
         url = 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=1'
         r = requests.get(url)
         data = r.json()

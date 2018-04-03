@@ -29,6 +29,7 @@ def main():
     parser.add_argument("--ignoreupload", help="don't run the upload stage", action="store_true")
     parser.add_argument("--createdatabase", help="Create Database", action="store_true")
     parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
+    parser.add_argument("--sample", help="Run sample only", action="store_true")
 
     args = parser.parse_args()
 
@@ -60,13 +61,19 @@ def main():
             print(" - %s" % source_id)
         quit(-1)
 
+
+    base_dir = args.basedir or os.getcwd()
+    remove_dir = False
+    sample_mode = args.sample
+
     if args.verbose:
         print("We will run: ")
         for sourceInfo in run:
             print(" - %s" % sourceInfo['id'])
-
-    base_dir = args.basedir or os.getcwd()
-    remove_dir = False
+        if sample_mode:
+            print("Sample mode is on!")
+        else:
+            print("Sample mode is off.")
 
     run_gather = True
     run_fetch = True
@@ -92,11 +99,12 @@ def main():
         output_directory = source_info['id']
         if len(run) == 1 and args.outputdir:
             output_directory = args.outputdir
-            
-        if args.verbose:
-            print("Now running: %s (Output Dir: %s)" % (source_info['id'], output_directory))
 
-        instance = source_info['source_class'](base_dir, remove_dir=remove_dir, output_directory=output_directory)
+        instance = source_info['source_class'](base_dir, remove_dir=remove_dir, output_directory=output_directory,
+                                                   sample=sample_mode)
+        if args.verbose:
+            print("Now running: %s (Output Dir: %s)" % (source_info['id'], instance.output_directory))
+
         if run_gather:
             if args.verbose:
                 print(" - gathering ...")
