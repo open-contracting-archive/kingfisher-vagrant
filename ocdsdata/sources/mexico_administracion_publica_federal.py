@@ -1,11 +1,11 @@
-from ocdsdata.base import Fetcher
+from ocdsdata.base import Source
 import requests
 import lxml.html
 from ocdsdata.util import save_content
 import shutil
 
 
-class MexicoAdministracionPublicaFederalFetcher(Fetcher):
+class MexicoAdministracionPublicaFederalSource(Source):
     publisher_name = 'Mexico - Administracion Publica Federal'
     url = 'http://datos.gob.mx'
     source_id = 'mexico_administracion_publica_federal'
@@ -21,20 +21,20 @@ class MexicoAdministracionPublicaFederalFetcher(Fetcher):
             for details2 in details1['resources']:
                 if details2['format'] == 'JSON':
                     count = count + 1
-                    out.append([
-                        details2['url'],
-                        'file%d.json' % count,
-                        'release_package',
-                        []
-                    ])
+                    out.append({
+                        'url': details2['url'],
+                        'filename': 'file%d.json' % count,
+                        'data_type': 'release_package',
+                        'errors': []
+                    })
         return out
 
 
-    def save_url(self, url, file_path):
+    def save_url(self, filename, data, file_path):
 
-        if url[:25] == 'https://drive.google.com/':
+        if data['url'][:25] == 'https://drive.google.com/':
 
-            r = requests.get(url)
+            r = requests.get(data['url'])
             doc = lxml.html.fromstring(r.text)
             link = doc.get_element_by_id('uc-download-link')
             actual_url = 'https://drive.google.com' + link.get('href')
@@ -43,6 +43,6 @@ class MexicoAdministracionPublicaFederalFetcher(Fetcher):
             with open(file_path, 'wb') as f:
                 f.write(actual_r.content)
 
-            return []
+            return [], []
         else:
-            return save_content(url, file_path)
+            return [], save_content(data['url'], file_path)
