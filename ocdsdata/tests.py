@@ -15,6 +15,7 @@ class Basic(Source):
     publisher_name = 'test'
     url = 'test_url'
     source_id = 'test'
+    data_version = 'v1'
 
     def gather_all_download_urls(self):
         yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
@@ -25,7 +26,7 @@ class Basic(Source):
 def test_basic():
     with tempfile.TemporaryDirectory() as tmpdir:
         fetcher = Basic(tmpdir)
-        metadata_file = join(tmpdir, 'test', '_fetch_metadata.json')
+        metadata_file = join(tmpdir, 'test', 'v1', '_fetch_metadata.json')
         assert exists(metadata_file)
 
         with open(metadata_file) as f:
@@ -42,7 +43,7 @@ def test_basic():
             assert data['gather_success']
 
         fetcher.run_fetch()
-        assert exists(join(tmpdir, 'test', 'file1.json'))
+        assert exists(join(tmpdir, 'test','v1', 'file1.json'))
 
         with open(metadata_file) as f:
             data = json.load(f)
@@ -155,11 +156,13 @@ def test_create_tables():
     database.insert_releases([
         {'source_id': 'test',
          'sample': False,
+         'data_version': '2018-01-01-10-10-10',
          'file': 'moo',
          'package_data': {},
          'release': {"moo":"moo"}},
         {'source_id': 'test2',
          'sample': False,
+         'data_version': '2018-01-01-10-10-10',
          'file': 'moo',
          'package_data': {},
          'release': {"moo":"moo"}},
