@@ -1,3 +1,4 @@
+import hashlib
 import json
 
 from ocdsdata.base import Source
@@ -46,4 +47,30 @@ class AustraliaSource(Source):
                     'data_type': 'release_package',
                     'errors': []
                 })
+
+            count = 0
+            for release in json_data['releases']:
+                if not self.sample or count < 3:
+                    stage_urls = []
+                    if type == 'planning':
+                        uuid = release['tender']['plannedProcurementUUID']
+                        stage_urls.append('https://tenders.nsw.gov.au/?event=public.api.planning.view'
+                                          '&PlannedProcurementUUID=%s' % uuid)
+                    if type == 'tender':
+                        uuid = release['tender']['RFTUUID']
+                        stage_urls.append('https://tenders.nsw.gov.au/?event=public.api.tender.view&RFTUUID=%s' % uuid)
+                    if type == 'contract':
+                        for award in release['awards']:
+                            uuid = award['CNUUID']
+                            stage_urls.append('https://tenders.nsw.gov.au/?event=public.api.contract.view&CNUUID=%s'
+                                              % uuid)
+                    count += 1
+                    for url in stage_urls:
+                        additional.append({
+                            'url': url,
+                            'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
+                            'data_type': 'release_package',
+                            'errors': []
+                        })
+
             return additional, []

@@ -25,7 +25,7 @@ class UkraineSource(Source):
 
         return out
 
-    def save_url(self, data, file_path):
+    def save_url(self, filename, data, file_path):
         if data['data_type'] == 'meta':
 
             r = requests.get(data['url'])

@@ -32,7 +32,7 @@ class MoldovaSource(Source):
         return out
 
     # @rate_limited(1)
-    def save_url(self, data, file_path):
+    def save_url(self, filename, data, file_path):
         errors = save_content(data['url'], file_path + '-download.json')
         if errors:
             return [], errors
