@@ -181,7 +181,7 @@ class Source:
 
                 self.save_metadata(metadata)
                 try:
-                    to_add_list, errors = self.save_url(data, os.path.join(self.full_directory, file_name))
+                    to_add_list, errors = self.save_url(file_name, data, os.path.join(self.full_directory, file_name))
                     if to_add_list:
                         stop = False
                         for info in to_add_list:
@@ -325,7 +325,7 @@ class Source:
         metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
 
-    def save_url(self, data, file_path):
+    def save_url(self, file_name, data, file_path):
         return [], save_content(data['url'], file_path)
 
     def run_all(self):

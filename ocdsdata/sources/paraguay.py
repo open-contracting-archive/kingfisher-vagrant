@@ -51,7 +51,7 @@ class ParaguaySource(Source):
         return id_list[1:]
 
     # @rate_limited(0.3)
-    def save_url(self, data, file_path):
+    def save_url(self, filename, data, file_path):
         if data['data_type'] == 'record_package':
 
             errors = save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})

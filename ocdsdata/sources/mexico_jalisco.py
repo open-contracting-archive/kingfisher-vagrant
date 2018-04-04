@@ -23,7 +23,7 @@ class MexicoJaliscoSource(Source):
                 })
         return out
 
-    def save_url(self, data, file_path):
+    def save_url(self, filename, data, file_path):
         if data['data_type'] == 'record_package':
 
             errors = save_content(data['url'], file_path)
