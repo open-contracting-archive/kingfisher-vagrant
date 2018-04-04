@@ -8,10 +8,10 @@ import hashlib
 REQUEST_TOKEN = "Basic " \
                 "ODhjYmYwOGEtMDcyMC00OGY1LWFhYWUtMWVkNzVkZmFiYzZiOjNjNjQxZGQ5LWNjN2UtNDI5ZC05NWRiLWI5ODNiNmYyMDY3NA== "
 
-class ParaquaySource(Source):
-    publisher_name = 'Paraquay'
+class ParaguaySource(Source):
+    publisher_name = 'Paraguay'
     url = 'http://data.dsp.im'
-    source_id = 'paraquay'
+    source_id = 'paraguay'
 
     def gather_all_download_urls(self):
         record_package_ids = []
