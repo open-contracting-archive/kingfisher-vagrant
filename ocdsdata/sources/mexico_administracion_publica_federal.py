@@ -1,48 +1,34 @@
 from ocdsdata.base import Source
 import requests
-import lxml.html
-from ocdsdata.util import save_content
-import shutil
 
 
-class MexicoAdministracionPublicaFederalSource(Source):
-    publisher_name = 'Mexico - Administracion Publica Federal'
-    url = 'http://datos.gob.mx'
+class MexicoAdministracionPublicaFederal(Source):
+    publisher_name = 'Mexico Administracion Publica Fedaral'
+    url = 'https://api.datos.gob.mx/v1/contratacionesabiertas'
     source_id = 'mexico_administracion_publica_federal'
 
-
     def gather_all_download_urls(self):
-        url = 'https://datos.gob.mx/busca/api/3/action/package_search?q=organization:contrataciones-abiertas&rows=500'
-        r = requests.get(url)
+        url = 'https://api.datos.gob.mx/v1/contratacionesabiertas?page=%d'
+        if self.sample:
+            return [{
+                'url': url % 1,
+                'filename': 'sample.json',
+                'data_type': 'release_package',
+                'errors': []
+            }]
+
+        r = requests.get(url % 2)
         data = r.json()
+        total = data['pagination']['total']
+        page = 1
         out = []
-        count = 0
-        for details1 in data['result']['results']:
-            for details2 in details1['resources']:
-                if details2['format'] == 'JSON':
-                    count = count + 1
-                    out.append({
-                        'url': details2['url'],
-                        'filename': 'file%d.json' % count,
-                        'data_type': 'release_package',
-                        'errors': []
-                    })
+        limit = data['pagination']['pageSize']
+        while ((page-1)*limit) < total:
+            out.append({
+                'url': url % page,
+                'filename': 'page%d.json' % page,
+                'data_type': 'release_package',
+                'errors': []
+            })
+            page += 1
         return out
-
-
-    def save_url(self, filename, data, file_path):
-
-        if data['url'][:25] == 'https://drive.google.com/':
-
-            r = requests.get(data['url'])
-            doc = lxml.html.fromstring(r.text)
-            link = doc.get_element_by_id('uc-download-link')
-            actual_url = 'https://drive.google.com' + link.get('href')
-
-            actual_r = requests.get(actual_url)
-            with open(file_path, 'wb') as f:
-                f.write(actual_r.content)
-
-            return [], []
-        else:
-            return [], save_content(data['url'], file_path)
