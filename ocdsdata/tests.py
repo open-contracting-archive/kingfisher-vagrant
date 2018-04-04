@@ -52,7 +52,7 @@ def test_basic():
             assert data['fetch_finished_datetime']
 
         database.create_tables(drop=True)
-        fetcher.run_upload()
+        fetcher.run_store()
         
 
 
