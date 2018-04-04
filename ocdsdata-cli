@@ -57,7 +57,7 @@ def main():
     if not run:
         print("You have not specified anything to run! Try --run=??? or --runall")
         print("You can run:")
-        for source_id, source_info in sources.items():
+        for source_id, source_info in sorted(sources.items()):
             print(" - %s" % source_id)
         quit(-1)
 
