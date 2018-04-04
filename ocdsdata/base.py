@@ -23,10 +23,10 @@ DEFAULT_FETCH_FILE_DATA = {
     "fetch_finished_datetime": None,
     "fetch_success": None,
 
-    "upload_start_datetime": None,
-    "upload_error": None,
-    "upload_success": None,
-    "upload_finish_datetime": None,
+    "store_start_datetime": None,
+    "store_error": None,
+    "store_success": None,
+    "store_finished_datetime": None,
 }
 
 DEFAULT_FILE_STATUS = {
@@ -39,10 +39,10 @@ DEFAULT_FILE_STATUS = {
     'fetch_finished_datetime': None,
     'fetch_success': None,
 
-    "upload_start_datetime": None,
-    "upload_error": None,
-    "upload_finish_datetime": None,
-    "upload_success": None,
+    "store_start_datetime": None,
+    "store_error": None,
+    "store_finished_datetime": None,
+    "store_success": None,
 }
 
 
@@ -219,35 +219,35 @@ class Source:
         metadata['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
 
-    def _upload_abort(self, error_msg, metadata, data):
-        data['upload_error'] = error_msg
-        metadata['upload_error'] = error_msg
-        metadata['upload_success'] = False
-        metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
+    def _store_abort(self, error_msg, metadata, data):
+        data['store_error'] = error_msg
+        metadata['store_error'] = error_msg
+        metadata['store_success'] = False
+        metadata['store_finished_datetime'] = str(datetime.datetime.utcnow())
         database.delete_releases(self.source_id)
         database.delete_records(self.source_id)
         self.save_metadata(metadata)
 
     """Uploads the fetched data as record rows to the Database"""
-    def run_upload(self):
+    def run_store(self):
         metadata = self.get_metadata()
 
-        if metadata['upload_success']:
+        if metadata['store_success']:
             return
 
         if not metadata['fetch_success']:
-            raise Exception('Can not run upload without a successful fetch')
+            raise Exception('Can not run store without a successful fetch')
 
         for key in list(metadata):
-            if key.startswith('upload_'):
+            if key.startswith('store_'):
                 metadata[key] = None
 
         for file_name, data in metadata['file_status'].items():
             for key in list(data):
-                if key.startswith('upload_'):
+                if key.startswith('store_'):
                     data[key] = None
 
-        metadata['upload_start_datetime'] = str(datetime.datetime.utcnow())
+        metadata['store_start_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
 
         for file_name, data in metadata['file_status'].items():
@@ -255,7 +255,7 @@ class Source:
             if data['data_type'].startswith('meta'):
                 continue
 
-            data['upload_start_datetime'] = str(datetime.datetime.utcnow())
+            data['store_start_datetime'] = str(datetime.datetime.utcnow())
 
             self.save_metadata(metadata)
 
@@ -264,7 +264,7 @@ class Source:
                     json_data = json.load(f)
             except Exception as e:
                 error_msg = 'Unable to load JSON from disk ({}): {}'.format(file_name, repr(e))
-                self._upload_abort(error_msg, metadata, data)
+                self._store_abort(error_msg, metadata, data)
                 return
 
             error_msg = ''
@@ -287,7 +287,7 @@ class Source:
                 error_msg = "data_type not release_package or record_package"
 
             if error_msg:
-                self._upload_abort(error_msg, metadata, data)
+                self._store_abort(error_msg, metadata, data)
                 return
 
             package_data = {}
@@ -299,7 +299,7 @@ class Source:
             for row in data_list:
                 if not isinstance(row, dict):
                     error_msg = "Row in data is not a object {}".format(file_name)
-                    self._upload_abort(error_msg, metadata, data)
+                    self._store_abort(error_msg, metadata, data)
                     return
 
                 row_in_database = {
@@ -327,12 +327,12 @@ class Source:
             else:
                 database.insert_releases(data_for_database)
 
-            data['upload_finished_datetime'] = str(datetime.datetime.utcnow())
-            data['upload_success'] = True
+            data['store_finished_datetime'] = str(datetime.datetime.utcnow())
+            data['store_success'] = True
             self.save_metadata(metadata)
 
-        metadata['upload_success'] = True
-        metadata['upload_finished_datetime'] = str(datetime.datetime.utcnow())
+        metadata['store_success'] = True
+        metadata['store_finished_datetime'] = str(datetime.datetime.utcnow())
         self.save_metadata(metadata)
 
     def save_url(self, file_name, data, file_path):
