@@ -236,7 +236,7 @@ class Source:
         self.save_metadata(metadata)
 
     """Uploads the fetched data as record rows to the Database"""
-    def run_store(self):
+    def run_upload(self):
         metadata = self.get_metadata()
 
         if metadata['store_success']:
