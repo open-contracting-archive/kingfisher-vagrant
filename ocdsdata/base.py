@@ -45,6 +45,11 @@ DEFAULT_FILE_STATUS = {
     "upload_success": None,
 }
 
+
+"""Base class for defining OCDS publisher sources.
+
+Defines the publisher name, the base URL source, methods to fetch and scrape the resources.
+"""
 class Source:
     publisher_name = None
     url = None
@@ -99,6 +104,10 @@ class Source:
         with open(self.metadata_file, 'w+') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=2)
 
+
+    """Returns an array with objects for each url.
+
+    The return objects includes url,filename,type and more."""
     def gather_all_download_urls(self):
         raise NotImplementedError()
 
@@ -219,6 +228,7 @@ class Source:
         database.delete_records(self.source_id)
         self.save_metadata(metadata)
 
+    """Uploads the fetched data as record rows to the Database"""
     def run_upload(self):
         metadata = self.get_metadata()
 
@@ -328,6 +338,7 @@ class Source:
     def save_url(self, file_name, data, file_path):
         return [], save_content(data['url'], file_path)
 
+    """Gather and Fetch all data from this publisher."""
     def run_all(self):
         self.run_gather()
         self.run_fetch()
