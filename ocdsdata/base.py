@@ -10,6 +10,7 @@ DEFAULT_FETCH_FILE_DATA = {
     "sample": False,
     "url": None,
     "metadata_creation_datetime": None,
+    'data_version': None,
 
     "gather_start_datetime": None,
     "gather_failure_exception": None,
@@ -57,11 +58,14 @@ class Source:
     output_directory = None
     source_id = None
     sample = False
+    data_version = None
 
-    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False):
+    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False, data_version=None):
 
         self.base_dir = base_dir
         self.sample = sample
+
+        self.data_version = data_version or self.data_version or datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
 
         self.publisher_name = publisher_name or self.publisher_name
         if not self.publisher_name:
@@ -75,7 +79,7 @@ class Source:
         if self.sample and not self.output_directory.endswith('_sample'):
             self.output_directory += '_sample'
 
-        self.full_directory = os.path.join(base_dir, self.output_directory)
+        self.full_directory = os.path.join(base_dir, self.output_directory, self.data_version)
 
         exists = os.path.exists(self.full_directory)
 
@@ -84,7 +88,7 @@ class Source:
             exists = False
 
         if not exists:
-            os.mkdir(self.full_directory)
+            os.makedirs(self.full_directory)
 
         self.metadata_file = os.path.join(self.full_directory, '_fetch_metadata.json')
         metadata_exists = os.path.exists(self.metadata_file)
@@ -95,6 +99,7 @@ class Source:
         metadata['sample'] = self.sample
         metadata['url'] = self.url
         metadata['metadata_creation_datetime'] = str(datetime.datetime.utcnow())
+        metadata['data_version'] = self.data_version
         self.save_metadata(metadata)
 
     def get_metadata(self):
@@ -316,7 +321,8 @@ class Source:
                     "file": file_name,
                     "publisher_name": self.publisher_name,
                     "url": self.url,
-                    "package_data": package_data
+                    "package_data": package_data,
+                    "data_version": self.data_version,
                 }
 
                 if data['data_type'] == 'record_package':
