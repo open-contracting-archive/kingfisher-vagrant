@@ -12,8 +12,9 @@ class UKContractsFinderSource(Source):
             return [{
                 'url': 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=1',
                 'filename': 'page1.json',
-                'data_type': 'release_package',
-                'errors': []
+                'data_type': 'release_package_list_in_results',
+                'errors': [],
+                'encoding': "ISO-8859-1"
             }]
 
         url = 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=1'
@@ -25,7 +26,8 @@ class UKContractsFinderSource(Source):
             out.append({
                 'url': 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=%d' % page,
                 'filename': 'page%d.json' % page,
-                'data_type': 'release_package',
-                'errors': []
+                'data_type': 'release_package_list_in_results',
+                'errors': [],
+                'encoding': "ISO-8859-1"
             })
         return out
