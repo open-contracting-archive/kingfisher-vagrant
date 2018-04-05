@@ -1,5 +1,6 @@
 import sqlalchemy as sa
 import os
+import datetime
 
 
 class MetadataDB(object):
@@ -16,7 +17,7 @@ class MetadataDB(object):
         self.metadata = sa.MetaData()
 
 
-        self.fetch_session = sa.Table('scrape_session', self.metadata,
+        self.session = sa.Table('session', self.metadata,
             sa.Column('publisher_name', sa.Text),
             sa.Column('data_version', sa.Text),
             sa.Column('base_url', sa.Text),
@@ -32,11 +33,6 @@ class MetadataDB(object):
             sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_errors', sa.Text, nullable=True),
             sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
-
-            sa.Column('store_start_datetime', sa.DateTime, nullable=True),
-            sa.Column('store_finished_datetime', sa.DateTime, nullable=True),
-            sa.Column('store_errors', sa.Text, nullable=True),
-            sa.Column('store_success', sa.Boolean, nullable=False, default=False),
         )
 
         self.filestatus = sa.Table('filestatus', self.metadata,
@@ -50,26 +46,50 @@ class MetadataDB(object):
             sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_errors', sa.Text, nullable=True),
             sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
-
-            sa.Column('store_start_datetime', sa.DateTime, nullable=False),
-            sa.Column('store_finished_datetime', sa.DateTime, nullable=True),
-            sa.Column('store_errors', sa.Text, nullable=True),
-            sa.Column('store_success', sa.Boolean, nullable=False, default=False)
         )
 
         self.conn = self.engine.connect()
         self.metadata.create_all(self.engine)
 
-    def create_session_metadata(self, publisher_name, sample, url, creation_datetime, data_version, session_start_datetime):
-        pass
-
+    def create_session_metadata(self, publisher_name, sample, url, data_version):
+        return self.conn.execute(self.fetch_session.insert(),
+            publisher_name = publisher_name,
+            sample = sample,
+            base_url = url,
+            session_start_datetime = datetime.datetime.utcnow(),
+            data_version = data_version
+            )
 
     def add_filestatus(self, **kwargs):
         return self.conn.execute(self.filestatus.insert(), **kwargs)
         # dbhandle.add_filestatus(filename = "asdf2", url="fasd", data_type="record", fetch_start_datetime=datetime.datetime.now(), fetch_success=True, store_start_datetime=datetime.datetime.now(), store_success = True)
 
-    def file_fetch_error(self, filename, **kwargs):
+    """Returns a list of dicts of each filestatus."""
+    def list_filestatus(self):
         pass
 
-    def file_store_error(self, filename, **kwargs):
+    """Updates filestatus with start time"""
+    def update_filestatus_fetch_start(self, filename):
+        pass
+
+    """Updates filestatus when fetched, takes boolean success flag, and json string of errors."""
+    def update_filestatus_fetch_end(self, filename, success, errors):
+        pass
+
+    """Returns a dict with all keys of the current session."""
+    def get_session(self):
+        pass
+
+    def update_session_gather_start(self):
+        pass
+
+    """Updates session when done gathering, takes boolean success flag, and json string of errors."""
+    def update_session_gather_end(self, success, errors):
+        pass
+
+    def update_session_fetch_start(self):
+        pass
+
+    """Updates session when done fetching, takes boolean success flag, and json string of errors."""
+    def update_session_fetch_end(self, success, errors):
         pass
