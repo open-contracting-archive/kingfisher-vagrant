@@ -129,22 +129,18 @@ class Source:
         try:
             for info in self.gather_all_download_urls():
                 self.metadata_db.add_filestatus(info)
-
                 if info['errors']:
                     failed = True
         except Exception as e:
-            metadata['gather_failure_exception'] = repr(e)
-            metadata['gather_failure_traceback'] = traceback.format_exception(*sys.exc_info())
-            metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
-            metadata['gather_success'] = False
-            metadata['gather_finished_datetime'] = str(datetime.datetime.utcnow())
-            self.save_metadata(metadata)
-            failed = True
+            error = repr(e)
+            stacktrace = traceback.format_exception(*sys.exc_info())
+            self.metadata_db.update_session_gather_end(False, error, stacktrace)
+            return
 
-        self.metadata_db.update_session_fetch_end(not failed, )
+        self.metadata_db.update_session_gather_end(not failed)
 
     def run_fetch(self):
-        metadata = self.get_metadata()
+        metadata = self.metadata_db.get_session()
 
         if metadata['fetch_success']:
             return
@@ -152,109 +148,62 @@ class Source:
         if not metadata['gather_success']:
             raise Exception('Can not run fetch without a successful gather')
 
-        for key in list(metadata):
-            if key.startswith('fetch_'):
-                metadata[key] = None
-
-        metadata['fetch_start_datetime'] = str(datetime.datetime.utcnow())
-        self.save_metadata(metadata)
+        self.metadata_db.update_session_fetch_start()
 
         failed = False
         stop = False
 
         while not stop:
             stop = True
-            # List() is needed here to copy the array of keys, so that if they change inside the loop it doesn't crash.
-            for file_name in list(metadata['file_status'].keys()):
-
-                data = metadata['file_status'][file_name]
+            for data in self.metadata_db.list_filestatus():
 
                 if data['fetch_success']:
                     continue
 
-                for key in list(data):
-                    if key.startswith('fetch_'):
-                        data[key] = None
-
-                data['fetch_start_datetime'] = str(datetime.datetime.utcnow())
-                data['fetch_errors'] = []
-
-                self.save_metadata(metadata)
+                self.metadata_db.update_filestatus_fetch_start(data['filename'])
                 try:
-                    to_add_list, errors = self.save_url(file_name, data, os.path.join(self.full_directory, file_name))
+                    to_add_list, errors = self.save_url(data['filename'], data, os.path.join(self.full_directory, file_name))
                     if to_add_list:
                         stop = False
                         for info in to_add_list:
-                            file_status = self._preload_file_status(info)
-
-                            metadata['file_status'][info['filename']] = file_status
+                            self.metadata_db.add_filestatus(info)
 
                 except Exception as e:
                     errors = [repr(e)]
 
                 if errors:
-                    data['fetch_errors'] = errors
-                    data['fetch_success'] = False
+                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, errors)
                     failed = True
                 else:
-                    data['fetch_success'] = True
-                    data['fetch_errors'] = []
+                    self.metadata_db.update_filestatus_fetch_end(data['filename'], True)
 
-                data['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
-                self.save_metadata(metadata)
-
-        metadata['fetch_success'] = not failed
-        metadata['fetch_finished_datetime'] = str(datetime.datetime.utcnow())
-        self.save_metadata(metadata)
-
-    def _store_abort(self, error_msg, metadata, data):
-        data['store_error'] = error_msg
-        metadata['store_error'] = error_msg
-        metadata['store_success'] = False
-        metadata['store_finished_datetime'] = str(datetime.datetime.utcnow())
-        database.delete_releases(self.source_id)
-        database.delete_records(self.source_id)
-        self.save_metadata(metadata)
+        self.metadata_db.update_session_fetch_end(not failed) ## No ERrors Passed here?
 
     """Uploads the fetched data as record rows to the Database"""
     def run_store(self):
-        metadata = self.get_metadata()
+        metadata = self.metadata_db.get_session()
 
-        if metadata['store_success']:
-            return
+        # We should check if this store has already been done.
+        # This needs to be done in the Postgres database.#
+        # TODO
+        #if metadata['store_success']:
+        #    return
 
         if not metadata['fetch_success']:
             raise Exception('Can not run store without a successful fetch')
 
-        for key in list(metadata):
-            if key.startswith('store_'):
-                metadata[key] = None
-
-        for file_name, data in metadata['file_status'].items():
-            for key in list(data):
-                if key.startswith('store_'):
-                    data[key] = None
-
-        metadata['store_start_datetime'] = str(datetime.datetime.utcnow())
-        self.save_metadata(metadata)
-
-        for file_name, data in metadata['file_status'].items():
+        for data in self.metadata_db.list_filestatus():
 
             if data['data_type'].startswith('meta'):
                 continue
 
-            data['store_start_datetime'] = str(datetime.datetime.utcnow())
-
-            self.save_metadata(metadata)
-
             try:
-                with open(os.path.join(self.full_directory, file_name),
+                with open(os.path.join(self.full_directory, data['filename']),
                           encoding=data.get('encoding', 'utf-8')) as f:
                     json_data = json.load(f)
             except Exception as e:
-
-                error_msg = 'Unable to load JSON from disk ({}): {}'.format(file_name, repr(e))
-                self._store_abort(error_msg, metadata, data)
+                ## TODO better way of dealing with this?
+                raise e
                 return
 
             objects_list = []
@@ -270,19 +219,19 @@ class Source:
             for json_data in objects_list:
                 error_msg = ''
                 if not isinstance(json_data, dict):
-                    error_msg = "Can not process data in file {} as JSON is not an object".format(file_name)
+                    error_msg = "Can not process data in file {} as JSON is not an object".format(data['filename'])
 
                 if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list' :
                     if 'releases' not in json_data:
-                        error_msg = "Release list not found in file {}".format(file_name)
+                        error_msg = "Release list not found in file {}".format(data['filename'])
                     elif not isinstance(json_data['releases'], list):
-                        error_msg = "Release list which is not a list found in file {}".format(file_name)
+                        error_msg = "Release list which is not a list found in file {}".format(data['filename'])
                     data_list = json_data['releases']
                 elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
                     if 'records' not in json_data:
-                        error_msg = "Record list not found in file {}".format(file_name)
+                        error_msg = "Record list not found in file {}".format(data['filename'])
                     elif not isinstance(json_data['records'], list):
-                        error_msg = "Record list which is not a list found in file {}".format(file_name)
+                        error_msg = "Record list which is not a list found in file {}".format(data['filename'])
                     data_list = json_data['records']
                 else:
                     error_msg = "data_type not a known type"
@@ -298,14 +247,14 @@ class Source:
                 data_for_database = []
                 for row in data_list:
                     if not isinstance(row, dict):
-                        error_msg = "Row in data is not a object {}".format(file_name)
+                        error_msg = "Row in data is not a object {}".format(data['filename'])
                         self._store_abort(error_msg, metadata, data)
                         return
 
                     row_in_database = {
                         "source_id": self.source_id,
                         "sample": self.sample,
-                        "file": file_name,
+                        "file": data['filename'],
                         "publisher_name": self.publisher_name,
                         "url": self.url,
                         "package_data": package_data,
@@ -327,14 +276,6 @@ class Source:
                     database.insert_records(data_for_database)
                 else:
                     database.insert_releases(data_for_database)
-
-                data['store_finished_datetime'] = str(datetime.datetime.utcnow())
-                data['store_success'] = True
-                self.save_metadata(metadata)
-
-        metadata['store_success'] = True
-        metadata['store_finished_datetime'] = str(datetime.datetime.utcnow())
-        self.save_metadata(metadata)
 
     def save_url(self, file_name, data, file_path):
         return [], save_content(data['url'], file_path)
