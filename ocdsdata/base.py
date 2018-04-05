@@ -279,7 +279,7 @@ class Source:
             elif data['data_type'] == 'release_package_list':
                 objects_list.extend(json_data['results'])
             else:
-                objects_list.extend(json_data)
+                objects_list.append(json_data)
             for json_data in objects_list:
                 error_msg = ''
                 if not isinstance(json_data, dict):
