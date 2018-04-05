@@ -6,7 +6,7 @@ If you are able to work with GitHub then please "Create an issue"
 
 Before creating a new issue check to see if the issue already exists. If not, then please do report it. If you have permissions to assign the issue to people and milestones then try to select suitable options. 
 
-If you are not comfortable working with GitHub, but would still like to contribute, then talk to us.  Details at: https://www.open-contracting.org/
+If you are not comfortable working with GitHub, but would still like to contribute, then talk to us. Email data@open-contracting.org
 
 ## How we use branches in this repository
 
@@ -24,4 +24,4 @@ If you are not comfortable working with GitHub, but would still like to contribu
 
 ## Talk to us
 
-We'd love to hear from you. Details at: https://www.open-contracting.org/
+We'd love to hear from you. Email data@open-contracting.org
