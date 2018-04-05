@@ -37,6 +37,7 @@ DEFAULT_FILE_STATUS = {
     'url': None,
     'data_type': None,
     'gather_errors': None,
+    'encoding': 'utf-8',
 
     'fetch_start_datetime': None,
     'fetch_errors': None,
@@ -119,6 +120,18 @@ class Source:
     def gather_all_download_urls(self):
         raise NotImplementedError()
 
+    """Internal function to create a file_status based on DEFAULT_FILE_STATUS."""
+    def _preload_file_status(self, info, base=None):
+        if base == None:
+            base = DEFAULT_FILE_STATUS.copy()
+        file_status = base
+        file_status['url'] = info['url']
+        file_status['data_type'] = info['data_type']
+        file_status['gather_errors'] = info['errors']
+        file_status['encoding'] = info.get('encoding', 'utf-8')
+
+        return file_status
+
     def run_gather(self):
         metadata = self.get_metadata()
 
@@ -137,10 +150,7 @@ class Source:
         failed = False
         try:
             for info in self.gather_all_download_urls():
-                file_status = DEFAULT_FILE_STATUS.copy()
-                file_status['url'] = info['url']
-                file_status['data_type'] = info['data_type']
-                file_status['gather_errors'] = info['errors']
+                file_status = self._preload_file_status(info)
 
                 metadata['file_status'][info['filename']] = file_status
 
@@ -203,10 +213,7 @@ class Source:
                     if to_add_list:
                         stop = False
                         for info in to_add_list:
-                            file_status = DEFAULT_FILE_STATUS.copy()
-                            file_status['url'] = info['url']
-                            file_status['data_type'] = info['data_type']
-                            file_status['gather_errors'] = info['errors']
+                            file_status = self._preload_file_status(info)
 
                             metadata['file_status'][info['filename']] = file_status
 
@@ -269,7 +276,8 @@ class Source:
             self.save_metadata(metadata)
 
             try:
-                with open(os.path.join(self.full_directory, file_name)) as f:
+                with open(os.path.join(self.full_directory, file_name),
+                          encoding=data.get('encoding', 'utf-8')) as f:
                     json_data = json.load(f)
             except Exception as e:
 
@@ -282,20 +290,23 @@ class Source:
                 objects_list.extend(json_data['results'])
             elif data['data_type'] == 'release_package_list_in_results':
                 objects_list.extend(json_data['results'])
+            elif data['data_type'] == 'record_package_list' or data['data_type'] == 'release_package_list':
+                objects_list.extend(json_data)
             else:
                 objects_list.append(json_data)
+
             for json_data in objects_list:
                 error_msg = ''
                 if not isinstance(json_data, dict):
                     error_msg = "Can not process data in file {} as JSON is not an object".format(file_name)
 
-                if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results':
+                if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list' :
                     if 'releases' not in json_data:
                         error_msg = "Release list not found in file {}".format(file_name)
                     elif not isinstance(json_data['releases'], list):
                         error_msg = "Release list which is not a list found in file {}".format(file_name)
                     data_list = json_data['releases']
-                elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
+                elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
                     if 'records' not in json_data:
                         error_msg = "Record list not found in file {}".format(file_name)
                     elif not isinstance(json_data['records'], list):
@@ -329,18 +340,18 @@ class Source:
                         "data_version": self.data_version,
                     }
 
-                    if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
+                    if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
                         row_in_database['record'] = row
                         row_in_database['ocid'] = row.get('ocid')
 
-                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results':
+                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list':
                         row_in_database['release'] = row
                         row_in_database['ocid'] = row.get('ocid')
                         row_in_database['release_id'] = row.get('id')
 
                     data_for_database.append(row_in_database)
 
-                if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
+                if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
                     database.insert_records(data_for_database)
                 else:
                     database.insert_releases(data_for_database)
