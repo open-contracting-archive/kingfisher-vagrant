@@ -75,7 +75,7 @@ class MetadataDB(object):
 
     """Returns a list of dicts of each filestatus."""
     def list_filestatus(self):
-        s = select([self.session])
+        s = select([self.filestatus])
         result = self.conn.execute(s)
         return list(result)
 
@@ -121,4 +121,16 @@ class MetadataDB(object):
         return self.conn.execute(stmt)
 
     def get_dict(self):
-        return {}
+
+        s = select([self.session])
+        result = self.conn.execute(s)
+        row = result.fetchone()
+
+        row['file_status'] = {}
+        s = select([self.filestatus])
+        result = self.conn.execute(s)
+        for data in result:
+            row['file_status'][data['filename']] = data
+
+        return row
+
