@@ -1,6 +1,18 @@
+sudo: false
 dist: trusty
 addons:
-  chrome: stable
+    chrome: stable
+    postgresql: "10"
+    apt:
+        packages:
+            - postgresql-10
+            - postgresql-client-10
+env:
+    global:
+        - PGPORT=5433
+        - DB_URI='postgres:///travis'
+services:
+    - postgresql
 language: python
 python:
     - "3.5"
@@ -10,4 +22,3 @@ install:
 
 script:
     - "py.test"
-

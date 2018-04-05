@@ -15,7 +15,7 @@ Example of creating an ocdsdata table and data:
 ```
 sudo -u postgres createuser ocdsdata --pwprompt
 sudo -u postgres createdb ocdsdata -O ocdsdata
-exoprt DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
+export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
 ocdsdata-cli --createdatabase
 ```
 
