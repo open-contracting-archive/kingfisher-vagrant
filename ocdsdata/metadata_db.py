@@ -4,21 +4,22 @@ import os
 
 class Metadata_db(object):
 
-    def __init__(self, directory_path, inMem = False):
+    def __init__(self, directory_path = None):
         self.base_path = directory_path
         self.metadata_file = os.path.join(directory_path, "scrape_info.sqlite3")
 
-        if (inMem):
-            self.engine = sa.create_engine("sqlite3://")
+        ## if no path, "debug mode" with in memory db and echo SQL generated.
+        if (directory_path == None):
+            self.engine = sa.create_engine("sqlite:///:memory:", echo=True)
         else:
-            self.engine = sa.create_engine(self.metadata_file)
-        self.metadata = sa.MetaData(self.metadata_file)
+            self.engine = sa.create_engine("sqlite:///"+self.metadata_file)
+        self.metadata = sa.MetaData()
 
 
-        self.fetch_session = sa.Table('filestatus', self.metadata,
+        self.fetch_session = sa.Table('scrape_session', self.metadata,
+            sa.Column('data_version', sa.Text),
             sa.Column('publisher_name', sa.Text),
             sa.Column('base_url', sa.Text),
-            sa.Column('data_version', sa.Text),
 
             sa.Column('gather_start_datetime', sa.DateTime, nullable=False),
             sa.Column('gather_finished_datetime', sa.DateTime, nullable=True),
@@ -53,3 +54,6 @@ class Metadata_db(object):
             sa.Column('store_errors', sa.Text, nullable=True),
             sa.Column('store_success', sa.Boolean, nullable=False, default=False)
         )
+
+        self.conn = self.engine.connect()
+        self.metadata.create_all(self.engine)
