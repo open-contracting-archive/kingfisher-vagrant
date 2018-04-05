@@ -2,7 +2,7 @@ import sqlalchemy as sa
 import os
 
 
-class Metadata_db(object):
+class MetadataDB(object):
 
     def __init__(self, directory_path = None):
         self.base_path = directory_path

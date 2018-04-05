@@ -4,6 +4,7 @@ import datetime
 
 from .util import save_content
 from . import database
+from metadata_db import MetadataDB
 
 DEFAULT_FETCH_FILE_DATA = {
     "publisher_name": None,
