@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.sql import select
 import os
 import datetime
 
@@ -52,7 +53,7 @@ class MetadataDB(object):
         self.metadata.create_all(self.engine)
 
     def create_session_metadata(self, publisher_name, sample, url, data_version):
-        return self.conn.execute(self.fetch_session.insert(),
+        return self.conn.execute(self.session.insert(),
             publisher_name = publisher_name,
             sample = sample,
             base_url = url,
@@ -60,13 +61,22 @@ class MetadataDB(object):
             data_version = data_version
             )
 
+    """Returns a dict with all keys of the current session."""
+    def get_session(self):
+        s = select([self.session])
+        result = self.conn.execute(s)
+        row = result.fetchone()
+        return row
+
     def add_filestatus(self, **kwargs):
         return self.conn.execute(self.filestatus.insert(), **kwargs)
         # dbhandle.add_filestatus(filename = "asdf2", url="fasd", data_type="record", fetch_start_datetime=datetime.datetime.now(), fetch_success=True, store_start_datetime=datetime.datetime.now(), store_success = True)
 
     """Returns a list of dicts of each filestatus."""
     def list_filestatus(self):
-        pass
+        s = select([self.session])
+        result = self.conn.execute(s)
+        return list(result)
 
     """Updates filestatus with start time"""
     def update_filestatus_fetch_start(self, filename):
@@ -74,10 +84,6 @@ class MetadataDB(object):
 
     """Updates filestatus when fetched, takes boolean success flag, and json string of errors."""
     def update_filestatus_fetch_end(self, filename, success, errors):
-        pass
-
-    """Returns a dict with all keys of the current session."""
-    def get_session(self):
         pass
 
     def update_session_gather_start(self):
