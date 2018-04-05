@@ -69,8 +69,9 @@ class MetadataDB(object):
         row = result.fetchone()
         return row
 
-    def add_filestatus(self, **kwargs):
+    def add_filestatus(self, **kwargs): ##FIXME: remove kwargs and replace with hardcoded named args
         return self.conn.execute(self.filestatus.insert(), **kwargs)
+        ## usage:
         # dbhandle.add_filestatus(filename = "asdf2", url="fasd", data_type="record", fetch_start_datetime=datetime.datetime.now(), fetch_success=True, store_start_datetime=datetime.datetime.now(), store_success = True)
 
     """Returns a list of dicts of each filestatus."""
@@ -102,7 +103,7 @@ class MetadataDB(object):
         stmt = self.session.update().values(gather_start_datetime=datetime.datetime.now())
         return self.conn.execute(stmt)
 
-    """Updates session when done gathering, takes boolean success flag, and json string of errors."""
+    """Updates session when done gathering, takes boolean success flag, and a string of errors."""
     def update_session_gather_end(self, success, errors, stacktrace):
         args = {}
         args["gather_finished_datetime"] = datetime.datetime.now()
@@ -127,11 +128,11 @@ class MetadataDB(object):
                                     fetch_finished_datetime=datetime.datetime.now())
         return self.conn.execute(stmt)
 
+    """Merge scrape status and all file status so we can display them."""
     def get_dict(self):
-
         s = select([self.session])
         result = self.conn.execute(s)
-        row = result.fetchone()
+        row = dict(result.fetchone())
 
         row['file_status'] = {}
         s = select([self.filestatus])
@@ -140,4 +141,3 @@ class MetadataDB(object):
             row['file_status'][data['filename']] = data
 
         return row
-
