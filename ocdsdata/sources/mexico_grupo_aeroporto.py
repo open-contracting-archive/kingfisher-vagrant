@@ -20,7 +20,7 @@ class MexicoGrupoAeroportoSource(Source):
                         urls.append({
                             'url': resource['url'],
                             'filename': resource['url'].split('/')[-1],
-                            'data_type': 'release_package',
+                            'data_type': 'release_package_list' if resource['name'] == "CONCENTRADO ARCHIVO JSON" else 'release_package',
                             'errors': []
                         })
         return urls
