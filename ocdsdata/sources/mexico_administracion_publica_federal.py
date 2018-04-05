@@ -13,7 +13,7 @@ class MexicoAdministracionPublicaFederal(Source):
             return [{
                 'url': url % 1,
                 'filename': 'sample.json',
-                'data_type': 'record_package_list',
+                'data_type': 'record_package_list_in_results',
                 'errors': []
             }]
 
@@ -27,7 +27,7 @@ class MexicoAdministracionPublicaFederal(Source):
             out.append({
                 'url': url % page,
                 'filename': 'page%d.json' % page,
-                'data_type': 'record_package_list',
+                'data_type': 'record_package_list_in_results',
                 'errors': []
             })
             page += 1

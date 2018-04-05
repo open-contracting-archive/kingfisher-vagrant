@@ -274,9 +274,9 @@ class Source:
                 return
 
             objects_list = []
-            if data['data_type'] == 'record_package_list':
+            if data['data_type'] == 'record_package_list_in_results':
                 objects_list.extend(json_data['results'])
-            elif data['data_type'] == 'release_package_list':
+            elif data['data_type'] == 'release_package_list_in_results':
                 objects_list.extend(json_data['results'])
             else:
                 objects_list.append(json_data)
@@ -285,20 +285,20 @@ class Source:
                 if not isinstance(json_data, dict):
                     error_msg = "Can not process data in file {} as JSON is not an object".format(file_name)
 
-                if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list':
+                if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results':
                     if 'releases' not in json_data:
                         error_msg = "Release list not found in file {}".format(file_name)
                     elif not isinstance(json_data['releases'], list):
                         error_msg = "Release list which is not a list found in file {}".format(file_name)
                     data_list = json_data['releases']
-                elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list':
+                elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
                     if 'records' not in json_data:
                         error_msg = "Record list not found in file {}".format(file_name)
                     elif not isinstance(json_data['records'], list):
                         error_msg = "Record list which is not a list found in file {}".format(file_name)
                     data_list = json_data['records']
                 else:
-                    error_msg = "data_type not release_package or record_package or record_package_list"
+                    error_msg = "data_type not a known type"
 
                 if error_msg:
                     self._store_abort(error_msg, metadata, data)
@@ -325,18 +325,18 @@ class Source:
                         "data_version": self.data_version,
                     }
 
-                    if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list':
+                    if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
                         row_in_database['record'] = row
                         row_in_database['ocid'] = row.get('ocid')
 
-                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list':
+                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results':
                         row_in_database['release'] = row
                         row_in_database['ocid'] = row.get('ocid')
                         row_in_database['release_id'] = row.get('id')
 
                     data_for_database.append(row_in_database)
 
-                if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list':
+                if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
                     database.insert_records(data_for_database)
                 else:
                     database.insert_releases(data_for_database)
