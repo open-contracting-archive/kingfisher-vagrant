@@ -35,6 +35,7 @@ DEFAULT_FILE_STATUS = {
     'url': None,
     'data_type': None,
     'gather_errors': None,
+    'encoding': 'utf-8',
 
     'fetch_start_datetime': None,
     'fetch_errors': None,
@@ -118,6 +119,18 @@ class Source:
     def gather_all_download_urls(self):
         raise NotImplementedError()
 
+    """Internal function to create a file_status based on DEFAULT_FILE_STATUS."""
+    def _preload_file_status(self, info, base=None):
+        if base == None:
+            base = DEFAULT_FILE_STATUS.copy()
+        file_status = base
+        file_status['url'] = info['url']
+        file_status['data_type'] = info['data_type']
+        file_status['gather_errors'] = info['errors']
+        file_status['encoding'] = info.get('encoding', 'utf-8')
+
+        return file_status
+
     def run_gather(self):
         metadata = self.get_metadata()
 
@@ -136,10 +149,7 @@ class Source:
         failed = False
         try:
             for info in self.gather_all_download_urls():
-                file_status = DEFAULT_FILE_STATUS.copy()
-                file_status['url'] = info['url']
-                file_status['data_type'] = info['data_type']
-                file_status['gather_errors'] = info['errors']
+                file_status = self._preload_file_status(info)
 
                 metadata['file_status'][info['filename']] = file_status
 
@@ -201,10 +211,7 @@ class Source:
                     if to_add_list:
                         stop = False
                         for info in to_add_list:
-                            file_status = DEFAULT_FILE_STATUS.copy()
-                            file_status['url'] = info['url']
-                            file_status['data_type'] = info['data_type']
-                            file_status['gather_errors'] = info['errors']
+                            file_status = self._preload_file_status(info)
 
                             metadata['file_status'][info['filename']] = file_status
 
@@ -267,7 +274,8 @@ class Source:
             self.save_metadata(metadata)
 
             try:
-                with open(os.path.join(self.full_directory, file_name)) as f:
+                with open(os.path.join(self.full_directory, file_name),
+                          encoding=data.get('encoding', 'utf-8')) as f:
                     json_data = json.load(f)
             except Exception as e:
 
