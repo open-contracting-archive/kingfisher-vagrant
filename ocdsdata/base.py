@@ -4,7 +4,7 @@ import datetime
 
 from .util import save_content
 from . import database
-from metadata_db import MetadataDB
+from .metadata_db import MetadataDB
 
 DEFAULT_FETCH_FILE_DATA = {
     "publisher_name": None,
@@ -93,16 +93,12 @@ class Source:
 
         self.metadata_db = MetadataDB(self.full_directory)
 
-        metadata = self.get_metadata()
-        metadata['publisher_name'] = self.publisher_name
-        metadata['sample'] = self.sample
-        metadata['url'] = self.url
-        metadata['metadata_creation_datetime'] = str(datetime.datetime.utcnow())
-        metadata['data_version'] = self.data_version
-        self.save_metadata(metadata)
-
-    def create_metadata_db(self):
-        pass
+        self.metadata_db.create_session_metadata(
+            publisher_name = self.publisher_name,
+            sample = self.sample,
+            url = self.url,
+            data_version = self.data_version
+        )
 
     def get_metadata(self):
         with open(self.metadata_file) as f:
