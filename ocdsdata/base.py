@@ -1,6 +1,8 @@
 import os
+import sys
 import json
 import datetime
+import traceback
 
 from .util import save_content
 from . import database
@@ -14,6 +16,7 @@ DEFAULT_FETCH_FILE_DATA = {
 
     "gather_start_datetime": None,
     "gather_failure_exception": None,
+    "gather_failure_traceback": None,
     "gather_failure_datetime": None,
     "gather_finished_datetime": None,
     "gather_success": None,
@@ -108,7 +111,7 @@ class Source:
 
     def save_metadata(self, metadata):
         with open(self.metadata_file, 'w+') as f:
-            json.dump(metadata, f, ensure_ascii=False, indent=2)
+            json.dump(metadata, f, ensure_ascii=False, indent=2, sort_keys=True)
 
 
     """Returns an array with objects for each url.
@@ -157,6 +160,7 @@ class Source:
                 self.save_metadata(metadata)
         except Exception as e:
             metadata['gather_failure_exception'] = repr(e)
+            metadata['gather_failure_traceback'] = traceback.format_exception(*sys.exc_info())
             metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
             metadata['gather_success'] = False
             metadata['gather_finished_datetime'] = str(datetime.datetime.utcnow())
