@@ -1,6 +1,8 @@
 import os
+import sys
 import json
 import datetime
+import traceback
 
 from .util import save_content
 from . import database
@@ -15,6 +17,7 @@ DEFAULT_FETCH_FILE_DATA = {
 
     "gather_start_datetime": None,
     "gather_failure_exception": None,
+    "gather_failure_traceback": None,
     "gather_failure_datetime": None,
     "gather_finished_datetime": None,
     "gather_success": None,
@@ -100,7 +103,6 @@ class Source:
             data_version = self.data_version
         )
 
-
     """Returns an array with objects for each url.
 
     The return objects includes url,filename,type and more."""
@@ -132,6 +134,7 @@ class Source:
                     failed = True
         except Exception as e:
             metadata['gather_failure_exception'] = repr(e)
+            metadata['gather_failure_traceback'] = traceback.format_exception(*sys.exc_info())
             metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
             metadata['gather_success'] = False
             metadata['gather_finished_datetime'] = str(datetime.datetime.utcnow())
