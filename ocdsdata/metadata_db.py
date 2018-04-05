@@ -95,7 +95,7 @@ class MetadataDB(object):
         return self.conn.execute(stmt)
 
     """Updates session when done gathering, takes boolean success flag, and json string of errors."""
-    def update_session_gather_end(self, success, errors):
+    def update_session_gather_end(self, success, errors, stacktrace):
         pass
 
     def update_session_fetch_start(self):
