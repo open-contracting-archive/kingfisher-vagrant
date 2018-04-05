@@ -57,3 +57,13 @@ class MetadataDB(object):
 
         self.conn = self.engine.connect()
         self.metadata.create_all(self.engine)
+
+    def add_filestatus(self, **kwargs):
+        return self.conn.execute(self.filestatus.insert(), **kwargs)
+        # dbhandle.add_filestatus(filename = "asdf2", url="fasd", data_type="record", fetch_start_datetime=datetime.datetime.now(), fetch_success=True, store_start_datetime=datetime.datetime.now(), store_success = True)
+
+    def file_fetch_error(self, filename, **kwargs):
+        pass
+
+    def file_store_error(self, filename, **kwargs):
+        pass
