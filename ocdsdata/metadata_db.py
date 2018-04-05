@@ -28,6 +28,7 @@ class MetadataDB(object):
             sa.Column('gather_start_datetime', sa.DateTime, nullable=True),
             sa.Column('gather_finished_datetime', sa.DateTime, nullable=True),
             sa.Column('gather_errors', sa.Text, nullable=True),
+            sa.Column('gather_stacktrace', sa.Text, nullable=True),
             sa.Column('gather_success', sa.Boolean, nullable=False, default=False),
 
             sa.Column('fetch_start_datetime', sa.DateTime, nullable=True),
@@ -96,15 +97,28 @@ class MetadataDB(object):
 
     """Updates session when done gathering, takes boolean success flag, and json string of errors."""
     def update_session_gather_end(self, success, errors, stacktrace):
-        pass
+        args = {}
+        args["gather_finished_datetime"] = datetime.datetime.now()
+        if success:
+            args["gather_success"] = True
+        else:
+            args["gather_success"] = False
+            args["gather_errors"] = str(errors)
+            args["gather_stacktrace"] = str(stacktrace)
+        stmt = self.session.update().values(**args)
+        return self.conn.execute(stmt)
 
     def update_session_fetch_start(self):
         stmt = self.session.update().values(fetch_start_datetime=datetime.datetime.now())
         return self.conn.execute(stmt)
 
     """Updates session when done fetching, takes boolean success flag, and json string of errors."""
-    def update_session_fetch_end(self, success, errors):
-        pass
+    def update_session_fetch_end(self, success, errors = None):
+        stmt = self.session.update().values(
+                                    fetch_success = success,
+                                    fetch_errors = errors,
+                                    fetch_finished_datetime=datetime.datetime.now())
+        return self.conn.execute(stmt)
 
     def get_dict(self):
         return {}
