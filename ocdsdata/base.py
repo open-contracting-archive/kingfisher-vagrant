@@ -281,20 +281,23 @@ class Source:
                 objects_list.extend(json_data['results'])
             elif data['data_type'] == 'release_package_list_in_results':
                 objects_list.extend(json_data['results'])
+            elif data['data_type'] == 'record_package_list' or data['data_type'] == 'release_package_list':
+                objects_list.extend(json_data)
             else:
                 objects_list.append(json_data)
+
             for json_data in objects_list:
                 error_msg = ''
                 if not isinstance(json_data, dict):
                     error_msg = "Can not process data in file {} as JSON is not an object".format(file_name)
 
-                if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results':
+                if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list' :
                     if 'releases' not in json_data:
                         error_msg = "Release list not found in file {}".format(file_name)
                     elif not isinstance(json_data['releases'], list):
                         error_msg = "Release list which is not a list found in file {}".format(file_name)
                     data_list = json_data['releases']
-                elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
+                elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
                     if 'records' not in json_data:
                         error_msg = "Record list not found in file {}".format(file_name)
                     elif not isinstance(json_data['records'], list):
@@ -328,18 +331,18 @@ class Source:
                         "data_version": self.data_version,
                     }
 
-                    if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
+                    if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
                         row_in_database['record'] = row
                         row_in_database['ocid'] = row.get('ocid')
 
-                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results':
+                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list':
                         row_in_database['release'] = row
                         row_in_database['ocid'] = row.get('ocid')
                         row_in_database['release_id'] = row.get('id')
 
                     data_for_database.append(row_in_database)
 
-                if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results':
+                if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
                     database.insert_records(data_for_database)
                 else:
                     database.insert_releases(data_for_database)
