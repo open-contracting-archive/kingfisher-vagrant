@@ -1,12 +1,12 @@
 from os.path import join, exists
 import tempfile
-import json
 
 import pytest
 
 from .base import Source
 from . import util
 from . import database
+from ocdsdata.metadata_db import MetadataDB
 
 #Monkey patch to make tests run a lot faster
 util.RETRY_TIME = 0.1
@@ -29,15 +29,15 @@ def test_basic():
         metadata_file = join(tmpdir, 'test', 'v1', '_fetch_metadata.json')
         assert exists(metadata_file)
 
-        with open(metadata_file) as f:
-            data = json.load(f)
+        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
+            data = metadata_db.get_dict()
             assert data['publisher_name'] == 'test'
             assert data['url'] == 'test_url'
             assert data['metadata_creation_datetime']
 
         fetcher.run_gather()
-        with open(metadata_file) as f:
-            data = json.load(f)
+        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
+            data = metadata_db.get_dict()
             assert data['gather_start_datetime']
             assert data['gather_finished_datetime']
             assert data['gather_success']
@@ -45,8 +45,8 @@ def test_basic():
         fetcher.run_fetch()
         assert exists(join(tmpdir, 'test','v1', 'file1.json'))
 
-        with open(metadata_file) as f:
-            data = json.load(f)
+        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
+            data = metadata_db.get_dict()
             assert data['file_status']
             assert data['fetch_success']
             assert data['fetch_start_datetime']
@@ -88,10 +88,9 @@ def test_bad_url():
         fetcher = BadUrls(tmpdir)
         fetcher.run_gather()
         fetcher.run_fetch()
-        metadata_file = join(tmpdir, 'test','v1', '_fetch_metadata.json')
 
-        with open(metadata_file) as f:
-            data = json.load(f)
+        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
+            data = metadata_db.get_dict()
             assert not data['fetch_success']
             for value in data['file_status'].values():
                 assert not value['fetch_success']
@@ -115,10 +114,9 @@ def test_bad_gather():
     with tempfile.TemporaryDirectory() as tmpdir:
         fetcher = BadGather(tmpdir)
         fetcher.run_gather()
-        metadata_file = join(tmpdir, 'test', 'v1', '_fetch_metadata.json')
 
-        with open(metadata_file) as f:
-            data = json.load(f)
+        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
+            data = metadata_db.get_dict()
             assert not data['gather_success']
             assert data['gather_finished_datetime']
             assert data['gather_failure_datetime']
@@ -142,10 +140,9 @@ def test_exception_gather():
     with tempfile.TemporaryDirectory() as tmpdir:
         fetcher = ExceptionGather(tmpdir)
         fetcher.run_gather()
-        metadata_file = join(tmpdir, 'test', 'v1', '_fetch_metadata.json')
 
-        with open(metadata_file) as f:
-            data = json.load(f)
+        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
+            data = metadata_db.get_dict()
             assert not data['gather_success']
             assert data['gather_failure_exception'] == 'IndexError()'
             assert data['gather_finished_datetime']

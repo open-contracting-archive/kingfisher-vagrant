@@ -8,50 +8,6 @@ from .util import save_content
 from . import database
 from .metadata_db import MetadataDB
 
-DEFAULT_FETCH_FILE_DATA = {
-    "publisher_name": None,
-    "sample": False,
-    "url": None,
-    "metadata_creation_datetime": None,
-    'data_version': None,
-
-    "gather_start_datetime": None,
-    "gather_failure_exception": None,
-    "gather_failure_traceback": None,
-    "gather_failure_datetime": None,
-    "gather_finished_datetime": None,
-    "gather_success": None,
-
-    "file_status": {},
-
-    "fetch_start_datetime": None,
-    "fetch_finished_datetime": None,
-    "fetch_success": None,
-
-    "store_start_datetime": None,
-    "store_error": None,
-    "store_success": None,
-    "store_finished_datetime": None,
-}
-
-DEFAULT_FILE_STATUS = {
-    'url': None,
-    'data_type': None,
-    'gather_errors': None,
-    'encoding': 'utf-8',
-
-    'fetch_start_datetime': None,
-    'fetch_errors': None,
-    'fetch_finished_datetime': None,
-    'fetch_success': None,
-
-    "store_start_datetime": None,
-    "store_error": None,
-    "store_finished_datetime": None,
-    "store_success": None,
-}
-
-
 """Base class for defining OCDS publisher sources.
 
 Defines the publisher name, the base URL source, methods to fetch and scrape the resources.
@@ -108,18 +64,6 @@ class Source:
     The return objects includes url,filename,type and more."""
     def gather_all_download_urls(self):
         raise NotImplementedError()
-
-    """Internal function to create a file_status based on DEFAULT_FILE_STATUS."""
-    def _preload_file_status(self, info, base=None):
-        if base == None:
-            base = DEFAULT_FILE_STATUS.copy()
-        file_status = base
-        file_status['url'] = info['url']
-        file_status['data_type'] = info['data_type']
-        file_status['gather_errors'] = info['errors']
-        file_status['encoding'] = info.get('encoding', 'utf-8')
-
-        return file_status
 
     def run_gather(self):
 
