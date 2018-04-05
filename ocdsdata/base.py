@@ -90,10 +90,8 @@ class Source:
         if not exists:
             os.makedirs(self.full_directory)
 
-        self.metadata_file_db = os.path.join(self.full_directory, 'scrapedb.sqlite3')
-        metadata_exists = os.path.exists(self.metadata_file_db)
-        if not metadata_exists:
-            self.save_metadata(DEFAULT_FETCH_FILE_DATA)
+        self.metadata_db = MetadataDB(self.full_directory)
+
         metadata = self.get_metadata()
         metadata['publisher_name'] = self.publisher_name
         metadata['sample'] = self.sample
