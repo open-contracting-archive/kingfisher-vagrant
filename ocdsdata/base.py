@@ -100,14 +100,6 @@ class Source:
             data_version = self.data_version
         )
 
-    def get_metadata(self):
-        with open(self.metadata_file) as f:
-            return json.load(f)
-
-    def save_metadata(self, metadata):
-        with open(self.metadata_file, 'w+') as f:
-            json.dump(metadata, f, ensure_ascii=False, indent=2)
-
 
     """Returns an array with objects for each url.
 
@@ -128,31 +120,16 @@ class Source:
         return file_status
 
     def run_gather(self):
-        metadata = self.get_metadata()
 
-        if metadata['gather_success']:
-            return
-
-        #reset gather data
-        for key in list(metadata):
-            if key.startswith('gather_'):
-                metadata[key] = None
-
-        metadata['gather_start_datetime'] = str(datetime.datetime.utcnow())
-        metadata['download_status'] = {}
-        self.save_metadata(metadata)
+        self.metadata_db.update_session_gather_start()
 
         failed = False
         try:
             for info in self.gather_all_download_urls():
-                file_status = self._preload_file_status(info)
+                self.metadata_db.add_filestatus(info)
 
-                metadata['file_status'][info['filename']] = file_status
-
-                if info['errors'] and not metadata['gather_failure_datetime']:
-                    metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
+                if info['errors']:
                     failed = True
-                self.save_metadata(metadata)
         except Exception as e:
             metadata['gather_failure_exception'] = repr(e)
             metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
@@ -161,9 +138,7 @@ class Source:
             self.save_metadata(metadata)
             failed = True
 
-        metadata['gather_success'] = not failed
-        metadata['gather_finished_datetime'] = str(datetime.datetime.utcnow())
-        self.save_metadata(metadata)
+        self.metadata_db.update_session_fetch_end(not failed, )
 
     def run_fetch(self):
         metadata = self.get_metadata()
