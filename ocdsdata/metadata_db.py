@@ -105,3 +105,6 @@ class MetadataDB(object):
     """Updates session when done fetching, takes boolean success flag, and json string of errors."""
     def update_session_fetch_end(self, success, errors):
         pass
+
+    def get_dict(self):
+        return {}
