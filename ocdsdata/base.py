@@ -125,7 +125,7 @@ class Source:
         file_status['url'] = info['url']
         file_status['data_type'] = info['data_type']
         file_status['gather_errors'] = info['errors']
-        file_status['encoding'] = info['encoding']
+        file_status['encoding'] = info.get('encoding', 'utf-8')
 
         return file_status
 
@@ -273,7 +273,7 @@ class Source:
 
             try:
                 with open(os.path.join(self.full_directory, file_name),
-                          encoding=file_encoding) as f:
+                          encoding=data.get('encoding', 'utf-8')) as f:
                     json_data = json.load(f)
             except Exception as e:
 
