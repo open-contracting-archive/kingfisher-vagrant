@@ -80,21 +80,27 @@ class MetadataDB(object):
 
     """Updates filestatus with start time"""
     def update_filestatus_fetch_start(self, filename):
-        pass
+        stmt = self.filestatus.update().\
+            where(self.filestatus.c.filename == filename).\
+            values(fetch_start_datetime=datetime.datetime.now())
+
+        return self.conn.execute(stmt)
 
     """Updates filestatus when fetched, takes boolean success flag, and json string of errors."""
     def update_filestatus_fetch_end(self, filename, success, errors):
         pass
 
     def update_session_gather_start(self):
-        pass
+        stmt = self.session.update().values(gather_start_datetime=datetime.datetime.now())
+        return self.conn.execute(stmt)
 
     """Updates session when done gathering, takes boolean success flag, and json string of errors."""
     def update_session_gather_end(self, success, errors):
         pass
 
     def update_session_fetch_start(self):
-        pass
+        stmt = self.session.update().values(fetch_start_datetime=datetime.datetime.now())
+        return self.conn.execute(stmt)
 
     """Updates session when done fetching, takes boolean success flag, and json string of errors."""
     def update_session_fetch_end(self, success, errors):
