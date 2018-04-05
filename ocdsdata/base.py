@@ -157,7 +157,6 @@ class Source:
                 if info['errors'] and not metadata['gather_failure_datetime']:
                     metadata['gather_failure_datetime'] = str(datetime.datetime.utcnow())
                     failed = True
-                self.save_metadata(metadata)
         except Exception as e:
             metadata['gather_failure_exception'] = repr(e)
             metadata['gather_failure_traceback'] = traceback.format_exception(*sys.exc_info())
