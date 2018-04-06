@@ -1,6 +1,7 @@
-from ocdsdata.base import Source
-import requests
 import http
+
+from ocdsdata import util
+from ocdsdata.base import Source
 
 
 class MexicoINAISource(Source):
@@ -11,7 +12,10 @@ class MexicoINAISource(Source):
     def gather_all_download_urls(self):
         url = 'http://datos.gob.mx/busca/api/3/action/'
         url += 'package_search?q=organization:inai&rows=500'
-        r = requests.get(url)
+        r = util.get_url_request(url)
+        if r[1]:
+            raise Exception(r[1])
+        r = r[0]
         data = r.json()
         out = []
         for result in data['result']['results']:

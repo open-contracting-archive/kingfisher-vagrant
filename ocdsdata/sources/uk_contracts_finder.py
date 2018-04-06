@@ -1,5 +1,5 @@
+from ocdsdata import util
 from ocdsdata.base import Source
-import requests
 
 
 class UKContractsFinderSource(Source):
@@ -18,7 +18,11 @@ class UKContractsFinderSource(Source):
             }]
 
         url = 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?order=asc&page=1'
-        r = requests.get(url)
+        r = util.get_url_request(url)
+        if r[1]:
+            raise Exception(r[1])
+        r = r[0]
+
         data = r.json()
         total = data['maxPage']
         out = []
