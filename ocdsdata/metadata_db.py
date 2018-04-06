@@ -56,13 +56,16 @@ class MetadataDB(object):
         self.metadata.create_all(self.engine)
 
     def create_session_metadata(self, publisher_name, sample, url, data_version):
-        return self.conn.execute(self.session.insert(),
-            publisher_name = publisher_name,
-            sample = sample,
-            base_url = url,
-            session_start_datetime = datetime.datetime.utcnow(),
-            data_version = data_version
-            )
+        s = select([self.session])
+        result = self.conn.execute(s)
+        if not result.fetchone():
+            return self.conn.execute(self.session.insert(),
+                publisher_name = publisher_name,
+                sample = sample,
+                base_url = url,
+                session_start_datetime = datetime.datetime.utcnow(),
+                data_version = data_version
+                )
 
     """Returns a dict with all keys of the current session."""
     def get_session(self):
