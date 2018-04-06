@@ -52,27 +52,28 @@ class MetadataDB(object):
             sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
         )
 
-        self.conn = self.engine.connect()
         self.metadata.create_all(self.engine)
 
     def create_session_metadata(self, publisher_name, sample, url, data_version):
-        s = select([self.session])
-        result = self.conn.execute(s)
-        if not result.fetchone():
-            return self.conn.execute(self.session.insert(),
-                publisher_name = publisher_name,
-                sample = sample,
-                base_url = url,
-                session_start_datetime = datetime.datetime.utcnow(),
-                data_version = data_version
-                )
+        with self.engine.connect() as conn:
+            s = select([self.session])
+            result = conn.execute(s)
+            if not result.fetchone():
+                return conn.execute(self.session.insert(),
+                    publisher_name = publisher_name,
+                    sample = sample,
+                    base_url = url,
+                    session_start_datetime = datetime.datetime.utcnow(),
+                    data_version = data_version
+                    )
 
     """Returns a dict with all keys of the current session."""
     def get_session(self):
-        s = select([self.session])
-        result = self.conn.execute(s)
-        row = result.fetchone()
-        return row
+        with self.engine.connect() as conn:
+            s = select([self.session])
+            result = conn.execute(s)
+            row = result.fetchone()
+            return row
 
     def add_filestatus(self, info):
         store = {
@@ -82,13 +83,15 @@ class MetadataDB(object):
             'encoding': info.get('encoding','utf-8'),
             'gather_errors': json.dumps(info.get('errors',None)),
         }
-        return self.conn.execute(self.filestatus.insert(), **store)
+        with self.engine.connect() as conn:
+            return conn.execute(self.filestatus.insert(), **store)
 
-    """Returns a list of dicts of each filestatus."""
+    """Returns a list of objects of each filestatus."""
     def list_filestatus(self):
         s = select([self.filestatus])
-        result = self.conn.execute(s)
-        return list(result)
+        with self.engine.connect() as conn:
+            result = conn.execute(s)
+            return list(result)
 
     """Updates filestatus with start time"""
     def update_filestatus_fetch_start(self, filename):
@@ -96,7 +99,8 @@ class MetadataDB(object):
             where(self.filestatus.c.filename == filename).\
             values(fetch_start_datetime=datetime.datetime.now())
 
-        return self.conn.execute(stmt)
+        with self.engine.connect() as conn:
+            return conn.execute(stmt)
 
     """Updates filestatus when fetched, takes boolean success flag, and a string of errors."""
     def update_filestatus_fetch_end(self, filename, success, errors = None):
@@ -106,12 +110,13 @@ class MetadataDB(object):
                    fetch_success = success,
                    fetch_errors = json.dumps(errors)
                   )
-
-        return self.conn.execute(stmt)
+        with self.engine.connect() as conn:
+            return conn.execute(stmt)
 
     def update_session_gather_start(self):
         stmt = self.session.update().values(gather_start_datetime=datetime.datetime.now())
-        return self.conn.execute(stmt)
+        with self.engine.connect() as conn:
+            return conn.execute(stmt)
 
     """Updates session when done gathering, takes boolean success flag, and a list of errors."""
     def update_session_gather_end(self, success, errors, stacktrace):
@@ -124,11 +129,13 @@ class MetadataDB(object):
             args["gather_errors"] = json.dumps(errors)
             args["gather_stacktrace"] = str(stacktrace)
         stmt = self.session.update().values(**args)
-        return self.conn.execute(stmt)
+        with self.engine.connect() as conn:
+            return conn.execute(stmt)
 
     def update_session_fetch_start(self):
         stmt = self.session.update().values(fetch_start_datetime=datetime.datetime.now())
-        return self.conn.execute(stmt)
+        with self.engine.connect() as conn:
+            return conn.execute(stmt)
 
     """Updates session when done fetching, takes boolean success flag, and json string of errors."""
     def update_session_fetch_end(self, success, errors = None):
@@ -136,21 +143,23 @@ class MetadataDB(object):
                                     fetch_success = success,
                                     fetch_errors = errors,
                                     fetch_finished_datetime=datetime.datetime.now())
-        return self.conn.execute(stmt)
+        with self.engine.connect() as conn:
+            return conn.execute(stmt)
 
     """Merge scrape status and all file status so we can display them."""
     def get_dict(self):
-        s = select([self.session])
-        result = self.conn.execute(s)
-        row = dict(result.fetchone())
+        with self.engine.connect() as conn:
+            s = select([self.session])
+            result = conn.execute(s)
+            row = dict(result.fetchone())
 
-        row['gather_errors'] = json.loads(row['gather_errors']) if row['gather_errors'] else None
-        row['file_status'] = {}
-        s = select([self.filestatus])
-        result = self.conn.execute(s)
-        for data in result:
-            data = dict(data)
-            data['gather_errors'] = json.loads(data['gather_errors']) if data['gather_errors'] else None
-            row['file_status'][data['filename']] = data
+            row['gather_errors'] = json.loads(row['gather_errors']) if row['gather_errors'] else None
+            row['file_status'] = {}
+            s = select([self.filestatus])
+            result = conn.execute(s)
+            for data in result:
+                data = dict(data)
+                data['gather_errors'] = json.loads(data['gather_errors']) if data['gather_errors'] else None
+                row['file_status'][data['filename']] = data
 
-        return row
+            return row
