@@ -72,7 +72,7 @@ class Source:
         failed = False
         try:
             for info in self.gather_all_download_urls():
-                self.metadata_db.add_filestatus(info)
+                self.metadata_db.add_filestatus(**info)
                 if info['errors']:
                     failed = True
         except Exception as e:
@@ -81,7 +81,7 @@ class Source:
             self.metadata_db.update_session_gather_end(False, error, stacktrace)
             return
 
-        self.metadata_db.update_session_gather_end(not failed)
+        self.metadata_db.update_session_gather_end(not failed, None, None)
 
     def run_fetch(self):
         metadata = self.metadata_db.get_session()
@@ -106,17 +106,17 @@ class Source:
 
                 self.metadata_db.update_filestatus_fetch_start(data['filename'])
                 try:
-                    to_add_list, errors = self.save_url(data['filename'], data, os.path.join(self.full_directory, file_name))
+                    to_add_list, errors = self.save_url(data['filename'], data, os.path.join(self.full_directory, data['filename']))
                     if to_add_list:
                         stop = False
                         for info in to_add_list:
-                            self.metadata_db.add_filestatus(info)
+                            self.metadata_db.add_filestatus(**info)
 
                 except Exception as e:
                     errors = [repr(e)]
 
                 if errors:
-                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, errors)
+                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, str(errors))
                     failed = True
                 else:
                     self.metadata_db.update_filestatus_fetch_end(data['filename'], True)
@@ -143,7 +143,7 @@ class Source:
 
             try:
                 with open(os.path.join(self.full_directory, data['filename']),
-                          encoding=data.get('encoding', 'utf-8')) as f:
+                          encoding=data['encoding']) as f:
                     json_data = json.load(f)
             except Exception as e:
                 ## TODO better way of dealing with this?

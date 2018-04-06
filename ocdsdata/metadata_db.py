@@ -41,10 +41,11 @@ class MetadataDB(object):
             sa.Column('filename', sa.Text, primary_key=True),
             sa.Column('url', sa.Text, nullable=False),
             sa.Column('data_type', sa.Text, nullable=False),
+            sa.Column('encoding', sa.Text, nullable=False, default='utf-8'),
 
             sa.Column('gather_error', sa.Text),
 
-            sa.Column('fetch_start_datetime', sa.DateTime, nullable=False),
+            sa.Column('fetch_start_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_errors', sa.Text, nullable=True),
             sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
