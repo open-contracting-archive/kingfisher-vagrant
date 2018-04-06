@@ -20,37 +20,42 @@ class Basic(Source):
     def gather_all_download_urls(self):
         yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
                'filename': 'file1.json',
-               'data_type': 'releases',
+               'data_type': 'release_package',
                'errors': []}
 
 def test_basic():
     with tempfile.TemporaryDirectory() as tmpdir:
         fetcher = Basic(tmpdir)
-        metadata_file = join(tmpdir, 'test', 'v1', '_fetch_metadata.json')
+        metadata_file = join(tmpdir, 'test', 'v1', 'metadb.sqlite3')
         assert exists(metadata_file)
 
-        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
-            data = metadata_db.get_dict()
-            assert data['publisher_name'] == 'test'
-            assert data['url'] == 'test_url'
-            assert data['metadata_creation_datetime']
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert data['publisher_name'] == 'test'
+        assert data['base_url'] == 'test_url'
+        assert data['session_start_datetime']
+        del data, metadata_db
 
         fetcher.run_gather()
-        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
-            data = metadata_db.get_dict()
-            assert data['gather_start_datetime']
-            assert data['gather_finished_datetime']
-            assert data['gather_success']
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert data['gather_start_datetime']
+        assert data['gather_finished_datetime']
+        assert data['gather_success']
+        del data, metadata_db
+
 
         fetcher.run_fetch()
         assert exists(join(tmpdir, 'test','v1', 'file1.json'))
 
-        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
-            data = metadata_db.get_dict()
-            assert data['file_status']
-            assert data['fetch_success']
-            assert data['fetch_start_datetime']
-            assert data['fetch_finished_datetime']
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert data['file_status']
+        assert data['fetch_success']
+        assert data['fetch_start_datetime']
+        assert data['fetch_finished_datetime']
+        del data, metadata_db
+
 
         database.create_tables(drop=True)
         fetcher.run_store()
@@ -89,12 +94,12 @@ def test_bad_url():
         fetcher.run_gather()
         fetcher.run_fetch()
 
-        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
-            data = metadata_db.get_dict()
-            assert not data['fetch_success']
-            for value in data['file_status'].values():
-                assert not value['fetch_success']
-                assert value['fetch_errors']
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert not data['fetch_success']
+        for value in data['file_status'].values():
+            assert not value['fetch_success']
+            assert value['fetch_errors']
 
 
 class BadGather(Source):
@@ -115,12 +120,12 @@ def test_bad_gather():
         fetcher = BadGather(tmpdir)
         fetcher.run_gather()
 
-        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
-            data = metadata_db.get_dict()
-            assert not data['gather_success']
-            assert data['gather_finished_datetime']
-            assert data['gather_failure_datetime']
-            assert data['file_status']['file1.json']['gather_errors'] == ['not worked']
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert not data['gather_success']
+        assert data['gather_finished_datetime']
+        assert data['gather_errors']
+        assert data['file_status']['file1.json']['gather_error'] == str(['not worked'])
 
         with pytest.raises(Exception):
             fetcher.run_fetch()
@@ -141,12 +146,12 @@ def test_exception_gather():
         fetcher = ExceptionGather(tmpdir)
         fetcher.run_gather()
 
-        with MetadataDB(join(tmpdir, 'test', 'v1')) as metadata_db
-            data = metadata_db.get_dict()
-            assert not data['gather_success']
-            assert data['gather_failure_exception'] == 'IndexError()'
-            assert data['gather_finished_datetime']
-            assert data['gather_failure_datetime']
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert not data['gather_success']
+        assert data['gather_errors'] == 'IndexError()'
+        assert data['gather_finished_datetime']
+        assert data['gather_errors']
 
         with pytest.raises(Exception):
             fetcher.run_fetch()

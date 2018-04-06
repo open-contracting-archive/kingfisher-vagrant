@@ -72,7 +72,7 @@ class Source:
         failed = False
         try:
             for info in self.gather_all_download_urls():
-                self.metadata_db.add_filestatus(**info)
+                self.metadata_db.add_filestatus(info)
                 if info['errors']:
                     failed = True
         except Exception as e:
@@ -110,7 +110,7 @@ class Source:
                     if to_add_list:
                         stop = False
                         for info in to_add_list:
-                            self.metadata_db.add_filestatus(**info)
+                            self.metadata_db.add_filestatus(info)
 
                 except Exception as e:
                     errors = [repr(e)]
@@ -181,8 +181,7 @@ class Source:
                     error_msg = "data_type not a known type"
 
                 if error_msg:
-                    self._store_abort(error_msg, metadata, data)
-                    return
+                    raise Exception(error_msg)
                 package_data = {}
                 for key, value in json_data.items():
                     if key not in ('releases', 'records'):
@@ -192,8 +191,7 @@ class Source:
                 for row in data_list:
                     if not isinstance(row, dict):
                         error_msg = "Row in data is not a object {}".format(data['filename'])
-                        self._store_abort(error_msg, metadata, data)
-                        return
+                        raise Exception(error_msg)
 
                     row_in_database = {
                         "source_id": self.source_id,

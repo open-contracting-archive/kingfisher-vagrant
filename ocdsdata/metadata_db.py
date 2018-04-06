@@ -8,7 +8,7 @@ class MetadataDB(object):
 
     def __init__(self, directory_path = None):
         self.base_path = directory_path
-        self.metadata_file = os.path.join(directory_path, "scrapedb.sqlite3")
+        self.metadata_file = os.path.join(directory_path, "metadb.sqlite3")
 
         ## if no path, "debug mode" with in memory db and echo SQL generated.
         if (directory_path == None):
@@ -70,10 +70,15 @@ class MetadataDB(object):
         row = result.fetchone()
         return row
 
-    def add_filestatus(self, **kwargs): ##FIXME: remove kwargs and replace with hardcoded named args
-        return self.conn.execute(self.filestatus.insert(), **kwargs)
-        ## usage:
-        # dbhandle.add_filestatus(filename = "asdf2", url="fasd", data_type="record", fetch_start_datetime=datetime.datetime.now(), fetch_success=True, store_start_datetime=datetime.datetime.now(), store_success = True)
+    def add_filestatus(self, info):
+        store = {
+            'filename': info['filename'],
+            'url': info['url'],
+            'data_type': info['data_type'],
+            'encoding': info.get('encoding','utf-8'),
+            'gather_error': str(info['errors']),
+        }
+        return self.conn.execute(self.filestatus.insert(), **store)
 
     """Returns a list of dicts of each filestatus."""
     def list_filestatus(self):
