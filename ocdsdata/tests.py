@@ -123,7 +123,6 @@ def test_bad_gather():
 
         metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
         data = metadata_db.get_dict()
-        print(data)
         assert not data['gather_success']
         assert data['gather_finished_datetime']
         assert data['file_status']['file1.json']['gather_errors'] == ["not worked"]

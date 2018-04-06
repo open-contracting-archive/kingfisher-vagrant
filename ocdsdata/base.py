@@ -66,6 +66,10 @@ class Source:
         raise NotImplementedError()
 
     def run_gather(self):
+        metadata = self.metadata_db.get_session()
+
+        if metadata['gather_success']:
+            return
 
         self.metadata_db.update_session_gather_start()
 
