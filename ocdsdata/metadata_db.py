@@ -2,6 +2,7 @@ import sqlalchemy as sa
 from sqlalchemy.sql import select
 import os
 import datetime
+import json
 
 
 class MetadataDB(object):
@@ -43,7 +44,7 @@ class MetadataDB(object):
             sa.Column('data_type', sa.Text, nullable=False),
             sa.Column('encoding', sa.Text, nullable=False, default='utf-8'),
 
-            sa.Column('gather_error', sa.Text),
+            sa.Column('gather_errors', sa.Text),
 
             sa.Column('fetch_start_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
@@ -76,7 +77,7 @@ class MetadataDB(object):
             'url': info['url'],
             'data_type': info['data_type'],
             'encoding': info.get('encoding','utf-8'),
-            'gather_error': str(info['errors']),
+            'gather_errors': json.dumps(info.get('errors',None)),
         }
         return self.conn.execute(self.filestatus.insert(), **store)
 
@@ -100,7 +101,7 @@ class MetadataDB(object):
             where(self.filestatus.c.filename == filename).\
             values(fetch_finished_datetime=datetime.datetime.now(),
                    fetch_success = success,
-                   fetch_errors = errors
+                   fetch_errors = json.dumps(errors)
                   )
 
         return self.conn.execute(stmt)
@@ -109,7 +110,7 @@ class MetadataDB(object):
         stmt = self.session.update().values(gather_start_datetime=datetime.datetime.now())
         return self.conn.execute(stmt)
 
-    """Updates session when done gathering, takes boolean success flag, and a string of errors."""
+    """Updates session when done gathering, takes boolean success flag, and a list of errors."""
     def update_session_gather_end(self, success, errors, stacktrace):
         args = {}
         args["gather_finished_datetime"] = datetime.datetime.now()
@@ -117,7 +118,7 @@ class MetadataDB(object):
             args["gather_success"] = True
         else:
             args["gather_success"] = False
-            args["gather_errors"] = str(errors)
+            args["gather_errors"] = json.dumps(errors)
             args["gather_stacktrace"] = str(stacktrace)
         stmt = self.session.update().values(**args)
         return self.conn.execute(stmt)
@@ -140,10 +141,13 @@ class MetadataDB(object):
         result = self.conn.execute(s)
         row = dict(result.fetchone())
 
+        row['gather_errors'] = json.loads(row['gather_errors']) if row['gather_errors'] else None
         row['file_status'] = {}
         s = select([self.filestatus])
         result = self.conn.execute(s)
         for data in result:
+            data = dict(data)
+            data['gather_errors'] = json.loads(data['gather_errors']) if data['gather_errors'] else None
             row['file_status'][data['filename']] = data
 
         return row

@@ -7,6 +7,7 @@ from .base import Source
 from . import util
 from . import database
 from ocdsdata.metadata_db import MetadataDB
+import json
 
 #Monkey patch to make tests run a lot faster
 util.RETRY_TIME = 0.1
@@ -122,10 +123,10 @@ def test_bad_gather():
 
         metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
         data = metadata_db.get_dict()
+        print(data)
         assert not data['gather_success']
         assert data['gather_finished_datetime']
-        assert data['gather_errors']
-        assert data['file_status']['file1.json']['gather_error'] == str(['not worked'])
+        assert data['file_status']['file1.json']['gather_errors'] == ["not worked"]
 
         with pytest.raises(Exception):
             fetcher.run_fetch()
