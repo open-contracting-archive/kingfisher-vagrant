@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--run", help="run one source only")
     parser.add_argument("--runall", help="run all sources",
                     action="store_true")
-    parser.add_argument("--basedir", help="base dir - defaults to 'oc-data' on current directory")
+    parser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
     parser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
 
     parser.add_argument("--onlygather", help="only run the gather stage", action="store_true")
@@ -62,8 +62,8 @@ def main():
             print(" - %s" % source_id)
         quit(-1)
 
-
-    base_dir = args.basedir or os.path.join(os.getcwd(), "oc-data")
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    base_dir = args.basedir or os.path.join(this_dir, "data")
     remove_dir = False
     sample_mode = args.sample
     data_version = args.dataversion

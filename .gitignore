@@ -13,4 +13,4 @@ docs/_build
 .hypothesis/*
 .pytest_cache
 venv/
-oc-data/
+data/
