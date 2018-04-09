@@ -43,12 +43,16 @@ class Source:
 
         exists = os.path.exists(self.full_directory)
 
-        if exists and remove_dir:
-            os.rmdir(self.full_directory)
-            exists = False
+        try:
+            if exists and remove_dir:
+                os.rmdir(self.full_directory)
+                exists = False
 
-        if not exists:
-            os.makedirs(self.full_directory)
+            if not exists:
+                os.makedirs(self.full_directory)
+        except:
+            print("Error: Write permission is needed on the directory specified (or project dir).")
+            return
 
         self.metadata_db = MetadataDB(self.full_directory)
 
