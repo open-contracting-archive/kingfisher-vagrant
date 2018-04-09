@@ -20,12 +20,10 @@ class Source:
     sample = False
     data_version = None
 
-    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False, data_version=None):
+    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False, data_version=None, new_version=False):
 
         self.base_dir = base_dir
         self.sample = sample
-
-        self.data_version = data_version or self.data_version or datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
 
         self.publisher_name = publisher_name or self.publisher_name
         if not self.publisher_name:
@@ -33,6 +31,18 @@ class Source:
         self.output_directory = output_directory or self.output_directory or self.source_id
         if not self.output_directory:
             raise AttributeError('An output directory needs to be specified')
+
+        all_versions = sorted(os.listdir(self.output_directory), reverse=True)\
+            if os.path.exists(self.output_directory) else []
+
+        if data_version in all_versions:  ## Version specified is valid
+            self.data_version = data_version
+        elif new_version or len(all_versions) == 0:  ## New Version
+            self.data_version = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
+        elif len(all_versions) > 0:  ## Get the latest version to resume
+            self.data_version = all_versions[0]
+        else: ## Should not happen...
+            raise AttributeError('The version is unavailable on the output directory')
 
         self.url = url or self.url
 
