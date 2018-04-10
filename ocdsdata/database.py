@@ -2,14 +2,20 @@ import sqlalchemy as sa
 import os
 from sqlalchemy.dialects.postgresql import JSONB
 from os.path import expanduser
- 
-try:
-    with open(expanduser('~/.pgpass'), 'r') as f:
-        host, port, database, user, password = f.read().rstrip().split(':')
+import pgpasslib
 
-    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, password, host, database)
-except FileNotFoundError:
-    database_uri = 'postgres://ocdsdata:ocdsdata@localhost/ocdsdata'
+# Default database details
+host = 'localhost'
+port = '5432'
+user = 'ocdsdata'
+dbname = 'ocdsdata'
+
+try:
+    password = pgpasslib.getpass(host, port, user, dbname)
+
+    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, password, host, dbname)
+except pgpasslib.FileNotFound:
+    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, 'ocdsdata', host, dbname)
 
 DB_URI = os.environ.get('DB_URI', database_uri)
 
