@@ -13,11 +13,8 @@ dbname = 'ocdsdata'
 try:
     password = pgpasslib.getpass(host, port, user, dbname)
 
-    if not password:
-        raise ValueError('Did not find a password in the .pgpass file')
-
     database_uri = 'postgresql://{}:{}@{}/{}'.format(user, password, host, dbname)
-except ValueError:
+except FileNotFoundError:
     database_uri = 'postgresql://{}:{}@{}/{}'.format(user, 'ocdsdata', host, dbname)
 
 DB_URI = os.environ.get('DB_URI', database_uri)
