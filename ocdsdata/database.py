@@ -5,7 +5,7 @@ from os.path import expanduser
  
 try:
     with open(expanduser('~/.pgpass'), 'r') as f:
-        host, port, database, user, password = f.read().split(':')
+        host, port, database, user, password = f.read().rstrip().split(':')
 
     database_uri = 'postgresql://{}:{}@{}/{}'.format(user, password, host, database)
 except FileNotFoundError:
