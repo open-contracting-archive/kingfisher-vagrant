@@ -1,8 +1,17 @@
 import sqlalchemy as sa
 import os
 from sqlalchemy.dialects.postgresql import JSONB
+from os.path import expanduser
+ 
+try:
+    with open(expanduser('~/.pgpass'), 'r') as f:
+        host, port, database, user, password = f.read().split(':')
 
-DB_URI = os.environ.get('DB_URI', 'postgres://ocdsdata:ocdsdata@localhost/ocdsdata')
+    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, password, host, database)
+except FileNotFoundError:
+    database_uri = 'postgres://ocdsdata:ocdsdata@localhost/ocdsdata'
+
+DB_URI = os.environ.get('DB_URI', database_uri)
 
 engine = sa.create_engine(DB_URI)
 metadata = sa.MetaData()
