@@ -30,7 +30,8 @@ def main():
     parser.add_argument("--createdatabase", help="Create Database", action="store_true")
     parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
     parser.add_argument("--sample", help="Run sample only", action="store_true")
-    parser.add_argument("--dataversion", help="Specify a data version")
+    parser.add_argument("--dataversion", help="Specify a data version to resume")
+    parser.add_argument("--newversion", help="Forces the creation of a new data version", action="store_true")
 
     args = parser.parse_args()
 
@@ -67,6 +68,7 @@ def main():
     remove_dir = False
     sample_mode = args.sample
     data_version = args.dataversion
+    new_version = args.newversion
 
     if args.verbose:
         print("We will run: ")
@@ -102,8 +104,13 @@ def main():
         if len(run) == 1 and args.outputdir:
             output_directory = args.outputdir
 
-        instance = source_info['source_class'](base_dir, remove_dir=remove_dir, output_directory=output_directory,
-                                                   sample=sample_mode, data_version=data_version)
+        instance = source_info['source_class'](base_dir,
+                                               remove_dir=remove_dir,
+                                               output_directory=output_directory,
+                                               sample=sample_mode,
+                                               data_version=data_version,
+                                               new_version=new_version
+                                               )
         if args.verbose:
             print("Now running: %s (Output Dir: %s)" % (source_info['id'], instance.output_directory))
 
