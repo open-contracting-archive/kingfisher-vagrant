@@ -35,7 +35,11 @@ class Source:
         all_versions = sorted(os.listdir(self.output_directory), reverse=True)\
             if os.path.exists(self.output_directory) else []
 
-        if data_version in all_versions:  ## Version specified is valid
+        if self.data_version:
+            pass
+        elif data_version in all_versions:  ## Version specified is valid
+            self.data_version = data_version
+        elif data_version:
             self.data_version = data_version
         elif new_version or len(all_versions) == 0:  ## New Version
             self.data_version = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
