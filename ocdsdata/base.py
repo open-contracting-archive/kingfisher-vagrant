@@ -10,7 +10,35 @@ from .metadata_db import MetadataDB
 
 """Base class for defining OCDS publisher sources.
 
-Defines the publisher name, the base URL source, methods to fetch and scrape the resources.
+Each source should extend this class and add some variables and implement a few methods.
+
+method gather_all_download_urls - this is called once at the start and should return a list of files to download.
+
+method save_url - this is called once per file to download. You may not need to implement this for a simple source, as 
+the default implementation may be good enough. It returns two lists - the first list is a list of new files to download, 
+and the second list is a list of errors. 
+
+Files to be downloaded are described by a dict. Both gather_all_download_urls and save_url return the same structure. 
+The keys are:
+
+  *  filename - the name of the file that will be saved locally. These need to be unique per source.
+  *  url - the URL to download.
+  *  data_type - the type of the file. See below.
+  *  encoding - encoding of the file. Optional, defaults to utf-8.
+  
+The data_type should be one of the following options:
+
+  *  record_package - the file is a record package.
+  *  release_package - the file is a release package.
+  *  record_package_list - the file is a list of record packages. eg
+     [  { record-package-1 } , { record-package-2 } ]
+  *  release_package_list - see last entry, but release packages.
+  *  record_package_list_in_results - the file is a list of record packages in the results attribute. eg
+     { 'results': [  { record-package-1 } , { record-package-2 } ]  }
+  *  release_package_list_in_results - see last entry, but release packages.
+  *  meta* - files with a type that starts with meta are fetched as normal, but then ignored while storing to the database. 
+     You may need these files to work out more files to download. See the ukraine source for an example.
+
 """
 class Source:
     publisher_name = None
