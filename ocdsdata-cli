@@ -38,10 +38,12 @@ def main():
         if args.verbose:
             print("Creating Database")
         create_tables(False)
+        quit(0)
     elif args.dropandcreatedatabase:
         if args.verbose:
             print("Dropping and Recreating Database")
         create_tables(True)
+        quit(0)
 
     run = []
 
