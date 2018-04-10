@@ -1,8 +1,6 @@
+from ocdsdata import util
 from ocdsdata.base import Source
-import requests
-from ocdsdata.util import save_content
-import json
-import hashlib
+
 
 class MexicoGrupoAeroportoSource(Source):
     publisher_name = 'Mexico Grupo Aeroporto'
@@ -10,7 +8,10 @@ class MexicoGrupoAeroportoSource(Source):
     source_id = 'mexico_grupo_aeroporto'
 
     def gather_all_download_urls(self):
-        r = requests.get('https://datos.gob.mx/busca/api/3/action/package_search?q=organization:gacm&rows=500')
+        r = util.get_url_request('https://datos.gob.mx/busca/api/3/action/package_search?q=organization:gacm&rows=500')
+        if r[1]:
+            raise Exception(r[1])
+        r = r[0]
         data = r.json()
         urls = []
         for result in data['result']['results']:
