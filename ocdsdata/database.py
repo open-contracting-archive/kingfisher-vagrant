@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+import json
 import os
 from sqlalchemy.dialects.postgresql import JSONB
 from os.path import expanduser
@@ -19,7 +20,15 @@ except pgpasslib.FileNotFound:
 
 DB_URI = os.environ.get('DB_URI', database_uri)
 
-engine = sa.create_engine(DB_URI)
+
+class SetEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return json.JSONEncoder.default(self, obj)
+
+
+engine = sa.create_engine(DB_URI, json_serializer=SetEncoder().encode)
 metadata = sa.MetaData()
 
 releases_table = sa.Table('releases', metadata,
@@ -47,6 +56,18 @@ records_table = sa.Table('records', metadata,
     sa.Column('package_data', JSONB),
     sa.Column('ocid', sa.Text),
     sa.Column('record', JSONB, nullable=False),
+)
+
+releases_checks_table = sa.Table('releases_checks', metadata,
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('releases_id', sa.Integer, index=True, unique=True),
+    sa.Column('cove_output', JSONB, nullable=False)
+)
+
+records_checks_table = sa.Table('records_checks', metadata,
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('records_id', sa.Integer, index=True, unique=True),
+    sa.Column('cove_output', JSONB, nullable=False)
 )
 
 
