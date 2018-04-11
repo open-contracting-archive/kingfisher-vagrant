@@ -26,7 +26,6 @@ class UkraineSource(Source):
                     'url': 'http://ocds.prozorro.openprocurement.io/%s' % url,
                     'filename': 'meta-%s.json' % url,
                     'data_type': 'meta',
-                    'errors': []
                 })
 
         return out
@@ -51,7 +50,6 @@ class UkraineSource(Source):
                             'url': url,
                             'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                             'data_type': 'release_package',
-                            'errors': []
                         })
 
             return additional, []

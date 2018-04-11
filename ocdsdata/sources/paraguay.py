@@ -32,7 +32,6 @@ class ParaguaySource(Source):
                 'url': 'https://www.contrataciones.gov.py:443/datos/api/v2/doc/ocds/record-package/%s' % record_package_id,
                 'filename': 'record-%s.json' % record_package_id,
                 'data_type': 'record_package',
-                'errors': []
             })
 
         return out
@@ -80,7 +79,6 @@ class ParaguaySource(Source):
                         'url': url,
                         'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
             return additional, []

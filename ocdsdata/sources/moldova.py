@@ -18,7 +18,6 @@ class MoldovaSource(Source):
                 'url': 'http://opencontracting.date.gov.md/ocds-api/year/2017',
                 'filename': 'sample.json',
                 'data_type': 'release_package',
-                'errors': []
             }]
 
         out = []
@@ -27,7 +26,6 @@ class MoldovaSource(Source):
                 'url': 'http://opencontracting.date.gov.md/ocds-api/year/%d' % year,
                 'filename': 'year-%d.json' % year,
                 'data_type': 'release_package',
-                'errors': []
             })
         return out
 
