@@ -1,5 +1,5 @@
+from ocdsdata import util
 from ocdsdata.base import Source
-import requests
 
 
 class CanadaMontrealSource(Source):
@@ -17,9 +17,11 @@ class CanadaMontrealSource(Source):
                 'errors': []
             }]
 
-
         url = 'https://ville.montreal.qc.ca/vuesurlescontrats/api/releases.json?limit=1'
-        r = requests.get(url)
+        r = util.get_url_request(url)
+        if r[1]:
+            raise Exception(r[1])
+        r = r[0]
         data = r.json()
         total = data['meta']['count']
         offset = 0

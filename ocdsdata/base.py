@@ -10,7 +10,35 @@ from .metadata_db import MetadataDB
 
 """Base class for defining OCDS publisher sources.
 
-Defines the publisher name, the base URL source, methods to fetch and scrape the resources.
+Each source should extend this class and add some variables and implement a few methods.
+
+method gather_all_download_urls - this is called once at the start and should return a list of files to download.
+
+method save_url - this is called once per file to download. You may not need to implement this for a simple source, as 
+the default implementation may be good enough. It returns two lists - the first list is a list of new files to download, 
+and the second list is a list of errors. 
+
+Files to be downloaded are described by a dict. Both gather_all_download_urls and save_url return the same structure. 
+The keys are:
+
+  *  filename - the name of the file that will be saved locally. These need to be unique per source.
+  *  url - the URL to download.
+  *  data_type - the type of the file. See below.
+  *  encoding - encoding of the file. Optional, defaults to utf-8.
+  
+The data_type should be one of the following options:
+
+  *  record_package - the file is a record package.
+  *  release_package - the file is a release package.
+  *  record_package_list - the file is a list of record packages. eg
+     [  { record-package-1 } , { record-package-2 } ]
+  *  release_package_list - see last entry, but release packages.
+  *  record_package_list_in_results - the file is a list of record packages in the results attribute. eg
+     { 'results': [  { record-package-1 } , { record-package-2 } ]  }
+  *  release_package_list_in_results - see last entry, but release packages.
+  *  meta* - files with a type that starts with meta are fetched as normal, but then ignored while storing to the database. 
+     You may need these files to work out more files to download. See the ukraine source for an example.
+
 """
 class Source:
     publisher_name = None
@@ -20,12 +48,10 @@ class Source:
     sample = False
     data_version = None
 
-    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False, data_version=None):
+    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False, data_version=None, new_version=False):
 
         self.base_dir = base_dir
         self.sample = sample
-
-        self.data_version = data_version or self.data_version or datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
 
         self.publisher_name = publisher_name or self.publisher_name
         if not self.publisher_name:
@@ -33,6 +59,22 @@ class Source:
         self.output_directory = output_directory or self.output_directory or self.source_id
         if not self.output_directory:
             raise AttributeError('An output directory needs to be specified')
+
+        all_versions = sorted(os.listdir(self.output_directory), reverse=True)\
+            if os.path.exists(self.output_directory) else []
+
+        if self.data_version:
+            pass
+        elif data_version in all_versions:  ## Version specified is valid
+            self.data_version = data_version
+        elif data_version:
+            self.data_version = data_version
+        elif new_version or len(all_versions) == 0:  ## New Version
+            self.data_version = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
+        elif len(all_versions) > 0:  ## Get the latest version to resume
+            self.data_version = all_versions[0]
+        else: ## Should not happen...
+            raise AttributeError('The version is unavailable on the output directory')
 
         self.url = url or self.url
 
@@ -43,12 +85,16 @@ class Source:
 
         exists = os.path.exists(self.full_directory)
 
-        if exists and remove_dir:
-            os.rmdir(self.full_directory)
-            exists = False
+        try:
+            if exists and remove_dir:
+                os.rmdir(self.full_directory)
+                exists = False
 
-        if not exists:
-            os.makedirs(self.full_directory)
+            if not exists:
+                os.makedirs(self.full_directory)
+        except:
+            print("Error: Write permission is needed on the directory specified (or project dir).")
+            return
 
         self.metadata_db = MetadataDB(self.full_directory)
 

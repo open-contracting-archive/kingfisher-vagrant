@@ -1,9 +1,12 @@
 jsonref
+-e git+https://github.com/OpenDataServices/flatten-tool.git@e700b32932232660bed95fa3bcf8936bb2e351a6#egg=flattentool
+-e git+https://github.com/OpenDataServices/cove.git@e37b22ff1d793d7e095a267dc0e5bedd2e2c337b#egg=cove
 attrs==17.4.0
 certifi==2018.1.18
 chardet==3.0.4
 idna==2.6
 more-itertools==4.1.0
+pgpasslib==1.1.0
 pluggy==0.6.0
 py==1.5.3
 pytest==3.5.0
