@@ -56,19 +56,25 @@ class Source:
         self.publisher_name = publisher_name or self.publisher_name
         if not self.publisher_name:
             raise AttributeError('A publisher name needs to be specified')
+
+        # Make sure the output directory is fully specified, including sample bit (if applicable)
         self.output_directory = output_directory or self.output_directory or self.source_id
         if not self.output_directory:
             raise AttributeError('An output directory needs to be specified')
 
-        all_versions = sorted(os.listdir(self.output_directory), reverse=True)\
-            if os.path.exists(self.output_directory) else []
+        if self.sample and not self.output_directory.endswith('_sample'):
+            self.output_directory += '_sample'
+
+        # Load all versions if possible, pick an existing one or set a new one.
+        all_versions = sorted(os.listdir(os.path.join(base_dir, self.output_directory)), reverse=True)\
+            if os.path.exists(os.path.join(base_dir, self.output_directory)) else []
 
         if self.data_version:
             pass
-        elif data_version in all_versions:  ## Version specified is valid
+        elif data_version and data_version in all_versions:  ## Version specified is valid
             self.data_version = data_version
-        elif data_version:
-            self.data_version = data_version
+        elif data_version:   ## Version specified is invalid!
+            raise AttributeError('A version was specified that does not exist')
         elif new_version or len(all_versions) == 0:  ## New Version
             self.data_version = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
         elif len(all_versions) > 0:  ## Get the latest version to resume
@@ -76,11 +82,7 @@ class Source:
         else: ## Should not happen...
             raise AttributeError('The version is unavailable on the output directory')
 
-        self.url = url or self.url
-
-        if self.sample and not self.output_directory.endswith('_sample'):
-            self.output_directory += '_sample'
-
+        # Build full directory, make sure it exists
         self.full_directory = os.path.join(base_dir, self.output_directory, self.data_version)
 
         exists = os.path.exists(self.full_directory)
@@ -95,6 +97,10 @@ class Source:
         except:
             print("Error: Write permission is needed on the directory specified (or project dir).")
             return
+
+        # Misc
+
+        self.url = url or self.url
 
         self.metadata_db = MetadataDB(self.full_directory)
 
