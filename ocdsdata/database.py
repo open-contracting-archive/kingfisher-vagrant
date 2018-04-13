@@ -43,6 +43,7 @@ schema_table = sa.Table('schema', metadata,
                             sa.Column('extension_type', sa.Text, nullable=True), # core_extension or community_extension
                             sa.Column('url', sa.Text, nullable=False),
                             sa.Column('version', sa.Text, nullable=True),
+                            sa.Column('type', sa.Text, nullable=False),
                             sa.UniqueConstraint('path', 'version', name='uq_path_version'),
                         )
 
