@@ -13,7 +13,6 @@ class ColombiaSource(Source):
                 'url': 'https://api.colombiacompra.gov.co/releases/?page=1',
                 'filename': 'sample.json',
                 'data_type': 'release_package',
-                'errors': []
             }]
 
         r = util.get_url_request('https://api.colombiacompra.gov.co/releases/?page=1')
@@ -32,7 +31,6 @@ class ColombiaSource(Source):
                 'url': 'https://api.colombiacompra.gov.co/releases/?page=%d' % page,
                 'filename': 'page%d.json' % page,
                 'data_type': 'release_package',
-                'errors': []
             })
             page += 1
         return out

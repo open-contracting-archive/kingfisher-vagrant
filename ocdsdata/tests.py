@@ -102,35 +102,6 @@ def test_bad_url():
             assert not value['fetch_success']
             assert value['fetch_errors']
 
-
-class BadGather(Source):
-    publisher_name = 'test'
-    url = 'test_url'
-    source_id = 'test'
-    data_version = 'v1'
-
-    def gather_all_download_urls(self):
-        yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
-               'filename': 'file1.json',
-               'data_type': 'releases',
-               'errors': ['not worked']}
-
-
-def test_bad_gather():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        fetcher = BadGather(tmpdir)
-        fetcher.run_gather()
-
-        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
-        data = metadata_db.get_dict()
-        assert not data['gather_success']
-        assert data['gather_finished_datetime']
-        assert data['file_status']['file1.json']['gather_errors'] == ["not worked"]
-
-        with pytest.raises(Exception):
-            fetcher.run_fetch()
-
-
 class ExceptionGather(Source):
     publisher_name = 'test'
     url = 'test_url'

@@ -119,19 +119,16 @@ class Source:
 
         self.metadata_db.update_session_gather_start()
 
-        failed = False
         try:
             for info in self.gather_all_download_urls():
                 self.metadata_db.add_filestatus(info)
-                if info['errors']:
-                    failed = True
         except Exception as e:
             error = repr(e)
             stacktrace = traceback.format_exception(*sys.exc_info())
             self.metadata_db.update_session_gather_end(False, error, stacktrace)
             return
 
-        self.metadata_db.update_session_gather_end(not failed, None, None)
+        self.metadata_db.update_session_gather_end(True, None, None)
 
     def run_fetch(self):
         metadata = self.metadata_db.get_session()

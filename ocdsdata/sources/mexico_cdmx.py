@@ -20,6 +20,5 @@ class MexicoCDMXSource(Source):
                     'url': data['uri'],
                     'filename': 'id%s.json' % data['id'],
                     'data_type': 'release_package',
-                    'errors': []
                 })
         return out
