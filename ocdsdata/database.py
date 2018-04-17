@@ -83,17 +83,18 @@ record_table = sa.Table('record', metadata,
                         sa.Column('package_data_id', sa.Integer, sa.ForeignKey("package_data.id"), nullable=False),
                         )
 
-releases_checks_table = sa.Table('releases_checks', metadata,
-                                 sa.Column('id', sa.Integer, primary_key=True),
-                                 sa.Column('releases_id', sa.Integer, index=True, unique=True),
-                                 sa.Column('cove_output', JSONB, nullable=False)
-                                 )
+release_check_table = sa.Table('release_check', metadata,
+                               sa.Column('id', sa.Integer, primary_key=True),
+                               sa.Column('release_id', sa.Integer, sa.ForeignKey("release.id"), index=True,
+                                         unique=True),
+                               sa.Column('cove_output', JSONB, nullable=False)
+                               )
 
-records_checks_table = sa.Table('records_checks', metadata,
-                                sa.Column('id', sa.Integer, primary_key=True),
-                                sa.Column('records_id', sa.Integer, index=True, unique=True),
-                                sa.Column('cove_output', JSONB, nullable=False)
-                                )
+record_check_table = sa.Table('record_check', metadata,
+                              sa.Column('id', sa.Integer, primary_key=True),
+                              sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True, unique=True),
+                              sa.Column('cove_output', JSONB, nullable=False)
+                              )
 
 
 def create_tables(drop=True):
