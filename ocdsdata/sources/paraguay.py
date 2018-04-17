@@ -11,6 +11,7 @@ from ocdsdata.util import save_content
 REQUEST_TOKEN = "Basic " \
                 "ODhjYmYwOGEtMDcyMC00OGY1LWFhYWUtMWVkNzVkZmFiYzZiOjNjNjQxZGQ5LWNjN2UtNDI5ZC05NWRiLWI5ODNiNmYyMDY3NA== "
 
+
 class ParaguaySource(Source):
     publisher_name = 'Paraguay'
     url = 'http://data.dsp.im'
@@ -99,7 +100,7 @@ class ParaguaySource(Source):
                 try:
                     json = r.json()['access_token']
                     correct = True
-                except:
+                except requests.exceptions.RequestException:
                     correct = False
             self.access_token = json
             return "Bearer " + json

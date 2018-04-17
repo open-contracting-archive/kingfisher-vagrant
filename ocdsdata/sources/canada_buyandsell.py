@@ -1,5 +1,6 @@
 from ocdsdata.base import Source
 
+
 class CanadaBuyAndSellSource(Source):
     publisher_name = 'Buy And Sell'
     url = 'https://buyandsell.gc.ca'
@@ -36,4 +37,3 @@ class CanadaBuyAndSellSource(Source):
                 'data_type': 'release_package',
             },
         ]
-

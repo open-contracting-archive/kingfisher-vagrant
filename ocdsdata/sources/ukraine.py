@@ -44,7 +44,7 @@ class UkraineSource(Source):
             for item in doc.xpath('//li'):
                 url_bit = item.xpath('a')[0].get('href')
                 if url_bit != 'index.html':
-                    url = '%s/%s' % ( data['url'], url_bit )
+                    url = '%s/%s' % (data['url'], url_bit)
                     if not self.sample or (self.sample and len(additional) < 3):
                         additional.append({
                             'url': url,
@@ -55,8 +55,3 @@ class UkraineSource(Source):
             return additional, []
         else:
             return [], save_content(data['url'], file_path)
-
-
-
-
-

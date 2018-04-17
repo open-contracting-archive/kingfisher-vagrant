@@ -1,11 +1,9 @@
 from . import database
-
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cove_ocds.settings")
 from cove_ocds.lib.api import ocds_json_output
 
-import json
-import cProfile
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cove_ocds.settings")
 
 
 def handle_package(package):

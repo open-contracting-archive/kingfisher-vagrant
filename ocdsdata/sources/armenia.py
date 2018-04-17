@@ -1,4 +1,3 @@
-import hashlib
 import json
 
 from ocdsdata.base import Source
