@@ -166,12 +166,12 @@ class Source:
                     errors = [repr(e)]
 
                 if errors:
-                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, str(errors))
+                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, errors)
                     failed = True
                 else:
                     self.metadata_db.update_filestatus_fetch_end(data['filename'], True)
 
-        self.metadata_db.update_session_fetch_end(not failed) ## No ERrors Passed here?
+        self.metadata_db.update_session_fetch_end(not failed)
 
     """Uploads the fetched data as record rows to the Database"""
     def run_store(self):

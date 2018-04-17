@@ -34,7 +34,6 @@ class MetadataDB(object):
 
             sa.Column('fetch_start_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
-            sa.Column('fetch_errors', sa.Text, nullable=True),
             sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
         )
 
@@ -103,7 +102,7 @@ class MetadataDB(object):
             return conn.execute(stmt)
 
     """Updates filestatus when fetched, takes boolean success flag, and a string of errors."""
-    def update_filestatus_fetch_end(self, filename, success, errors = None):
+    def update_filestatus_fetch_end(self, filename, success, errors = []):
         stmt = self.filestatus.update().\
             where(self.filestatus.c.filename == filename).\
             values(fetch_finished_datetime=datetime.datetime.now(),
@@ -138,10 +137,9 @@ class MetadataDB(object):
             return conn.execute(stmt)
 
     """Updates session when done fetching, takes boolean success flag, and json string of errors."""
-    def update_session_fetch_end(self, success, errors = None):
+    def update_session_fetch_end(self, success):
         stmt = self.session.update().values(
                                     fetch_success = success,
-                                    fetch_errors = errors,
                                     fetch_finished_datetime=datetime.datetime.now())
         with self.engine.connect() as conn:
             return conn.execute(stmt)
@@ -160,6 +158,7 @@ class MetadataDB(object):
             for data in result:
                 data = dict(data)
                 data['gather_errors'] = json.loads(data['gather_errors']) if data['gather_errors'] else None
+                data['fetch_errors'] = json.loads(data['fetch_errors']) if data['fetch_errors'] else None
                 row['file_status'][data['filename']] = data
 
             return row
