@@ -2,6 +2,7 @@ from ocdsdata.base import Source
 from ocdsdata.util import save_content
 import os
 
+
 class MoldovaSource(Source):
     publisher_name = 'Moldova'
     url = 'http://data.dsp.im'
@@ -43,4 +44,3 @@ class MoldovaSource(Source):
         os.remove(file_path + '-download.json')
 
         return [], []
-

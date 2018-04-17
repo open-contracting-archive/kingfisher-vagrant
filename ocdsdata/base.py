@@ -14,18 +14,18 @@ Each source should extend this class and add some variables and implement a few 
 
 method gather_all_download_urls - this is called once at the start and should return a list of files to download.
 
-method save_url - this is called once per file to download. You may not need to implement this for a simple source, as 
-the default implementation may be good enough. It returns two lists - the first list is a list of new files to download, 
-and the second list is a list of errors. 
+method save_url - this is called once per file to download. You may not need to implement this for a simple source, as
+the default implementation may be good enough. It returns two lists - the first list is a list of new files to download,
+and the second list is a list of errors.
 
-Files to be downloaded are described by a dict. Both gather_all_download_urls and save_url return the same structure. 
+Files to be downloaded are described by a dict. Both gather_all_download_urls and save_url return the same structure.
 The keys are:
 
   *  filename - the name of the file that will be saved locally. These need to be unique per source.
   *  url - the URL to download.
   *  data_type - the type of the file. See below.
   *  encoding - encoding of the file. Optional, defaults to utf-8.
-  
+
 The data_type should be one of the following options:
 
   *  record_package - the file is a record package.
@@ -36,10 +36,11 @@ The data_type should be one of the following options:
   *  record_package_list_in_results - the file is a list of record packages in the results attribute. eg
      { 'results': [  { record-package-1 } , { record-package-2 } ]  }
   *  release_package_list_in_results - see last entry, but release packages.
-  *  meta* - files with a type that starts with meta are fetched as normal, but then ignored while storing to the database. 
+  *  meta* - files with a type that starts with meta are fetched as normal, but then ignored while storing to the database.
      You may need these files to work out more files to download. See the ukraine source for an example.
-
 """
+
+
 class Source:
     publisher_name = None
     url = None
@@ -71,15 +72,15 @@ class Source:
 
         if self.data_version:
             pass
-        elif data_version and data_version in all_versions:  ## Version specified is valid
+        elif data_version and data_version in all_versions:  # Version specified is valid
             self.data_version = data_version
-        elif data_version:   ## Version specified is invalid!
+        elif data_version:   # Version specified is invalid!
             raise AttributeError('A version was specified that does not exist')
-        elif new_version or len(all_versions) == 0:  ## New Version
+        elif new_version or len(all_versions) == 0:  # New Version
             self.data_version = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
-        elif len(all_versions) > 0:  ## Get the latest version to resume
+        elif len(all_versions) > 0:  # Get the latest version to resume
             self.data_version = all_versions[0]
-        else: ## Should not happen...
+        else:  # Should not happen...
             raise AttributeError('The version is unavailable on the output directory')
 
         # Build full directory, make sure it exists
@@ -94,7 +95,7 @@ class Source:
 
             if not exists:
                 os.makedirs(self.full_directory)
-        except:
+        except OSError:
             print("Error: Write permission is needed on the directory specified (or project dir).")
             return
 
@@ -105,10 +106,10 @@ class Source:
         self.metadata_db = MetadataDB(self.full_directory)
 
         self.metadata_db.create_session_metadata(
-            publisher_name = self.publisher_name,
-            sample = self.sample,
-            url = self.url,
-            data_version = self.data_version
+            publisher_name=self.publisher_name,
+            sample=self.sample,
+            url=self.url,
+            data_version=self.data_version
         )
 
     """Returns an array with objects for each url.
@@ -200,7 +201,7 @@ class Source:
                               encoding=data['encoding']) as f:
                         json_data = json.load(f)
                 except Exception as e:
-                    ## TODO better way of dealing with this?
+                    # TODO better way of dealing with this?
                     raise e
                     return
 
@@ -219,13 +220,17 @@ class Source:
                     if not isinstance(json_data, dict):
                         error_msg = "Can not process data in file {} as JSON is not an object".format(data['filename'])
 
-                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list' :
+                    if data['data_type'] == 'release_package' or \
+                            data['data_type'] == 'release_package_list_in_results' or \
+                            data['data_type'] == 'release_package_list':
                         if 'releases' not in json_data:
                             error_msg = "Release list not found in file {}".format(data['filename'])
                         elif not isinstance(json_data['releases'], list):
                             error_msg = "Release list which is not a list found in file {}".format(data['filename'])
                         data_list = json_data['releases']
-                    elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
+                    elif data['data_type'] == 'record_package' or \
+                            data['data_type'] == 'record_package_list_in_results' or \
+                            data['data_type'] == 'record_package_list':
                         if 'records' not in json_data:
                             error_msg = "Record list not found in file {}".format(data['filename'])
                         elif not isinstance(json_data['records'], list):
@@ -246,7 +251,9 @@ class Source:
                             error_msg = "Row in data is not a object {}".format(data['filename'])
                             raise Exception(error_msg)
 
-                        if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
+                        if data['data_type'] == 'record_package' or \
+                                data['data_type'] == 'record_package_list_in_results' or \
+                                data['data_type'] == 'record_package_list':
                             database_file.insert_record(row, package_data)
                         else:
                             database_file.insert_release(row, package_data)

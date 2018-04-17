@@ -1,5 +1,6 @@
 from ocdsdata.base import Source
 
+
 class TaiwanSource(Source):
     publisher_name = 'Taiwan'
     url = 'http://data.dsp.im'
@@ -13,4 +14,3 @@ class TaiwanSource(Source):
                 'data_type': 'release_package',
             }
         ]
-

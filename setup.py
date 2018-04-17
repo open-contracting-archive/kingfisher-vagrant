@@ -9,4 +9,4 @@ setup(name='ocdsdata',
       url='',
       packages=['ocdsdata', 'ocdsdata.sources'],
       scripts=['ocdsdata-cli']
-     )
+      )

@@ -33,6 +33,3 @@ class UgandaSource(Source):
                     })
 
         return out
-
-
-

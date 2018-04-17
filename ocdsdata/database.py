@@ -1,9 +1,7 @@
 import sqlalchemy as sa
-import json
 import os
 from sqlalchemy.dialects.postgresql import JSONB
 import datetime
-from os.path import expanduser
 import pgpasslib
 import hashlib
 import json
@@ -35,70 +33,77 @@ engine = sa.create_engine(DB_URI, json_serializer=SetEncoder().encode)
 metadata = sa.MetaData()
 
 source_session_table = sa.Table('source_session', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('source_id', sa.Text, nullable=False),
-    sa.Column('data_version', sa.Text, nullable=False),
-    sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=False),
-    sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
-    sa.Column('sample', sa.Boolean, nullable=False, default=False),
-    sa.UniqueConstraint('source_id', 'data_version', 'sample'),
-)
+                                sa.Column('id', sa.Integer, primary_key=True),
+                                sa.Column('source_id', sa.Text, nullable=False),
+                                sa.Column('data_version', sa.Text, nullable=False),
+                                sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=False),
+                                sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
+                                sa.Column('sample', sa.Boolean, nullable=False, default=False),
+                                sa.UniqueConstraint('source_id', 'data_version', 'sample'),
+                                )
 
 source_session_file_status_table = sa.Table('source_session_file_status', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('source_session_id', sa.Integer, sa.ForeignKey("source_session.id"),  nullable=False),
-    sa.Column('filename', sa.Text, nullable=True),
-    sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=True),
-    sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
-    sa.UniqueConstraint('source_session_id', 'filename'),
-)
+                                            sa.Column('id', sa.Integer, primary_key=True),
+                                            sa.Column('source_session_id', sa.Integer,
+                                                      sa.ForeignKey("source_session.id"), nullable=False),
+                                            sa.Column('filename', sa.Text, nullable=True),
+                                            sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=True),
+                                            sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
+                                            sa.UniqueConstraint('source_session_id', 'filename'),
+                                            )
 
 data_table = sa.Table('data', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('hash_md5', sa.Text, nullable=False, unique=True),
-    sa.Column('data', JSONB, nullable=False),
-)
+                      sa.Column('id', sa.Integer, primary_key=True),
+                      sa.Column('hash_md5', sa.Text, nullable=False, unique=True),
+                      sa.Column('data', JSONB, nullable=False),
+                      )
 
 package_data_table = sa.Table('package_data', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('hash_md5', sa.Text, nullable=False, unique=True),
-    sa.Column('data', JSONB, nullable=False),
-)
+                              sa.Column('id', sa.Integer, primary_key=True),
+                              sa.Column('hash_md5', sa.Text, nullable=False, unique=True),
+                              sa.Column('data', JSONB, nullable=False),
+                              )
 
 release_table = sa.Table('release', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('source_session_file_status_id', sa.Integer, sa.ForeignKey("source_session_file_status.id"), nullable=False),
-    sa.Column('release_id', sa.Text, nullable=True),
-    sa.Column('ocid', sa.Text, nullable=True),
-    sa.Column('data_id', sa.Integer, sa.ForeignKey("data.id"), nullable=False),
-    sa.Column('package_data_id', sa.Integer, sa.ForeignKey("package_data.id"), nullable=False),
-)
+                         sa.Column('id', sa.Integer, primary_key=True),
+                         sa.Column('source_session_file_status_id', sa.Integer,
+                                   sa.ForeignKey("source_session_file_status.id"), nullable=False),
+                         sa.Column('release_id', sa.Text, nullable=True),
+                         sa.Column('ocid', sa.Text, nullable=True),
+                         sa.Column('data_id', sa.Integer, sa.ForeignKey("data.id"), nullable=False),
+                         sa.Column('package_data_id', sa.Integer, sa.ForeignKey("package_data.id"), nullable=False),
+                         )
 
 record_table = sa.Table('record', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('source_session_file_status_id', sa.Integer, sa.ForeignKey("source_session_file_status.id"), nullable=False),
-    sa.Column('ocid', sa.Text, nullable=True),
-    sa.Column('data_id', sa.Integer, sa.ForeignKey("data.id"), nullable=False),
-    sa.Column('package_data_id', sa.Integer, sa.ForeignKey("package_data.id"), nullable=False),
-)
+                        sa.Column('id', sa.Integer, primary_key=True),
+                        sa.Column('source_session_file_status_id', sa.Integer,
+                                  sa.ForeignKey("source_session_file_status.id"), nullable=False),
+                        sa.Column('ocid', sa.Text, nullable=True),
+                        sa.Column('data_id', sa.Integer, sa.ForeignKey("data.id"), nullable=False),
+                        sa.Column('package_data_id', sa.Integer, sa.ForeignKey("package_data.id"), nullable=False),
+                        )
 
 releases_checks_table = sa.Table('releases_checks', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('releases_id', sa.Integer, index=True, unique=True),
-    sa.Column('cove_output', JSONB, nullable=False)
-)
+                                 sa.Column('id', sa.Integer, primary_key=True),
+                                 sa.Column('releases_id', sa.Integer, index=True, unique=True),
+                                 sa.Column('cove_output', JSONB, nullable=False)
+                                 )
 
 records_checks_table = sa.Table('records_checks', metadata,
-    sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('records_id', sa.Integer, index=True, unique=True),
-    sa.Column('cove_output', JSONB, nullable=False)
-)
+                                sa.Column('id', sa.Integer, primary_key=True),
+                                sa.Column('records_id', sa.Integer, index=True, unique=True),
+                                sa.Column('cove_output', JSONB, nullable=False)
+                                )
+
 
 def create_tables(drop=True):
-    with engine.begin() as connection:
+    # We use the "with engine.begin() as connection" to get a database transaction.
+    # We add "noqa" to stop flake8 complaining the connection variable is not used.
+    with engine.begin() as connection: # noqa
         if drop:
             metadata.drop_all(engine)
         metadata.create_all(engine)
+
 
 def is_store_done(source_id, data_version, sample):
     with engine.begin() as connection:
@@ -107,6 +112,7 @@ def is_store_done(source_id, data_version, sample):
                                                         (source_session_table.c.sample == sample))
         result = connection.execute(s)
         return True if result.fetchone() else False
+
 
 def start_store(source_id, data_version, sample, metadata_db):
     # Note use of engine.begin means this happens in a DB transaction
@@ -133,13 +139,11 @@ def end_store(source_session_id):
     with engine.begin() as connection:
 
         connection.execute(
-            source_session_table.update().where( source_session_table.c.id == source_session_id ).values(store_end_at = datetime.datetime.utcnow())
+            source_session_table.update().where(source_session_table.c.id == source_session_id).values(store_end_at=datetime.datetime.utcnow())
         )
 
 
 class add_file():
-
-
     connection = None
     transaction = None
     source_session_id = None
@@ -166,8 +170,8 @@ class add_file():
         # mark file as started
         self.connection.execute(
             source_session_file_status_table.update()
-                .where( source_session_file_status_table.c.id == self.source_session_file_status_id )
-                .values(store_start_at = datetime.datetime.utcnow())
+            .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
+            .values(store_start_at=datetime.datetime.utcnow())
         )
 
         return self
@@ -184,8 +188,8 @@ class add_file():
 
             self.connection.execute(
                 source_session_file_status_table.update()
-                    .where( source_session_file_status_table.c.id == self.source_session_file_status_id )
-                    .values(store_end_at = datetime.datetime.utcnow())
+                .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
+                .values(store_end_at=datetime.datetime.utcnow())
             )
 
             self.transaction.commit()
@@ -250,6 +254,3 @@ class add_file():
 def get_hash_md5_for_data(data):
     data_str = json.dumps(data, sort_keys=True)
     return hashlib.md5(data_str.encode('utf-8')).hexdigest()
-
-
-
