@@ -20,7 +20,6 @@ class AustraliaSource(Source):
                 'url': url % r,
                 'filename': 'type-%s-page-1-.json' % r,
                 'data_type': 'release_package',
-                'errors': []
             })
 
         return out
@@ -48,7 +47,6 @@ class AustraliaSource(Source):
                         'url': json_data[link]['next'],
                         'filename': 'type-%s-page-%d-.json' % (type, page),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
                 count = 0
@@ -73,7 +71,6 @@ class AustraliaSource(Source):
                                 'url': url,
                                 'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                                 'data_type': 'release_package',
-                                'errors': []
                             })
 
             return additional, []

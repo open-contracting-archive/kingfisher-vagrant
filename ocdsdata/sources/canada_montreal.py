@@ -14,7 +14,6 @@ class CanadaMontrealSource(Source):
                 'url': 'https://ville.montreal.qc.ca/vuesurlescontrats/api/releases.json?limit=1000&offset=0',
                 'filename': 'offset0.json',
                 'data_type': 'release_package',
-                'errors': []
             }]
 
         url = 'https://ville.montreal.qc.ca/vuesurlescontrats/api/releases.json?limit=1'
@@ -32,7 +31,6 @@ class CanadaMontrealSource(Source):
                 'url': 'https://ville.montreal.qc.ca/vuesurlescontrats/api/releases.json?limit=%d&offset=%d' % (limit, offset),
                 'filename': 'offset%d.json' % offset,
                 'data_type': 'release_package',
-                'errors': []
             })
             offset += limit
         return out

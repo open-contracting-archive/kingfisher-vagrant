@@ -43,8 +43,6 @@ class MetadataDB(object):
             sa.Column('data_type', sa.Text, nullable=False),
             sa.Column('encoding', sa.Text, nullable=False, default='utf-8'),
 
-            sa.Column('gather_errors', sa.Text),
-
             sa.Column('fetch_start_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
             sa.Column('fetch_errors', sa.Text, nullable=True),
@@ -80,7 +78,6 @@ class MetadataDB(object):
             'url': info['url'],
             'data_type': info['data_type'],
             'encoding': info.get('encoding','utf-8'),
-            'gather_errors': json.dumps(info.get('errors',None)),
         }
         with self.engine.connect() as conn:
             return conn.execute(self.filestatus.insert(), **store)
@@ -157,7 +154,6 @@ class MetadataDB(object):
             result = conn.execute(s)
             for data in result:
                 data = dict(data)
-                data['gather_errors'] = json.loads(data['gather_errors']) if data['gather_errors'] else None
                 data['fetch_errors'] = json.loads(data['fetch_errors']) if data['fetch_errors'] else None
                 row['file_status'][data['filename']] = data
 

@@ -31,7 +31,9 @@ def main():
     parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
     parser.add_argument("--sample", help="Run sample only", action="store_true")
     parser.add_argument("--dataversion", help="Specify a data version to resume")
-    parser.add_argument("--newversion", help="Forces the creation of a new data version", action="store_true")
+    parser.add_argument("--newversion", help="Forces the creation of a new data version (If you don't specify this or "+
+                                             "--dataversion, the latest version will be used. If there are no versions, a new one will be created.)",
+                        action="store_true")
 
     args = parser.parse_args()
 
@@ -114,7 +116,7 @@ def main():
                                                new_version=new_version
                                                )
         if args.verbose:
-            print("Now running: %s (Output Dir: %s)" % (source_info['id'], instance.output_directory))
+            print("Now running: %s (Output Dir: %s, Data Version: %s)" % (source_info['id'], instance.output_directory, instance.data_version))
 
         if run_gather:
             if args.verbose:
