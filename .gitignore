@@ -12,3 +12,5 @@ docs/_build
 .cache/*
 .hypothesis/*
 .pytest_cache
+venv/
+data/

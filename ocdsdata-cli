@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--run", help="run one source only")
     parser.add_argument("--runall", help="run all sources",
                     action="store_true")
-    parser.add_argument("--basedir", help="base dir - defaults to current directory")
+    parser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
     parser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
 
     parser.add_argument("--onlygather", help="only run the gather stage", action="store_true")
@@ -30,7 +30,10 @@ def main():
     parser.add_argument("--createdatabase", help="Create Database", action="store_true")
     parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
     parser.add_argument("--sample", help="Run sample only", action="store_true")
-    parser.add_argument("--dataversion", help="Specify a data version")
+    parser.add_argument("--dataversion", help="Specify a data version to resume")
+    parser.add_argument("--newversion", help="Forces the creation of a new data version (If you don't specify this or "+
+                                             "--dataversion, the latest version will be used. If there are no versions, a new one will be created.)",
+                        action="store_true")
 
     args = parser.parse_args()
 
@@ -38,10 +41,12 @@ def main():
         if args.verbose:
             print("Creating Database")
         create_tables(False)
+        quit(0)
     elif args.dropandcreatedatabase:
         if args.verbose:
             print("Dropping and Recreating Database")
         create_tables(True)
+        quit(0)
 
     run = []
 
@@ -62,11 +67,12 @@ def main():
             print(" - %s" % source_id)
         quit(-1)
 
-
-    base_dir = args.basedir or os.getcwd()
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    base_dir = args.basedir or os.path.join(this_dir, "data")
     remove_dir = False
     sample_mode = args.sample
     data_version = args.dataversion
+    new_version = args.newversion
 
     if args.verbose:
         print("We will run: ")
@@ -102,10 +108,15 @@ def main():
         if len(run) == 1 and args.outputdir:
             output_directory = args.outputdir
 
-        instance = source_info['source_class'](base_dir, remove_dir=remove_dir, output_directory=output_directory,
-                                                   sample=sample_mode, data_version=data_version)
+        instance = source_info['source_class'](base_dir,
+                                               remove_dir=remove_dir,
+                                               output_directory=output_directory,
+                                               sample=sample_mode,
+                                               data_version=data_version,
+                                               new_version=new_version
+                                               )
         if args.verbose:
-            print("Now running: %s (Output Dir: %s)" % (source_info['id'], instance.output_directory))
+            print("Now running: %s (Output Dir: %s, Data Version: %s)" % (source_info['id'], instance.output_directory, instance.data_version))
 
         if run_gather:
             if args.verbose:

@@ -1,8 +1,10 @@
-from ocdsdata.base import Source
-import requests
-from ocdsdata.util import save_content
-import json
 import hashlib
+import json
+
+from ocdsdata import util
+from ocdsdata.base import Source
+from ocdsdata.util import save_content
+
 
 class MexicoJaliscoSource(Source):
     publisher_name = 'Mexico Jalisco'
@@ -10,7 +12,10 @@ class MexicoJaliscoSource(Source):
     source_id = 'mexico_jalisco'
 
     def gather_all_download_urls(self):
-        r = requests.get('https://contratacionesabiertas.jalisco.gob.mx/OCApi/2017/contracts')
+        r = util.get_url_request('https://contratacionesabiertas.jalisco.gob.mx/OCApi/2017/contracts')
+        if r[1]:
+            raise Exception(r[1])
+        r = r[0]
         datas = r.json()
         out = []
         for data in datas:
@@ -19,7 +24,6 @@ class MexicoJaliscoSource(Source):
                     'url': data['URIContract'],
                     'filename': 'id%s.json' % data['ocid'],
                     'data_type': 'record_package',
-                    'errors': []
                 })
         return out
 
@@ -41,7 +45,6 @@ class MexicoJaliscoSource(Source):
                         'url': url,
                         'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
             return additional, []

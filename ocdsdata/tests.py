@@ -103,7 +103,7 @@ def test_bad_url():
             assert value['fetch_errors']
 
 
-class BadGather(Source):
+class BadFetchErrors(Source):
     publisher_name = 'test'
     url = 'test_url'
     source_id = 'test'
@@ -113,22 +113,65 @@ class BadGather(Source):
         yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
                'filename': 'file1.json',
                'data_type': 'releases',
-               'errors': ['not worked']}
+               'errors': []}
+
+    def save_url(self, file_name, data, file_path):
+        return [], ['A really bad error occured!']
 
 
-def test_bad_gather():
+def test_bad_fetch_errors():
     with tempfile.TemporaryDirectory() as tmpdir:
-        fetcher = BadGather(tmpdir)
+        fetcher = BadFetchErrors(tmpdir)
         fetcher.run_gather()
+        fetcher.run_fetch()
 
         metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
         data = metadata_db.get_dict()
-        assert not data['gather_success']
+        assert data['gather_success']
         assert data['gather_finished_datetime']
-        assert data['file_status']['file1.json']['gather_errors'] == ["not worked"]
+        assert not data['fetch_success']
+        assert not data['file_status']['file1.json']['fetch_success']
+        assert data['file_status']['file1.json']['fetch_start_datetime']
+        assert data['file_status']['file1.json']['fetch_finished_datetime']
+        assert data['file_status']['file1.json']['fetch_errors'] == ['A really bad error occured!']
 
         with pytest.raises(Exception):
-            fetcher.run_fetch()
+            fetcher.run_store()
+
+class BadFetchException(Source):
+    publisher_name = 'test'
+    url = 'test_url'
+    source_id = 'test'
+    data_version = 'v1'
+
+    def gather_all_download_urls(self):
+        yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+               'filename': 'file1.json',
+               'data_type': 'releases',
+               'errors': []}
+
+    def save_url(self, file_name, data, file_path):
+        raise Exception('Whoops')
+
+
+def test_bad_fetch_exception():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fetcher = BadFetchException(tmpdir)
+        fetcher.run_gather()
+        fetcher.run_fetch()
+
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert data['gather_success']
+        assert data['gather_finished_datetime']
+        assert not data['fetch_success']
+        assert not data['file_status']['file1.json']['fetch_success']
+        assert data['file_status']['file1.json']['fetch_start_datetime']
+        assert data['file_status']['file1.json']['fetch_finished_datetime']
+        assert data['file_status']['file1.json']['fetch_errors'] == ["Exception('Whoops',)"]
+
+        with pytest.raises(Exception):
+            fetcher.run_store()
 
 
 class ExceptionGather(Source):
@@ -158,18 +201,14 @@ def test_exception_gather():
 
 def test_create_tables():
     database.create_tables(drop=True)
-    database.insert_releases([
-        {'source_id': 'test',
-         'sample': False,
-         'data_version': '2018-01-01-10-10-10',
-         'file': 'moo',
-         'package_data': {},
-         'release': {"moo":"moo"}},
-        {'source_id': 'test2',
-         'sample': False,
-         'data_version': '2018-01-01-10-10-10',
-         'file': 'moo',
-         'package_data': {},
-         'release': {"moo":"moo"}},
-    ])
-    database.delete_releases('test')
+
+def test_database_get_hash_md5_for_data():
+    assert database.get_hash_md5_for_data({'cats': 'many'}) == '538dd075f4a37d77be84c683b711d644'
+
+
+def test_database_get_hash_md5_for_data2():
+    assert database.get_hash_md5_for_data({'cats': 'none'}) == '562c5f4221c75c8f08da103cc10c4e4c'
+
+
+
+

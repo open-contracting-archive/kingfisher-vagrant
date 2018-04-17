@@ -12,7 +12,6 @@ class CanadaBuyAndSellSource(Source):
                     'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-13-14.json',
                     'filename': '2013-14.json',
                     'data_type': 'release_package',
-                    'errors': []
                 }]
 
         return [
@@ -20,25 +19,21 @@ class CanadaBuyAndSellSource(Source):
                 'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-13-14.json',
                 'filename': '2013-14.json',
                 'data_type': 'release_package',
-                'errors': []
             },
             {
                 'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-14-15.json',
                 'filename': '2014-15.json',
                 'data_type': 'release_package',
-                'errors': []
             },
             {
                 'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-15-16.json',
                 'filename': '2015-16.json',
                 'data_type': 'release_package',
-                'errors': []
             },
             {
                 'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-16-17.json',
                 'filename': '2016-17.json',
                 'data_type': 'release_package',
-                'errors': []
             },
         ]
 

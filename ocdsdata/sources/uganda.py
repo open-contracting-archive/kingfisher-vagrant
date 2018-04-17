@@ -1,5 +1,6 @@
+from ocdsdata import util
 from ocdsdata.base import Source
-import requests
+
 
 class UgandaSource(Source):
     publisher_name = 'Uganda'
@@ -16,10 +17,12 @@ class UgandaSource(Source):
                     'url': 'http://gpp.ppda.go.ug/api/v1/releases?tag=%s&page=1' % tag,
                     'filename': 'tag%spage1.json' % tag,
                     'data_type': 'release_package',
-                    'errors': []
                 })
             else:
-                r = requests.get('http://gpp.ppda.go.ug/api/v1/releases?tag=%s&page=1' % tag)
+                r = util.get_url_request('http://gpp.ppda.go.ug/api/v1/releases?tag=%s&page=1' % tag)
+                if r[1]:
+                    raise Exception(r[1])
+                r = r[0]
                 data = r.json()
                 last_page = data['pagination']['last_page']
                 for page in range(1, last_page+1):
@@ -27,7 +30,6 @@ class UgandaSource(Source):
                         'url': 'http://gpp.ppda.go.ug/api/v1/releases?tag=%s&page=%d' % (tag, page),
                         'filename': 'tag-%s-page-%d.json' % (tag, page),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
         return out

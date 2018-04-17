@@ -1,9 +1,12 @@
-from ocdsdata.base import Source
-import requests
 import csv
-import json
-from ocdsdata.util import save_content
 import hashlib
+import json
+
+import requests
+
+from ocdsdata import util
+from ocdsdata.base import Source
+from ocdsdata.util import save_content
 
 REQUEST_TOKEN = "Basic " \
                 "ODhjYmYwOGEtMDcyMC00OGY1LWFhYWUtMWVkNzVkZmFiYzZiOjNjNjQxZGQ5LWNjN2UtNDI5ZC05NWRiLWI5ODNiNmYyMDY3NA== "
@@ -29,7 +32,6 @@ class ParaguaySource(Source):
                 'url': 'https://www.contrataciones.gov.py:443/datos/api/v2/doc/ocds/record-package/%s' % record_package_id,
                 'filename': 'record-%s.json' % record_package_id,
                 'data_type': 'record_package',
-                'errors': []
             })
 
         return out
@@ -42,7 +44,10 @@ class ParaguaySource(Source):
         '''
         url = 'https://www.contrataciones.gov.py/'
         url += 'images/opendata/planificaciones/%s.csv' % year
-        r = requests.get(url)
+        r = util.get_url_request(url)
+        if r[1]:
+            raise Exception(r[1])
+        r = r[0]
         decoded_content = r.content.decode('utf-8')
         cr = csv.reader(decoded_content.splitlines(), delimiter=',')
         id_list = []
@@ -74,7 +79,6 @@ class ParaguaySource(Source):
                         'url': url,
                         'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
             return additional, []
