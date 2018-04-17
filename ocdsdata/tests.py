@@ -158,18 +158,14 @@ def test_exception_gather():
 
 def test_create_tables():
     database.create_tables(drop=True)
-    database.insert_releases([
-        {'source_id': 'test',
-         'sample': False,
-         'data_version': '2018-01-01-10-10-10',
-         'file': 'moo',
-         'package_data': {},
-         'release': {"moo":"moo"}},
-        {'source_id': 'test2',
-         'sample': False,
-         'data_version': '2018-01-01-10-10-10',
-         'file': 'moo',
-         'package_data': {},
-         'release': {"moo":"moo"}},
-    ])
-    database.delete_releases('test')
+
+def test_database_get_hash_md5_for_data():
+    assert database.get_hash_md5_for_data({'cats': 'many'}) == '538dd075f4a37d77be84c683b711d644'
+
+
+def test_database_get_hash_md5_for_data2():
+    assert database.get_hash_md5_for_data({'cats': 'none'}) == '562c5f4221c75c8f08da103cc10c4e4c'
+
+
+
+
