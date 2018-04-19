@@ -207,6 +207,29 @@ def test_create_tables():
     database.create_tables(drop=True)
 
 
+def test_database_is_store_done():
+    database.create_tables(drop=True)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+
+        # test it's not marked as done
+        assert not database.is_store_done("test_source", "2018-01-01-10-00-00", True)
+
+        # start it!
+        database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
+        # Note we don't mark the store completed here, so should is_store_done return True?
+        # Currently it does, but this will probably be looked at later and this test will help.
+
+        # test it's marked as done
+        assert database.is_store_done("test_source", "2018-01-01-10-00-00", True)
+
+        # test other stores aren't marked as done
+        assert not database.is_store_done("test_source", "2018-01-01-10-00-00", False)  # Not a Sample
+        assert not database.is_store_done("test_source", "2027-01-01-10-00-00", True)  # Different version
+        assert not database.is_store_done("a_different_source", "2018-01-01-10-00-00", True)  # Different source
+
+
 def test_database_get_hash_md5_for_data():
     assert database.get_hash_md5_for_data({'cats': 'many'}) == '538dd075f4a37d77be84c683b711d644'
 
