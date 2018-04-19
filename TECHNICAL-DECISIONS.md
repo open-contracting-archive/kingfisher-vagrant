@@ -13,6 +13,8 @@ See CONTRIBUTING.md for more guidelines
 
 ### Pull Requests
 
+It's fine to open a Work In Progress (WIP) pull request to invite early comments from your colleagues but make sure it's clearly marked as such.
+
 Each Pull Request needs to be approved by one other person.
 
 Merging should be done using the "Create a merge commit" strategy.
