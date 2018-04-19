@@ -20,6 +20,7 @@ If you are not comfortable working with GitHub, but would still like to contribu
     - Create a branch named after the work you're doing (if you're targeting a specific issue, start the branch name with the issue number e.g. ``42-feature-name``)
 * Do your work
     - If your work addresses a specific issue, reference that issue in your commit message by starting the commit message with ``[#issue number]`` e.g. ``[#64]``
+* Make sure your work passes the automatic tests run in Travis. (pytest and flake8)
 * Create a pull request
 
 ## Talk to us
