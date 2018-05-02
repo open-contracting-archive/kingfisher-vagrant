@@ -14,7 +14,6 @@ class MexicoAdministracionPublicaFederal(Source):
                 'url': url % 1,
                 'filename': 'sample.json',
                 'data_type': 'record_package_list_in_results',
-                'errors': []
             }]
 
         r = util.get_url_request(url % 2)
@@ -31,7 +30,6 @@ class MexicoAdministracionPublicaFederal(Source):
                 'url': url % page,
                 'filename': 'page%d.json' % page,
                 'data_type': 'record_package_list_in_results',
-                'errors': []
             })
             page += 1
         return out

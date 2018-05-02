@@ -11,6 +11,7 @@ from ocdsdata.util import save_content
 REQUEST_TOKEN = "Basic " \
                 "ODhjYmYwOGEtMDcyMC00OGY1LWFhYWUtMWVkNzVkZmFiYzZiOjNjNjQxZGQ5LWNjN2UtNDI5ZC05NWRiLWI5ODNiNmYyMDY3NA== "
 
+
 class ParaguaySource(Source):
     publisher_name = 'Paraguay'
     url = 'http://data.dsp.im'
@@ -32,7 +33,6 @@ class ParaguaySource(Source):
                 'url': 'https://www.contrataciones.gov.py:443/datos/api/v2/doc/ocds/record-package/%s' % record_package_id,
                 'filename': 'record-%s.json' % record_package_id,
                 'data_type': 'record_package',
-                'errors': []
             })
 
         return out
@@ -80,7 +80,6 @@ class ParaguaySource(Source):
                         'url': url,
                         'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
             return additional, []
@@ -101,7 +100,7 @@ class ParaguaySource(Source):
                 try:
                     json = r.json()['access_token']
                     correct = True
-                except:
+                except requests.exceptions.RequestException:
                     correct = False
             self.access_token = json
             return "Bearer " + json

@@ -17,7 +17,6 @@ class UgandaSource(Source):
                     'url': 'http://gpp.ppda.go.ug/api/v1/releases?tag=%s&page=1' % tag,
                     'filename': 'tag%spage1.json' % tag,
                     'data_type': 'release_package',
-                    'errors': []
                 })
             else:
                 r = util.get_url_request('http://gpp.ppda.go.ug/api/v1/releases?tag=%s&page=1' % tag)
@@ -31,10 +30,6 @@ class UgandaSource(Source):
                         'url': 'http://gpp.ppda.go.ug/api/v1/releases?tag=%s&page=%d' % (tag, page),
                         'filename': 'tag-%s-page-%d.json' % (tag, page),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
         return out
-
-
-

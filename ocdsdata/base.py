@@ -14,18 +14,18 @@ Each source should extend this class and add some variables and implement a few 
 
 method gather_all_download_urls - this is called once at the start and should return a list of files to download.
 
-method save_url - this is called once per file to download. You may not need to implement this for a simple source, as 
-the default implementation may be good enough. It returns two lists - the first list is a list of new files to download, 
-and the second list is a list of errors. 
+method save_url - this is called once per file to download. You may not need to implement this for a simple source, as
+the default implementation may be good enough. It returns two lists - the first list is a list of new files to download,
+and the second list is a list of errors.
 
-Files to be downloaded are described by a dict. Both gather_all_download_urls and save_url return the same structure. 
+Files to be downloaded are described by a dict. Both gather_all_download_urls and save_url return the same structure.
 The keys are:
 
   *  filename - the name of the file that will be saved locally. These need to be unique per source.
   *  url - the URL to download.
   *  data_type - the type of the file. See below.
   *  encoding - encoding of the file. Optional, defaults to utf-8.
-  
+
 The data_type should be one of the following options:
 
   *  record_package - the file is a record package.
@@ -36,10 +36,11 @@ The data_type should be one of the following options:
   *  record_package_list_in_results - the file is a list of record packages in the results attribute. eg
      { 'results': [  { record-package-1 } , { record-package-2 } ]  }
   *  release_package_list_in_results - see last entry, but release packages.
-  *  meta* - files with a type that starts with meta are fetched as normal, but then ignored while storing to the database. 
+  *  meta* - files with a type that starts with meta are fetched as normal, but then ignored while storing to the database.
      You may need these files to work out more files to download. See the ukraine source for an example.
-
 """
+
+
 class Source:
     publisher_name = None
     url = None
@@ -56,31 +57,33 @@ class Source:
         self.publisher_name = publisher_name or self.publisher_name
         if not self.publisher_name:
             raise AttributeError('A publisher name needs to be specified')
+
+        # Make sure the output directory is fully specified, including sample bit (if applicable)
         self.output_directory = output_directory or self.output_directory or self.source_id
         if not self.output_directory:
             raise AttributeError('An output directory needs to be specified')
 
-        all_versions = sorted(os.listdir(self.output_directory), reverse=True)\
-            if os.path.exists(self.output_directory) else []
-
-        if self.data_version:
-            pass
-        elif data_version in all_versions:  ## Version specified is valid
-            self.data_version = data_version
-        elif data_version:
-            self.data_version = data_version
-        elif new_version or len(all_versions) == 0:  ## New Version
-            self.data_version = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
-        elif len(all_versions) > 0:  ## Get the latest version to resume
-            self.data_version = all_versions[0]
-        else: ## Should not happen...
-            raise AttributeError('The version is unavailable on the output directory')
-
-        self.url = url or self.url
-
         if self.sample and not self.output_directory.endswith('_sample'):
             self.output_directory += '_sample'
 
+        # Load all versions if possible, pick an existing one or set a new one.
+        all_versions = sorted(os.listdir(os.path.join(base_dir, self.output_directory)), reverse=True)\
+            if os.path.exists(os.path.join(base_dir, self.output_directory)) else []
+
+        if self.data_version:
+            pass
+        elif data_version and data_version in all_versions:  # Version specified is valid
+            self.data_version = data_version
+        elif data_version:   # Version specified is invalid!
+            raise AttributeError('A version was specified that does not exist')
+        elif new_version or len(all_versions) == 0:  # New Version
+            self.data_version = datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
+        elif len(all_versions) > 0:  # Get the latest version to resume
+            self.data_version = all_versions[0]
+        else:  # Should not happen...
+            raise AttributeError('The version is unavailable on the output directory')
+
+        # Build full directory, make sure it exists
         self.full_directory = os.path.join(base_dir, self.output_directory, self.data_version)
 
         exists = os.path.exists(self.full_directory)
@@ -92,17 +95,21 @@ class Source:
 
             if not exists:
                 os.makedirs(self.full_directory)
-        except:
+        except OSError:
             print("Error: Write permission is needed on the directory specified (or project dir).")
             return
+
+        # Misc
+
+        self.url = url or self.url
 
         self.metadata_db = MetadataDB(self.full_directory)
 
         self.metadata_db.create_session_metadata(
-            publisher_name = self.publisher_name,
-            sample = self.sample,
-            url = self.url,
-            data_version = self.data_version
+            publisher_name=self.publisher_name,
+            sample=self.sample,
+            url=self.url,
+            data_version=self.data_version
         )
 
     """Returns an array with objects for each url.
@@ -119,19 +126,16 @@ class Source:
 
         self.metadata_db.update_session_gather_start()
 
-        failed = False
         try:
             for info in self.gather_all_download_urls():
                 self.metadata_db.add_filestatus(info)
-                if info['errors']:
-                    failed = True
         except Exception as e:
             error = repr(e)
             stacktrace = traceback.format_exception(*sys.exc_info())
             self.metadata_db.update_session_gather_end(False, error, stacktrace)
             return
 
-        self.metadata_db.update_session_gather_end(not failed, None, None)
+        self.metadata_db.update_session_gather_end(True, None, None)
 
     def run_fetch(self):
         metadata = self.metadata_db.get_session()
@@ -166,108 +170,95 @@ class Source:
                     errors = [repr(e)]
 
                 if errors:
-                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, str(errors))
+                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, errors)
                     failed = True
                 else:
                     self.metadata_db.update_filestatus_fetch_end(data['filename'], True)
 
-        self.metadata_db.update_session_fetch_end(not failed) ## No ERrors Passed here?
+        self.metadata_db.update_session_fetch_end(not failed)
 
     """Uploads the fetched data as record rows to the Database"""
     def run_store(self):
         metadata = self.metadata_db.get_session()
 
-        # We should check if this store has already been done.
-        # This needs to be done in the Postgres database.#
-        # TODO
-        #if metadata['store_success']:
-        #    return
-
         if not metadata['fetch_success']:
             raise Exception('Can not run store without a successful fetch')
+
+        if database.is_store_done(self.source_id, self.data_version, self.sample):
+            return
+
+        source_session_id = database.start_store(self.source_id, self.data_version, self.sample, self.metadata_db)
 
         for data in self.metadata_db.list_filestatus():
 
             if data['data_type'].startswith('meta'):
                 continue
 
-            try:
-                with open(os.path.join(self.full_directory, data['filename']),
-                          encoding=data['encoding']) as f:
-                    json_data = json.load(f)
-            except Exception as e:
-                ## TODO better way of dealing with this?
-                raise e
-                return
+            with database.add_file(source_session_id, data) as database_file:
 
-            objects_list = []
-            if data['data_type'] == 'record_package_list_in_results':
-                objects_list.extend(json_data['results'])
-            elif data['data_type'] == 'release_package_list_in_results':
-                objects_list.extend(json_data['results'])
-            elif data['data_type'] == 'record_package_list' or data['data_type'] == 'release_package_list':
-                objects_list.extend(json_data)
-            else:
-                objects_list.append(json_data)
+                try:
+                    with open(os.path.join(self.full_directory, data['filename']),
+                              encoding=data['encoding']) as f:
+                        json_data = json.load(f)
+                except Exception as e:
+                    # TODO better way of dealing with this?
+                    raise e
+                    return
 
-            for json_data in objects_list:
-                error_msg = ''
-                if not isinstance(json_data, dict):
-                    error_msg = "Can not process data in file {} as JSON is not an object".format(data['filename'])
-
-                if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list' :
-                    if 'releases' not in json_data:
-                        error_msg = "Release list not found in file {}".format(data['filename'])
-                    elif not isinstance(json_data['releases'], list):
-                        error_msg = "Release list which is not a list found in file {}".format(data['filename'])
-                    data_list = json_data['releases']
-                elif data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
-                    if 'records' not in json_data:
-                        error_msg = "Record list not found in file {}".format(data['filename'])
-                    elif not isinstance(json_data['records'], list):
-                        error_msg = "Record list which is not a list found in file {}".format(data['filename'])
-                    data_list = json_data['records']
+                objects_list = []
+                if data['data_type'] == 'record_package_list_in_results':
+                    objects_list.extend(json_data['results'])
+                elif data['data_type'] == 'release_package_list_in_results':
+                    objects_list.extend(json_data['results'])
+                elif data['data_type'] == 'record_package_list' or data['data_type'] == 'release_package_list':
+                    objects_list.extend(json_data)
                 else:
-                    error_msg = "data_type not a known type"
+                    objects_list.append(json_data)
 
-                if error_msg:
-                    raise Exception(error_msg)
-                package_data = {}
-                for key, value in json_data.items():
-                    if key not in ('releases', 'records'):
-                        package_data[key] = value
+                for json_data in objects_list:
+                    error_msg = ''
+                    if not isinstance(json_data, dict):
+                        error_msg = "Can not process data in file {} as JSON is not an object".format(data['filename'])
 
-                data_for_database = []
-                for row in data_list:
-                    if not isinstance(row, dict):
-                        error_msg = "Row in data is not a object {}".format(data['filename'])
+                    if data['data_type'] == 'release_package' or \
+                            data['data_type'] == 'release_package_list_in_results' or \
+                            data['data_type'] == 'release_package_list':
+                        if 'releases' not in json_data:
+                            error_msg = "Release list not found in file {}".format(data['filename'])
+                        elif not isinstance(json_data['releases'], list):
+                            error_msg = "Release list which is not a list found in file {}".format(data['filename'])
+                        data_list = json_data['releases']
+                    elif data['data_type'] == 'record_package' or \
+                            data['data_type'] == 'record_package_list_in_results' or \
+                            data['data_type'] == 'record_package_list':
+                        if 'records' not in json_data:
+                            error_msg = "Record list not found in file {}".format(data['filename'])
+                        elif not isinstance(json_data['records'], list):
+                            error_msg = "Record list which is not a list found in file {}".format(data['filename'])
+                        data_list = json_data['records']
+                    else:
+                        error_msg = "data_type not a known type"
+
+                    if error_msg:
                         raise Exception(error_msg)
+                    package_data = {}
+                    for key, value in json_data.items():
+                        if key not in ('releases', 'records'):
+                            package_data[key] = value
 
-                    row_in_database = {
-                        "source_id": self.source_id,
-                        "sample": self.sample,
-                        "file": data['filename'],
-                        "publisher_name": self.publisher_name,
-                        "url": self.url,
-                        "package_data": package_data,
-                        "data_version": self.data_version,
-                    }
+                    for row in data_list:
+                        if not isinstance(row, dict):
+                            error_msg = "Row in data is not a object {}".format(data['filename'])
+                            raise Exception(error_msg)
 
-                    if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
-                        row_in_database['record'] = row
-                        row_in_database['ocid'] = row.get('ocid')
+                        if data['data_type'] == 'record_package' or \
+                                data['data_type'] == 'record_package_list_in_results' or \
+                                data['data_type'] == 'record_package_list':
+                            database_file.insert_record(row, package_data)
+                        else:
+                            database_file.insert_release(row, package_data)
 
-                    if data['data_type'] == 'release_package' or data['data_type'] == 'release_package_list_in_results' or data['data_type'] == 'release_package_list':
-                        row_in_database['release'] = row
-                        row_in_database['ocid'] = row.get('ocid')
-                        row_in_database['release_id'] = row.get('id')
-
-                    data_for_database.append(row_in_database)
-
-                if data['data_type'] == 'record_package' or data['data_type'] == 'record_package_list_in_results' or data['data_type'] == 'record_package_list':
-                    database.insert_records(data_for_database)
-                else:
-                    database.insert_releases(data_for_database)
+        database.end_store(source_session_id)
 
     def save_url(self, file_name, data, file_path):
         return [], save_content(data['url'], file_path)

@@ -1,8 +1,8 @@
 import time
-import json
 import requests
 
 RETRY_TIME = 10
+
 
 def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
     '''
@@ -53,19 +53,13 @@ def save_content(url, filepath, headers=None):
     except Exception as e:
         return [str(e)]
 
-
-    
-
-
-
-
-#if is_json:
+# if is_json:
 #    try:
 #        data = r.json()
 #        return data, []
 #    except json.JSONDecodeError:
 #        error_msg = 'Failed to decode json'
-#else:
+# else:
 #    try:
 #        content = r.content
 #        return content, []

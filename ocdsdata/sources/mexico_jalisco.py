@@ -24,7 +24,6 @@ class MexicoJaliscoSource(Source):
                     'url': data['URIContract'],
                     'filename': 'id%s.json' % data['ocid'],
                     'data_type': 'record_package',
-                    'errors': []
                 })
         return out
 
@@ -46,7 +45,6 @@ class MexicoJaliscoSource(Source):
                         'url': url,
                         'filename': 'packages-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                         'data_type': 'release_package',
-                        'errors': []
                     })
 
             return additional, []

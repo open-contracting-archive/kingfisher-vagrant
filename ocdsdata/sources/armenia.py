@@ -1,4 +1,3 @@
-import hashlib
 import json
 
 from ocdsdata.base import Source
@@ -16,7 +15,6 @@ class ArmeniaSource(Source):
             'url': url,
             'filename': 'page-1-.json',
             'data_type': 'release_package',
-            'errors': []
         }]
         return out
 
@@ -39,6 +37,5 @@ class ArmeniaSource(Source):
                     'url': json_data['next_page']['uri'],
                     'filename': 'page-%d-.json' % page,
                     'data_type': 'release_package',
-                    'errors': []
                 })
             return additional, []

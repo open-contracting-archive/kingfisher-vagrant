@@ -2,6 +2,7 @@ from ocdsdata.base import Source
 from ocdsdata.util import save_content
 import os
 
+
 class MoldovaSource(Source):
     publisher_name = 'Moldova'
     url = 'http://data.dsp.im'
@@ -18,7 +19,6 @@ class MoldovaSource(Source):
                 'url': 'http://opencontracting.date.gov.md/ocds-api/year/2017',
                 'filename': 'sample.json',
                 'data_type': 'release_package',
-                'errors': []
             }]
 
         out = []
@@ -27,7 +27,6 @@ class MoldovaSource(Source):
                 'url': 'http://opencontracting.date.gov.md/ocds-api/year/%d' % year,
                 'filename': 'year-%d.json' % year,
                 'data_type': 'release_package',
-                'errors': []
             })
         return out
 
@@ -45,4 +44,3 @@ class MoldovaSource(Source):
         os.remove(file_path + '-download.json')
 
         return [], []
-
