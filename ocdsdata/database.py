@@ -130,10 +130,10 @@ def is_store_done(source_id, data_version, sample):
         return True if result.fetchone() else False
 
 
-
 def delete_schema():
     with engine.begin() as connection:
         connection.execute(schema_table.delete())
+
 
 def start_store(source_id, data_version, sample, metadata_db):
     # Note use of engine.begin means this happens in a DB transaction
@@ -167,7 +167,6 @@ def insert_schema(paths):
     with engine.begin() as connection:
         connection.execute(schema_table.insert(),
                            paths)
-
 
 
 class add_file():
