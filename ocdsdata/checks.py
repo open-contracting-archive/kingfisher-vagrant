@@ -2,6 +2,7 @@ import json
 import operator
 from sqlite3 import IntegrityError
 
+import copy
 import json_merge_patch
 import jsonref
 

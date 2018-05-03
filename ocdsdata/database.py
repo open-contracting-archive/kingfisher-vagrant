@@ -6,7 +6,6 @@ import pgpasslib
 import hashlib
 import json
 
-
 # Default database details
 host = 'localhost'
 port = '5432'
@@ -34,15 +33,15 @@ engine = sa.create_engine(DB_URI, json_serializer=SetEncoder().encode)
 metadata = sa.MetaData()
 
 schema_table = sa.Table('schema', metadata,
-                            sa.Column('id', sa.Integer, primary_key=True),
-                            sa.Column('path', sa.Text, nullable=False),
-                            sa.Column('deprecated', sa.Boolean, nullable=False),
-                            sa.Column('extension_name', sa.Text, nullable=True),
-                            sa.Column('extension_type', sa.Text, nullable=True), # core_extension or community_extension
-                            sa.Column('url', sa.Text, nullable=False),
-                            sa.Column('version', sa.Text, nullable=True),
-                            sa.Column('type', sa.Text, nullable=False),
-                            sa.UniqueConstraint('path', 'version', name='uq_path_version'),
+                        sa.Column('id', sa.Integer, primary_key=True),
+                        sa.Column('path', sa.Text, nullable=False),
+                        sa.Column('deprecated', sa.Boolean, nullable=False),
+                        sa.Column('extension_name', sa.Text, nullable=True),
+                        sa.Column('extension_type', sa.Text, nullable=True),   # core_extension or community_extension
+                        sa.Column('url', sa.Text, nullable=False),
+                        sa.Column('version', sa.Text, nullable=True),
+                        sa.Column('type', sa.Text, nullable=False),
+                        sa.UniqueConstraint('path', 'version', name='uq_path_version'),
                         )
 
 source_session_table = sa.Table('source_session', metadata,
@@ -110,12 +109,10 @@ record_check_table = sa.Table('record_check', metadata,
                               )
 
 
-
-
 def create_tables(drop=True):
     # We use the "with engine.begin() as connection" to get a database transaction.
     # We add "noqa" to stop flake8 complaining the connection variable is not used.
-    with engine.begin() as connection: # noqa
+    with engine.begin() as connection:  # noqa
         if drop:
             metadata.drop_all(engine)
         metadata.create_all(engine)
@@ -159,7 +156,8 @@ def start_store(source_id, data_version, sample, metadata_db):
 def end_store(source_session_id):
     with engine.begin() as connection:
         connection.execute(
-            source_session_table.update().where(source_session_table.c.id == source_session_id).values(store_end_at=datetime.datetime.utcnow())
+            source_session_table.update().where(source_session_table.c.id == source_session_id).values(
+                store_end_at=datetime.datetime.utcnow())
         )
 
 
@@ -185,7 +183,7 @@ class add_file():
         self.transaction = self.connection.begin()
 
         # Look up the id for this file
-        s = sa.sql.select([source_session_file_status_table])\
+        s = sa.sql.select([source_session_file_status_table]) \
             .where((source_session_file_status_table.c.source_session_id == self.source_session_id) &
                    (source_session_file_status_table.c.filename == self.file_info['filename']))
         result = self.connection.execute(s)
@@ -196,8 +194,8 @@ class add_file():
         # mark file as started
         self.connection.execute(
             source_session_file_status_table.update()
-            .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
-            .values(store_start_at=datetime.datetime.utcnow())
+                .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
+                .values(store_start_at=datetime.datetime.utcnow())
         )
 
         return self
@@ -214,8 +212,8 @@ class add_file():
 
             self.connection.execute(
                 source_session_file_status_table.update()
-                .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
-                .values(store_end_at=datetime.datetime.utcnow())
+                    .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
+                    .values(store_end_at=datetime.datetime.utcnow())
             )
 
             self.transaction.commit()
