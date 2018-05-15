@@ -1,8 +1,7 @@
-from os.path import join, exists
+from os.path import join, exists, abspath, dirname
 import tempfile
-
+import alembic.config
 import pytest
-
 from .base import Source
 from . import util
 from . import database
@@ -10,6 +9,24 @@ from ocdsdata.metadata_db import MetadataDB
 
 # Monkey patch to make tests run a lot faster
 util.RETRY_TIME = 0.1
+
+
+def setup_main_database():
+    database.engine.execute("drop table if exists record_check cascade")
+    database.engine.execute("drop table if exists release_check cascade")
+    database.engine.execute("drop table if exists record cascade")
+    database.engine.execute("drop table if exists release cascade")
+    database.engine.execute("drop table if exists package_data cascade")
+    database.engine.execute("drop table if exists data cascade")
+    database.engine.execute("drop table if exists source_session_file_status cascade")
+    database.engine.execute("drop table if exists source_session cascade")
+    database.engine.execute("drop table if exists alembic_version cascade")
+    alembicargs = [
+        '--config', abspath(join(dirname(__file__), '..', 'mainalembic.ini')),
+        '--raiseerr',
+        'upgrade', 'head',
+    ]
+    alembic.config.main(argv=alembicargs)
 
 
 class Basic(Source):
@@ -58,7 +75,7 @@ def test_basic():
         assert data['fetch_finished_datetime']
         del data, metadata_db
 
-        database.create_tables(drop=True)
+        setup_main_database()
         fetcher.run_store()
 
 
@@ -204,11 +221,11 @@ def test_exception_gather():
 
 
 def test_create_tables():
-    database.create_tables(drop=True)
+    setup_main_database()
 
 
 def test_database_is_store_done():
-    database.create_tables(drop=True)
+    setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")

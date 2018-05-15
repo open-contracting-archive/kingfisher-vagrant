@@ -81,15 +81,6 @@ record_check_table = sa.Table('record_check', metadata,
                               )
 
 
-def create_tables(drop=True):
-    # We use the "with engine.begin() as connection" to get a database transaction.
-    # We add "noqa" to stop flake8 complaining the connection variable is not used.
-    with engine.begin() as connection: # noqa
-        if drop:
-            metadata.drop_all(engine)
-        metadata.create_all(engine)
-
-
 def is_store_done(source_id, data_version, sample):
     with engine.begin() as connection:
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
