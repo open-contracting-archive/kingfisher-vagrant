@@ -5,21 +5,7 @@ import datetime
 import pgpasslib
 import hashlib
 import json
-
-# Default database details
-host = 'localhost'
-port = '5432'
-user = 'ocdsdata'
-dbname = 'ocdsdata'
-
-try:
-    password = pgpasslib.getpass(host, port, user, dbname)
-
-    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, password, host, dbname)
-except pgpasslib.FileNotFound:
-    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, 'ocdsdata', host, dbname)
-
-DB_URI = os.environ.get('DB_URI', database_uri)
+import ocdsdata.maindatabase.config
 
 
 class SetEncoder(json.JSONEncoder):
@@ -29,7 +15,7 @@ class SetEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-engine = sa.create_engine(DB_URI, json_serializer=SetEncoder().encode)
+engine = sa.create_engine(ocdsdata.maindatabase.config.DB_URI, json_serializer=SetEncoder().encode)
 metadata = sa.MetaData()
 
 source_session_table = sa.Table('source_session', metadata,
