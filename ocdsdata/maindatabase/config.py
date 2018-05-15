@@ -18,4 +18,3 @@ except pgpasslib.FileNotFound:
     database_uri = 'postgresql://{}:{}@{}/{}'.format(user, 'ocdsdata', host, dbname)
 
 DB_URI = os.environ.get('DB_URI', database_uri)
-

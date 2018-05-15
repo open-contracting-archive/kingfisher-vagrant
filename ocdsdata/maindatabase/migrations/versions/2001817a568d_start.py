@@ -1,7 +1,7 @@
 """start
 
 Revision ID: 2001817a568d
-Revises: 
+Revises:
 Create Date: 2018-05-15 13:27:35.420841
 
 """

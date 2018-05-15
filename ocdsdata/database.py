@@ -1,8 +1,6 @@
 import sqlalchemy as sa
-import os
 from sqlalchemy.dialects.postgresql import JSONB
 import datetime
-import pgpasslib
 import hashlib
 import json
 import ocdsdata.maindatabase.config
