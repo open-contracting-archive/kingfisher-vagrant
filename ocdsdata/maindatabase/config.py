@@ -3,7 +3,6 @@ import pgpasslib
 
 # Default database details
 #
-# This code is currently duplicated in ocdsdata/database.py and it would be good to remove that.
 #
 host = 'localhost'
 port = '5432'
