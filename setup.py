@@ -7,6 +7,16 @@ setup(name='ocdsdata',
       description='Get ocds data',
       author='Open Contracting',
       url='',
-      packages=['ocdsdata', 'ocdsdata.sources'],
-      scripts=['ocdsdata-cli']
+      packages=[
+            'ocdsdata',
+            'ocdsdata.sources',
+            'ocdsdata.maindatabase',
+            'ocdsdata.maindatabase.migrations',
+            'ocdsdata.maindatabase.migrations.versions'
+      ],
+      scripts=['ocdsdata-cli'],
+      package_data={'ocdsdata': [
+              'maindatabase/migrations/script.py.mako'
+          ]},
+      include_package_data=True
       )
