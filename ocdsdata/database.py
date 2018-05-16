@@ -3,7 +3,9 @@ from sqlalchemy.dialects.postgresql import JSONB
 import datetime
 import hashlib
 import json
+import os
 import ocdsdata.maindatabase.config
+import alembic.config
 
 
 class SetEncoder(json.JSONEncoder):
@@ -79,6 +81,27 @@ record_check_table = sa.Table('record_check', metadata,
                               sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True, unique=True),
                               sa.Column('cove_output', JSONB, nullable=False)
                               )
+
+
+def delete_tables():
+    engine.execute("drop table if exists record_check cascade")
+    engine.execute("drop table if exists release_check cascade")
+    engine.execute("drop table if exists record cascade")
+    engine.execute("drop table if exists release cascade")
+    engine.execute("drop table if exists package_data cascade")
+    engine.execute("drop table if exists data cascade")
+    engine.execute("drop table if exists source_session_file_status cascade")
+    engine.execute("drop table if exists source_session cascade")
+    engine.execute("drop table if exists alembic_version cascade")
+
+
+def create_tables():
+    alembicargs = [
+        '--config', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mainalembic.ini')),
+        '--raiseerr',
+        'upgrade', 'head',
+    ]
+    alembic.config.main(argv=alembicargs)
 
 
 def is_store_done(source_id, data_version, sample):

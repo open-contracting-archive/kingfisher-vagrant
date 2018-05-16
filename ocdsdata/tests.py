@@ -1,6 +1,5 @@
-from os.path import join, exists, abspath, dirname
+from os.path import join, exists
 import tempfile
-import alembic.config
 import pytest
 from .base import Source
 from . import util
@@ -12,21 +11,8 @@ util.RETRY_TIME = 0.1
 
 
 def setup_main_database():
-    database.engine.execute("drop table if exists record_check cascade")
-    database.engine.execute("drop table if exists release_check cascade")
-    database.engine.execute("drop table if exists record cascade")
-    database.engine.execute("drop table if exists release cascade")
-    database.engine.execute("drop table if exists package_data cascade")
-    database.engine.execute("drop table if exists data cascade")
-    database.engine.execute("drop table if exists source_session_file_status cascade")
-    database.engine.execute("drop table if exists source_session cascade")
-    database.engine.execute("drop table if exists alembic_version cascade")
-    alembicargs = [
-        '--config', abspath(join(dirname(__file__), '..', 'mainalembic.ini')),
-        '--raiseerr',
-        'upgrade', 'head',
-    ]
-    alembic.config.main(argv=alembicargs)
+    database.delete_tables()
+    database.create_tables()
 
 
 class Basic(Source):
