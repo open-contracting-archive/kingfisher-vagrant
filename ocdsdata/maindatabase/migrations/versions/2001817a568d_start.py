@@ -85,4 +85,11 @@ def upgrade():
 
 
 def downgrade():
-    pass
+    op.drop_table('record_check')
+    op.drop_table('release_check')
+    op.drop_table('record')
+    op.drop_table('release')
+    op.drop_table('package_data')
+    op.drop_table('data')
+    op.drop_table('source_session_file_status')
+    op.drop_table('source_session')
