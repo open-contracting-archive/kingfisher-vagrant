@@ -12,10 +12,10 @@ REQUEST_TOKEN = "Basic " \
                 "ODhjYmYwOGEtMDcyMC00OGY1LWFhYWUtMWVkNzVkZmFiYzZiOjNjNjQxZGQ5LWNjN2UtNDI5ZC05NWRiLWI5ODNiNmYyMDY3NA== "
 
 
-class ParaguaySource(Source):
-    publisher_name = 'Paraguay'
+class ParaguayDNCPSource(Source):
+    publisher_name = 'Paraguay DNCP'
     url = 'http://data.dsp.im'
-    source_id = 'paraguay'
+    source_id = 'paraguay_dncp'
 
     def gather_all_download_urls(self):
         record_package_ids = []
