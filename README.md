@@ -16,7 +16,7 @@ Example of creating an ocdsdata table and data:
 sudo -u postgres createuser ocdsdata --pwprompt
 sudo -u postgres createdb ocdsdata -O ocdsdata
 export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
-ocdsdata-cli --createdatabase
+alembic --config mainalembic.ini upgrade head
 ```
 
 ## Running
@@ -28,3 +28,11 @@ Set the `DB_URI` enviromental variable to use a custom PostgreSQL server, the de
 ## Run Tests
 
 Run `py.test` from root directory.
+
+## Main Database - Postgresql
+
+Create DB Migrations with Alembic - http://alembic.zzzcomputing.com/en/latest/
+
+    alembic --config=mainalembic.ini revision -m "message"
+
+Add changes to new migration, and make sure you update database.py table structures and delete_tables to.

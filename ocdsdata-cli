@@ -5,8 +5,7 @@ import os
 import glob
 import inspect
 from ocdsdata.base import Source
-from ocdsdata.database import  create_tables
-
+from ocdsdata.database import create_tables, delete_tables
 
 def main():
 
@@ -27,7 +26,7 @@ def main():
     parser.add_argument("--ignorefetch", help="don't run the fetch stage", action="store_true")
     parser.add_argument("--onlystore", help="only run the store stage", action="store_true")
     parser.add_argument("--ignorestore", help="don't run the store stage", action="store_true")
-    parser.add_argument("--createdatabase", help="Create Database", action="store_true")
+    parser.add_argument("--upgradedatabase", help="Upgrade/Create Database", action="store_true")
     parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
     parser.add_argument("--sample", help="Run sample only", action="store_true")
     parser.add_argument("--dataversion", help="Specify a data version to resume")
@@ -37,15 +36,16 @@ def main():
 
     args = parser.parse_args()
 
-    if args.createdatabase:
+    if args.upgradedatabase:
         if args.verbose:
-            print("Creating Database")
-        create_tables(False)
+            print("Upgrading/Creating Database")
+        create_tables()
         quit(0)
     elif args.dropandcreatedatabase:
         if args.verbose:
             print("Dropping and Recreating Database")
-        create_tables(True)
+        delete_tables()
+        create_tables()
         quit(0)
 
     run = []
