@@ -1,8 +1,6 @@
 from os.path import join, exists
 import tempfile
-
 import pytest
-
 from .base import Source
 from . import util
 from . import database
@@ -10,6 +8,11 @@ from ocdsdata.metadata_db import MetadataDB
 
 # Monkey patch to make tests run a lot faster
 util.RETRY_TIME = 0.1
+
+
+def setup_main_database():
+    database.delete_tables()
+    database.create_tables()
 
 
 class Basic(Source):
@@ -58,7 +61,7 @@ def test_basic():
         assert data['fetch_finished_datetime']
         del data, metadata_db
 
-        database.create_tables(drop=True)
+        setup_main_database()
         fetcher.run_store()
 
 
@@ -204,11 +207,11 @@ def test_exception_gather():
 
 
 def test_create_tables():
-    database.create_tables(drop=True)
+    setup_main_database()
 
 
 def test_database_is_store_done():
-    database.create_tables(drop=True)
+    setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")

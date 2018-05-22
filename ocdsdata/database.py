@@ -1,25 +1,11 @@
 import sqlalchemy as sa
-import os
 from sqlalchemy.dialects.postgresql import JSONB
 import datetime
-import pgpasslib
 import hashlib
 import json
-
-# Default database details
-host = 'localhost'
-port = '5432'
-user = 'ocdsdata'
-dbname = 'ocdsdata'
-
-try:
-    password = pgpasslib.getpass(host, port, user, dbname)
-
-    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, password, host, dbname)
-except pgpasslib.FileNotFound:
-    database_uri = 'postgresql://{}:{}@{}/{}'.format(user, 'ocdsdata', host, dbname)
-
-DB_URI = os.environ.get('DB_URI', database_uri)
+import os
+import ocdsdata.maindatabase.config
+import alembic.config
 
 
 class SetEncoder(json.JSONEncoder):
@@ -29,7 +15,7 @@ class SetEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-engine = sa.create_engine(DB_URI, json_serializer=SetEncoder().encode)
+engine = sa.create_engine(ocdsdata.maindatabase.config.DB_URI, json_serializer=SetEncoder().encode)
 metadata = sa.MetaData()
 
 source_session_table = sa.Table('source_session', metadata,
@@ -97,13 +83,25 @@ record_check_table = sa.Table('record_check', metadata,
                               )
 
 
-def create_tables(drop=True):
-    # We use the "with engine.begin() as connection" to get a database transaction.
-    # We add "noqa" to stop flake8 complaining the connection variable is not used.
-    with engine.begin() as connection: # noqa
-        if drop:
-            metadata.drop_all(engine)
-        metadata.create_all(engine)
+def delete_tables():
+    engine.execute("drop table if exists record_check cascade")
+    engine.execute("drop table if exists release_check cascade")
+    engine.execute("drop table if exists record cascade")
+    engine.execute("drop table if exists release cascade")
+    engine.execute("drop table if exists package_data cascade")
+    engine.execute("drop table if exists data cascade")
+    engine.execute("drop table if exists source_session_file_status cascade")
+    engine.execute("drop table if exists source_session cascade")
+    engine.execute("drop table if exists alembic_version cascade")
+
+
+def create_tables():
+    alembicargs = [
+        '--config', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mainalembic.ini')),
+        '--raiseerr',
+        'upgrade', 'head',
+    ]
+    alembic.config.main(argv=alembicargs)
 
 
 def is_store_done(source_id, data_version, sample):
