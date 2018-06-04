@@ -4,7 +4,7 @@ from zipfile import ZipFile
 import requests
 
 from ocdsdata.base import Source
-from ocdsdata.util import save_content
+from ocdsdata.util import get_url_request
 
 REQUEST_TOKEN = '06034873-f3e1-47b8-8bfb-45b11b3fc83d'
 CLIENT_SECRET = 'e606642e20667a6b7b46b9644ce40a85d11a84da173d4d26f65cd5826121ec01'
@@ -12,7 +12,7 @@ CLIENT_SECRET = 'e606642e20667a6b7b46b9644ce40a85d11a84da173d4d26f65cd5826121ec0
 
 class ParaguayHaciendaSource(Source):
     publisher_name = 'Paraguay Hacienda'
-    url = 'http://data.dsp.im'
+    url = 'https://datos.hacienda.gov.py/'
     source_id = 'paraguay_hacienda'
 
     def gather_all_download_urls(self):
@@ -28,7 +28,6 @@ class ParaguayHaciendaSource(Source):
             release_package_ids = release_package_ids[:5]
 
         out = []
-        print('Fetching %d releases' % len(release_package_ids))
         for release_package_id in release_package_ids:
             out.append({
                 'url': 'https://datos.hacienda.gov.py:443/odmh-api-v1/rest/api/v1/ocds/release-package/%s' %
@@ -42,7 +41,6 @@ class ParaguayHaciendaSource(Source):
     @staticmethod
     def get_tender_ids(year):
         url = 'https://datos.hacienda.gov.py/odmh-core/rest/cdp/datos/cdp_%s.zip' % year
-        print('Getting url %s' % url)
         resp = requests.get(url).content
         zipfile = ZipFile(BytesIO(resp))
         ids = []
@@ -54,18 +52,29 @@ class ParaguayHaciendaSource(Source):
         return ids
 
     def save_url(self, filename, data, file_path):
-        if data['data_type'] == 'release_package':
-            print('Saving %s ' % data['url'])
-            errors = save_content(data['url'], file_path, headers={"Authorization": self.get_access_token()})
-            if errors:
-                return [], errors
-        else:
-            return [], save_content(data['url'], file_path, headers={"Authorization": self.get_access_token()})
+        return [], self.save_content(data['url'], file_path, headers={"Authorization": self.get_access_token()})
+
+    def save_content(self, url, filepath, headers=None):
+        request, errors = get_url_request(url, stream=True, headers=headers)
+        if any('Invalid request token' in s for s in errors):
+            self.access_token = None
+            errors = self.save_content(url, filepath, headers={"Authorization": self.get_access_token()})
+        if not request:
+            return errors
+
+        try:
+            with open(filepath, 'wb') as f:
+                for chunk in request.iter_content(1024 ^ 2):
+                    f.write(chunk)
+            return []
+        except Exception as e:
+            return [str(e)]
 
     access_token = None
 
-    @staticmethod
-    def get_access_token():
+    def get_access_token(self):
+        if self.access_token:
+            return self.access_token
         correct = False
         token = ''
         while not correct:
@@ -74,7 +83,7 @@ class ParaguayHaciendaSource(Source):
             try:
                 token = r.json()['accessToken']
                 correct = True
-            except Exception as e:
-                print(e)
+            except requests.exceptions.RequestException:
                 correct = False
+        self.access_token = token
         return token

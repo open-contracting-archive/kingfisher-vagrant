@@ -6,7 +6,7 @@ import requests
 
 from ocdsdata import util
 from ocdsdata.base import Source
-from ocdsdata.util import save_content
+from ocdsdata.util import get_url_request
 
 REQUEST_TOKEN = "Basic " \
                 "ODhjYmYwOGEtMDcyMC00OGY1LWFhYWUtMWVkNzVkZmFiYzZiOjNjNjQxZGQ5LWNjN2UtNDI5ZC05NWRiLWI5ODNiNmYyMDY3NA== "
@@ -14,7 +14,7 @@ REQUEST_TOKEN = "Basic " \
 
 class ParaguayDNCPSource(Source):
     publisher_name = 'Paraguay DNCP'
-    url = 'http://data.dsp.im'
+    url = 'https://www.contrataciones.gov.py/datos'
     source_id = 'paraguay_dncp'
 
     def gather_all_download_urls(self):
@@ -60,7 +60,8 @@ class ParaguayDNCPSource(Source):
     def save_url(self, filename, data, file_path):
         if data['data_type'] == 'record_package':
 
-            errors = save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
+            errors = self.save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
+
             if errors:
                 return [], errors
 
@@ -84,7 +85,23 @@ class ParaguayDNCPSource(Source):
 
             return additional, []
         else:
-            return [], save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
+            return [], self.save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
+
+    def save_content(self, url, filepath, headers=None):
+        request, errors = get_url_request(url, stream=True, headers=headers)
+        if any('Invalid request token' in s for s in errors):
+            self.access_token = None
+            errors = self.save_content(url, filepath, headers={"Authorization": self.getAccessToken()})
+        if not request:
+            return errors
+
+        try:
+            with open(filepath, 'wb') as f:
+                for chunk in request.iter_content(1024 ^ 2):
+                    f.write(chunk)
+            return []
+        except Exception as e:
+            return [str(e)]
 
     access_token = None
 
