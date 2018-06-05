@@ -3,6 +3,8 @@ from sqlalchemy.sql import select
 import os
 import datetime
 import json
+import alembic.config
+import alembic.command
 
 
 class MetadataDB(object):
@@ -13,9 +15,11 @@ class MetadataDB(object):
 
         # if no path, "debug mode" with in memory db and echo SQL generated.
         if directory_path is None:
-            self.engine = sa.create_engine("sqlite:///:memory:", echo=True)
+            self.db_url = "sqlite:///:memory:"
+            self.engine = sa.create_engine(self.db_url, echo=True)
         else:
-            self.engine = sa.create_engine("sqlite:///"+self.metadata_file)
+            self.db_url = "sqlite:///"+self.metadata_file
+            self.engine = sa.create_engine(self.db_url)
         self.metadata = sa.MetaData()
 
         self.session = sa.Table('session', self.metadata,
@@ -47,6 +51,13 @@ class MetadataDB(object):
                                    sa.Column('fetch_errors', sa.Text, nullable=True),
                                    sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
                                    )
+
+        alembic_cfg = alembic.config.Config(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'metaalembic.ini')))
+        alembic_cfg.set_main_option("sqlalchemy.url", self.db_url)
+
+        with self.engine.begin() as connection:
+            alembic_cfg.attributes['connection'] = connection
+            alembic.command.upgrade(alembic_cfg, "head")
 
         self.metadata.create_all(self.engine)
 
