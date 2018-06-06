@@ -26,7 +26,7 @@ def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
     except requests.exceptions.TooManyRedirects:
         error_msg = 'Too many redirects'
     except requests.exceptions.RequestException as e:
-        error_msg = 'Request exception: %s' % e
+        error_msg = 'Request exception (Code %s): %s' % (r.status_code, e)
 
     if not error_msg:
         return r, []
