@@ -1,5 +1,3 @@
-sudo: false
-dist: trusty
 addons:
     chrome: stable
     postgresql: "10"
