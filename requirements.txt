@@ -19,4 +19,5 @@ alembic==0.9.9
 ratelimit==1.4.1
 lxml==4.2.1
 feedparser==5.2.1
+flake8==3.5.0
 -e .
