@@ -96,8 +96,7 @@ class Source:
             if not exists:
                 os.makedirs(self.full_directory)
         except OSError:
-            print("Error: Write permission is needed on the directory specified (or project dir).")
-            return
+            raise RuntimeError("Error: Write permission is needed on the directory specified (or project dir). %s" % self.full_directory)
 
         # Misc
 
