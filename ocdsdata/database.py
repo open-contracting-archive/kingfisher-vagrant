@@ -109,7 +109,7 @@ def is_store_done(source_id, data_version, sample):
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
                                                         (source_session_table.c.sample == sample) &
-                                                        (source_session_table.c.store_end_at is not None))
+                                                        (source_session_table.c.store_end_at != None))  # noqa
         result = connection.execute(s)
         return True if result.fetchone() else False
 
@@ -119,7 +119,7 @@ def is_store_in_progress(source_id, data_version, sample):
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
                                                         (source_session_table.c.sample == sample) &
-                                                        (source_session_table.c.store_end_at is None))
+                                                        (source_session_table.c.store_end_at == None))  # noqa
         result = connection.execute(s)
         return True if result.fetchone() else False
 
@@ -129,7 +129,7 @@ def get_id_of_store_in_progress(source_id, data_version, sample):
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
                                                         (source_session_table.c.sample == sample) &
-                                                        (source_session_table.c.store_end_at is None))
+                                                        (source_session_table.c.store_end_at == None))  # noqa
         result = connection.execute(s)
         return result.fetchone()[0]
 
@@ -164,6 +164,15 @@ def end_store(source_session_id):
         connection.execute(
             source_session_table.update().where(source_session_table.c.id == source_session_id).values(store_end_at=datetime.datetime.utcnow())
         )
+
+
+def is_store_file_done(source_session_id, file_info):
+    with engine.begin() as connection:
+        s = sa.sql.select([source_session_file_status_table]).where((source_session_file_status_table.c.source_session_id == source_session_id) &
+            (source_session_file_status_table.c.filename == file_info['filename']) &
+            (source_session_file_status_table.c.store_end_at != None))  # noqa
+        result = connection.execute(s)
+        return True if result.fetchone() else False
 
 
 class add_file():
