@@ -8,7 +8,7 @@ Set up a venv and install requirements:
 ```
 virtualenv -p python3 .ve
 source .ve/bin/activate
-_pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Example of creating an ocdsdata table and data:
