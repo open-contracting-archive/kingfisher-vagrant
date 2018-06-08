@@ -14,7 +14,7 @@ _pip install -r requirements.txt
 Example of creating an ocdsdata table and data:
 ```
 sudo -u postgres createuser ocdsdata --pwprompt
-sudo -u postgres createdb ocdsdata -O ocdsdata
+sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8 
 export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
 alembic --config mainalembic.ini upgrade head
 ```
