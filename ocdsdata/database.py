@@ -108,30 +108,54 @@ def is_store_done(source_id, data_version, sample):
     with engine.begin() as connection:
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
-                                                        (source_session_table.c.sample == sample))
+                                                        (source_session_table.c.sample == sample) &
+                                                        (source_session_table.c.store_end_at is not None))
         result = connection.execute(s)
         return True if result.fetchone() else False
+
+
+def is_store_in_progress(source_id, data_version, sample):
+    with engine.begin() as connection:
+        s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
+                                                        (source_session_table.c.data_version == data_version) &
+                                                        (source_session_table.c.sample == sample) &
+                                                        (source_session_table.c.store_end_at is None))
+        result = connection.execute(s)
+        return True if result.fetchone() else False
+
+
+def get_id_of_store_in_progress(source_id, data_version, sample):
+    with engine.begin() as connection:
+        s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
+                                                        (source_session_table.c.data_version == data_version) &
+                                                        (source_session_table.c.sample == sample) &
+                                                        (source_session_table.c.store_end_at is None))
+        result = connection.execute(s)
+        return result.fetchone()[0]
 
 
 def start_store(source_id, data_version, sample, metadata_db):
     # Note use of engine.begin means this happens in a DB transaction
     with engine.begin() as connection:
 
-        value = connection.execute(source_session_table.insert(), {
-            'source_id': source_id,
-            'data_version': data_version,
-            'sample': sample,
-            'store_start_at': datetime.datetime.utcnow()
-        })
+        if is_store_in_progress(source_id, data_version, sample):
+            return get_id_of_store_in_progress(source_id, data_version, sample)
+        else:
+            value = connection.execute(source_session_table.insert(), {
+                'source_id': source_id,
+                'data_version': data_version,
+                'sample': sample,
+                'store_start_at': datetime.datetime.utcnow()
+            })
 
-        for file_info in metadata_db.list_filestatus():
-            if not file_info['data_type'].startswith('meta'):
-                connection.execute(source_session_file_status_table.insert(), {
-                    'source_session_id': value.inserted_primary_key[0],
-                    'filename': file_info['filename'],
-                })
+            for file_info in metadata_db.list_filestatus():
+                if not file_info['data_type'].startswith('meta'):
+                    connection.execute(source_session_file_status_table.insert(), {
+                        'source_session_id': value.inserted_primary_key[0],
+                        'filename': file_info['filename'],
+                    })
 
-        return value.inserted_primary_key[0]
+            return value.inserted_primary_key[0]
 
 
 def end_store(source_session_id):
