@@ -48,6 +48,13 @@ class Source:
     source_id = None
     sample = False
     data_version = None
+    """It is possible to pass extra arguments.
+
+    This specifies a list of the extra arguments possible. Each item in the list should be a dict with the keys:
+      *  name - a name compatible with argparse. Names should be unique across all sources, so include a prefix of some kind.
+      *  help - a help string for argparse
+    """
+    argument_definitions = []
 
     def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False, data_version=None, new_version=False):
 
@@ -116,6 +123,9 @@ class Source:
     The return objects includes url,filename,type and more."""
     def gather_all_download_urls(self):
         raise NotImplementedError()
+
+    def set_arguments(self, arguments):
+        pass
 
     def run_gather(self):
         metadata = self.metadata_db.get_session()
