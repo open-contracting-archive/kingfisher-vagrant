@@ -134,6 +134,15 @@ def get_id_of_store_in_progress(source_id, data_version, sample):
         return result.fetchone()[0]
 
 
+def get_id_of_store(source_id, data_version, sample):
+    with engine.begin() as connection:
+        s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
+                                                        (source_session_table.c.data_version == data_version) &
+                                                        (source_session_table.c.sample == sample))
+        result = connection.execute(s)
+        return result.fetchone()[0]
+
+
 def start_store(source_id, data_version, sample, metadata_db):
     # Note use of engine.begin means this happens in a DB transaction
     with engine.begin() as connection:
@@ -173,6 +182,14 @@ def is_store_file_done(source_session_id, file_info):
             (source_session_file_status_table.c.store_end_at != None))  # noqa
         result = connection.execute(s)
         return True if result.fetchone() else False
+
+
+def get_id_of_store_file(source_session_id, file_info):
+    with engine.begin() as connection:
+        s = sa.sql.select([source_session_file_status_table]).where((source_session_file_status_table.c.source_session_id == source_session_id) &
+            (source_session_file_status_table.c.filename == file_info['filename']))  # noqa
+        result = connection.execute(s)
+        return result.fetchone()[0]
 
 
 class add_file():
@@ -286,3 +303,17 @@ class add_file():
 def get_hash_md5_for_data(data):
     data_str = json.dumps(data, sort_keys=True)
     return hashlib.md5(data_str.encode('utf-8')).hexdigest()
+
+
+def is_release_check_done(release_id):
+    with engine.begin() as connection:
+        s = sa.sql.select([release_check_table]).where(release_check_table.c.release_id == release_id)
+        result = connection.execute(s)
+        return True if result.fetchone() else False
+
+
+def is_record_check_done(record_id):
+    with engine.begin() as connection:
+        s = sa.sql.select([record_check_table]).where(record_check_table.c.record_id == record_id)
+        result = connection.execute(s)
+        return True if result.fetchone() else False

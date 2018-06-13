@@ -4,7 +4,9 @@ import pytest
 from .base import Source
 from . import util
 from . import database
+from . import checks
 from ocdsdata.metadata_db import MetadataDB
+import sqlalchemy as sa
 
 # Monkey patch to make tests run a lot faster
 util.RETRY_TIME = 0.1
@@ -210,26 +212,119 @@ def test_create_tables():
     setup_main_database()
 
 
-def test_database_is_store_done():
+def test_database_store():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
 
-        # test it's not marked as done
+        # test this store
         assert not database.is_store_done("test_source", "2018-01-01-10-00-00", True)
 
         # start it!
-        id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
-        database.end_store(id)
+        store_id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
 
-        # test it's marked as done
+        # test this store
+        assert database.get_id_of_store("test_source", "2018-01-01-10-00-00", True) == store_id
+
+        # end it!
+        database.end_store(store_id)
+
+        # test this store
         assert database.is_store_done("test_source", "2018-01-01-10-00-00", True)
 
         # test other stores aren't marked as done
         assert not database.is_store_done("test_source", "2018-01-01-10-00-00", False)  # Not a Sample
         assert not database.is_store_done("test_source", "2027-01-01-10-00-00", True)  # Different version
         assert not database.is_store_done("a_different_source", "2018-01-01-10-00-00", True)  # Different source
+
+
+def test_database_store_file():
+    setup_main_database()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+        metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'record_package'})
+
+        # start it!
+        store_id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
+
+        # test
+        file_id = database.get_id_of_store_file(store_id, {'filename': 'test1.json'})
+        assert file_id == 1
+        # Don't like hard coding ID in. Relies on DB assigning 1 to this new row. But I think we can assume that.
+
+
+def test_checks_records():
+    setup_main_database()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+        metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'record_package'})
+
+        # store details
+        source_session_id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
+        for data in metadata_db.list_filestatus():
+            with database.add_file(source_session_id, data) as database_file:
+                database_file.insert_record({'record': 'totally'}, {'extensions': []})
+        database.end_store(source_session_id)
+
+        record_id = 1
+        # Don't like hard coding ID in. Relies on DB assigning 1 to this new row. But I think we can assume that.
+
+        # Test
+        assert not database.is_record_check_done(record_id)
+
+        # check!
+        for data in metadata_db.list_filestatus():
+            checks.check_file(source_session_id, data)
+
+        # Test
+        assert database.is_record_check_done(record_id)
+
+        with database.engine.begin() as connection:
+            s = sa.sql.select([database.record_check_table])
+            result = connection.execute(s)
+            data = result.fetchone()
+
+        assert data['cove_output']['file_type'] == 'json'
+        assert len(data['cove_output']['validation_errors']) > 0
+
+
+def test_checks_releases():
+    setup_main_database()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+        metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'release_package'})
+
+        # store details
+        source_session_id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
+        for data in metadata_db.list_filestatus():
+            with database.add_file(source_session_id, data) as database_file:
+                database_file.insert_release({'release': 'totally'}, {'extensions': []})
+        database.end_store(source_session_id)
+
+        release_id = 1
+        # Don't like hard coding ID in. Relies on DB assigning 1 to this new row. But I think we can assume that.
+
+        # Test
+        assert not database.is_release_check_done(release_id)
+
+        # check!
+        for data in metadata_db.list_filestatus():
+            checks.check_file(source_session_id, data)
+
+        # Test
+        assert database.is_release_check_done(release_id)
+
+        with database.engine.begin() as connection:
+            s = sa.sql.select([database.release_check_table])
+            result = connection.execute(s)
+            data = result.fetchone()
+
+        assert data['cove_output']['file_type'] == 'json'
+        assert len(data['cove_output']['validation_errors']) > 0
 
 
 def test_database_get_hash_md5_for_data():

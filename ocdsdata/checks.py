@@ -27,39 +27,52 @@ def get_data(data_id):
         return data_row['data']
 
 
-def main():
-    with database.engine.begin() as connection:
-        connection.execute(database.release_check_table.delete())
-        rows = connection.execute(database.release_table.select())
-    for x, row in enumerate(rows):
-        if x % 10 == 0:
-            print('Checked {} releases'.format(x))
-        package = get_package_data(row.package_data_id)
-        package['releases'] = [get_data(row.data_id)]
-        cove_output = handle_package(package)
-        checks = [{
-            'release_id': row.id,
-            'cove_output': cove_output,
-        }]
-        with database.engine.begin() as connection:
-            connection.execute(database.release_check_table.insert(), checks)
+def check_file(source_session_file_status_id, file_info):
+
+    file_id = database.get_id_of_store_file(source_session_file_status_id, file_info)
 
     with database.engine.begin() as connection:
-        connection.execute(database.record_check_table.delete())
-        rows = connection.execute(database.record_table.select())
-    for x, row in enumerate(rows):
-        if x % 10 == 0:
-            print('Checked {} records '.format(x))
-        package = get_package_data(row.package_data_id)
-        package['records'] = [get_data(row.data_id)]
-        cove_output = handle_package(package)
-        checks = [{
-            'record_id': row.id,
-            'cove_output': cove_output,
-        }]
-        with database.engine.begin() as connection:
-            connection.execute(database.record_check_table.insert(), checks)
+
+        release_rows = connection.execute(
+            database.release_table.select().where(database.release_table.c.source_session_file_status_id == file_id)
+        )
+
+    for release_row in release_rows:
+        if not database.is_release_check_done(release_row['id']):
+            check_release_row(release_row)
+
+    del release_rows
+
+    with database.engine.begin() as connection:
+
+        record_rows = connection.execute(
+            database.record_table.select().where(database.record_table.c.source_session_file_status_id == file_id)
+        )
+
+    for record_row in record_rows:
+        if not database.is_record_check_done(record_row['id']):
+            check_record_row(record_row)
 
 
-if __name__ == '__main__':
-    main()
+def check_release_row(release_row):
+    package = get_package_data(release_row.package_data_id)
+    package['releases'] = [get_data(release_row.data_id)]
+    cove_output = handle_package(package)
+    checks = [{
+        'release_id': release_row.id,
+        'cove_output': cove_output,
+    }]
+    with database.engine.begin() as connection:
+        connection.execute(database.release_check_table.insert(), checks)
+
+
+def check_record_row(record_row):
+    package = get_package_data(record_row.package_data_id)
+    package['records'] = [get_data(record_row.data_id)]
+    cove_output = handle_package(package)
+    checks = [{
+        'record_id': record_row.id,
+        'cove_output': cove_output,
+    }]
+    with database.engine.begin() as connection:
+        connection.execute(database.record_check_table.insert(), checks)
