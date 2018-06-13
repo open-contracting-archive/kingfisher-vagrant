@@ -220,9 +220,8 @@ def test_database_is_store_done():
         assert not database.is_store_done("test_source", "2018-01-01-10-00-00", True)
 
         # start it!
-        database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
-        # Note we don't mark the store completed here, so should is_store_done return True?
-        # Currently it does, but this will probably be looked at later and this test will help.
+        id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
+        database.end_store(id)
 
         # test it's marked as done
         assert database.is_store_done("test_source", "2018-01-01-10-00-00", True)

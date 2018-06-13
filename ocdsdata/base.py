@@ -193,6 +193,9 @@ class Source:
             if data['data_type'].startswith('meta'):
                 continue
 
+            if database.is_store_file_done(source_session_id, data):
+                continue
+
             with database.add_file(source_session_id, data) as database_file:
 
                 try:
