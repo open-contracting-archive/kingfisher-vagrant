@@ -262,7 +262,8 @@ class Source:
     def save_url(self, file_name, data, file_path):
         return [], save_content(data['url'], file_path)
 
-    """Gather and Fetch all data from this publisher."""
+    """Gather, Fetch and Store data from this publisher."""
     def run_all(self):
         self.run_gather()
         self.run_fetch()
+        self.run_store()
