@@ -3,10 +3,16 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cove_ocds.settings")  # noqa
 from cove_ocds.lib.api import ocds_json_output
 import sqlalchemy as sa
+import tempfile
+import shutil
 
 
 def handle_package(package):
-    return ocds_json_output('temp', None, None, convert=False, cache_schema=True, file_type='json', json_data=package)
+    cove_temp_folder = tempfile.mkdtemp(prefix='ocdsdata-cove-', dir=tempfile.gettempdir())
+    try:
+        return ocds_json_output(cove_temp_folder, None, None, convert=False, cache_schema=True, file_type='json', json_data=package)
+    finally:
+        shutil.rmtree(cove_temp_folder)
 
 
 def get_package_data(package_data_id):
