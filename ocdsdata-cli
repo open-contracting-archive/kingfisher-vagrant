@@ -26,6 +26,8 @@ def main():
     parser.add_argument("--ignorefetch", help="don't run the fetch stage", action="store_true")
     parser.add_argument("--onlystore", help="only run the store stage", action="store_true")
     parser.add_argument("--ignorestore", help="don't run the store stage", action="store_true")
+    parser.add_argument("--onlycheck", help="only run the check stage", action="store_true")
+    parser.add_argument("--ignorecheck", help="don't run the check stage", action="store_true")
     parser.add_argument("--upgradedatabase", help="Upgrade/Create Database", action="store_true")
     parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
     parser.add_argument("--sample", help="Run sample only", action="store_true")
@@ -86,15 +88,23 @@ def main():
     run_gather = True
     run_fetch = True
     run_store = True
+    run_check = True
     if args.onlygather:
         run_fetch = False
         run_store = False
+        run_check = False
     elif args.onlyfetch:
         run_gather = False
         run_store = False
+        run_check = False
     elif args.onlystore:
         run_gather = False
         run_fetch = False
+        run_check = False
+    elif args.onlycheck:
+        run_gather = False
+        run_fetch = False
+        run_store = False
     else:
         if args.ignoregather:
             run_gather = False
@@ -102,6 +112,8 @@ def main():
             run_fetch = False
         if args.ignorestore:
             run_store = False
+        if args.ignorecheck:
+            run_check = False
 
     for source_info in run:
         output_directory = source_info['id']
@@ -139,6 +151,13 @@ def main():
         else:
             if args.verbose:
                 print(" - skipping store.")
+        if run_check:
+            if args.verbose:
+                print(" - checking ...")
+            instance.run_check()
+        else:
+            if args.verbose:
+                print(" - skipping check.")
 
 
 def gather_sources():

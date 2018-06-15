@@ -5,6 +5,7 @@ import datetime
 import traceback
 
 from .util import save_content
+from .checks import check_file
 from . import database
 from .metadata_db import MetadataDB
 
@@ -265,8 +266,22 @@ class Source:
     def save_url(self, file_name, data, file_path):
         return [], save_content(data['url'], file_path)
 
-    """Gather, Fetch and Store data from this publisher."""
+    def run_check(self):
+        if not database.is_store_done(self.source_id, self.data_version, self.sample):
+            raise Exception('Can not run check without a successful store')
+
+        source_session_id = database.get_id_of_store(self.source_id, self.data_version, self.sample)
+
+        for data in self.metadata_db.list_filestatus():
+
+            if data['data_type'].startswith('meta'):
+                continue
+
+            check_file(source_session_id, data)
+
+    """Gather, Fetch, Store and Check data from this publisher."""
     def run_all(self):
         self.run_gather()
         self.run_fetch()
         self.run_store()
+        self.run_check()
