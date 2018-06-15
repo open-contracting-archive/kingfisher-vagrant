@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+import argparse
+import os
+from ocdsdata.status import SourceStatus
+
+
+def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", help="Which source do you want to see status for?")
+    parser.add_argument("--dataversion", help="Specify a data version - defaults to latest one")
+    parser.add_argument("--sample", help="See status for a sample", action="store_true")
+    parser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
+    parser.add_argument("--outputdir", help="output dir - defaults to source id.")
+
+    args = parser.parse_args()
+
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    base_dir = args.basedir or os.path.join(this_dir, "data")
+
+    source_id = args.source
+
+    source_status = SourceStatus(base_dir=base_dir,
+                                 source_id=source_id,
+                                 output_directory=args.outputdir,
+                                 sample=args.sample,
+                                 data_version=args.dataversion
+                                 )
+
+    print("Status for: %s (Output Dir: %s, Data Version: %s)" % (source_id, source_status.output_directory, source_status.data_version))
+
+    if not source_status.is_gather_finished():
+        print("####### Gather Progress")
+        print(source_status.get_gather_progress_as_text())
+    elif not source_status.is_fetch_finished():
+        print("####### Fetch Progress")
+        print(source_status.get_fetch_progress_as_text())
+    elif not source_status.is_store_finished():
+        print("####### Store Progress")
+        print(source_status.get_store_progress_as_text())
+    else:
+        print("Gather, Fetch and Store all Finished!")
+
+
+if __name__ == '__main__':
+    main()
