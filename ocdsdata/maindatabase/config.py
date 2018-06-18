@@ -2,24 +2,15 @@ import os
 import pgpasslib
 import configparser
 
-
-DB_DEFAULTS = {
-    'HOSTNAME': 'localhost',
-    'PORT': '5432',
-    'USERNAME': 'ocdsdata',
-    'DBNAME': 'ocdsdata',
-}
-
-config = configparser.ConfigParser(defaults=DB_DEFAULTS)
+config = configparser.ConfigParser()
 ## User level config file.
 config.read('~/.config/ocdsdata/config.ini')
 
-
 # Loads database details or defaults
-host = config.get('HOSTNAME')
-port = config.get('PORT')
-user =  config.get('USERNAME')
-dbname =  config.get('DBNAME')
+host = config.get('DBHOST', 'HOSTNAME', fallback='localhost')
+port = config.get('DBHOST', 'PORT', fallback='5432')
+user =  config.get('DBHOST', 'USERNAME', fallback='ocdsdata')
+dbname =  config.get('DBHOST', 'DBNAME', fallback='ocdsdata')
 
 try:
     password = pgpasslib.getpass(host, port, user, dbname)
