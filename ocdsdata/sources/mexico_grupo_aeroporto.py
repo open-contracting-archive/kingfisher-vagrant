@@ -1,5 +1,6 @@
 from ocdsdata import util
 from ocdsdata.base import Source
+import hashlib
 
 
 class MexicoGrupoAeroportoSource(Source):
@@ -20,7 +21,7 @@ class MexicoGrupoAeroportoSource(Source):
                     if resource['format'] == 'JSON':
                         urls.append({
                             'url': resource['url'],
-                            'filename': resource['url'].split('/')[-1],
+                            'filename': 'file-%s.json' % hashlib.md5(resource['url'].encode('utf-8')).hexdigest(),
                             'data_type': 'release_package_list' if resource['name'] == "CONCENTRADO ARCHIVO JSON" else 'release_package',
                         })
         return urls
