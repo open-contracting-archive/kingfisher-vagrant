@@ -291,6 +291,41 @@ def test_checks_records():
         assert len(data['cove_output']['validation_errors']) > 0
 
 
+def test_checks_records_error():
+    setup_main_database()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+        metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'record_package'})
+
+        # store details
+        source_session_id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
+        for data in metadata_db.list_filestatus():
+            with database.add_file(source_session_id, data) as database_file:
+                database_file.insert_record({'record': 'totally'}, {'version': '0.1-does-not-exist', 'extensions': []})
+        database.end_store(source_session_id)
+
+        record_id = 1
+        # Don't like hard coding ID in. Relies on DB assigning 1 to this new row. But I think we can assume that.
+
+        # Test
+        assert not database.is_record_check_done(record_id)
+
+        # check!
+        for data in metadata_db.list_filestatus():
+            checks.check_file(source_session_id, data)
+
+        # Test
+        assert database.is_record_check_done(record_id)
+
+        with database.engine.begin() as connection:
+            s = sa.sql.select([database.record_check_error_table])
+            result = connection.execute(s)
+            data = result.fetchone()
+
+        assert 'The schema version in your data is not valid. Accepted values:' in data['error']
+
+
 def test_checks_releases():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -325,6 +360,41 @@ def test_checks_releases():
 
         assert data['cove_output']['file_type'] == 'json'
         assert len(data['cove_output']['validation_errors']) > 0
+
+
+def test_checks_releases_error():
+    setup_main_database()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+        metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'release_package'})
+
+        # store details
+        source_session_id = database.start_store("test_source", "2018-01-01-10-00-00", True, metadata_db)
+        for data in metadata_db.list_filestatus():
+            with database.add_file(source_session_id, data) as database_file:
+                database_file.insert_release({'release': 'totally'}, {'version': '0.1-does-not-exist', 'extensions': []})
+        database.end_store(source_session_id)
+
+        release_id = 1
+        # Don't like hard coding ID in. Relies on DB assigning 1 to this new row. But I think we can assume that.
+
+        # Test
+        assert not database.is_release_check_done(release_id)
+
+        # check!
+        for data in metadata_db.list_filestatus():
+            checks.check_file(source_session_id, data)
+
+        # Test
+        assert database.is_release_check_done(release_id)
+
+        with database.engine.begin() as connection:
+            s = sa.sql.select([database.release_check_error_table])
+            result = connection.execute(s)
+            data = result.fetchone()
+
+        assert 'The schema version in your data is not valid. Accepted values:' in data['error']
 
 
 def test_database_get_hash_md5_for_data():

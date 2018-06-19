@@ -82,10 +82,26 @@ record_check_table = sa.Table('record_check', metadata,
                               sa.Column('cove_output', JSONB, nullable=False)
                               )
 
+release_check_error_table = sa.Table('release_check_error', metadata,
+                                     sa.Column('id', sa.Integer, primary_key=True),
+                                     sa.Column('release_id', sa.Integer, sa.ForeignKey("release.id"), index=True,
+                                               unique=True, nullable=False),
+                                     sa.Column('error',  sa.Text, nullable=False)
+                                     )
+
+record_check_error_table = sa.Table('record_check_error', metadata,
+                                    sa.Column('id', sa.Integer, primary_key=True),
+                                    sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True,
+                                              unique=True, nullable=False),
+                                    sa.Column('error',  sa.Text, nullable=False)
+                                    )
+
 
 def delete_tables():
     engine.execute("drop table if exists record_check cascade")
+    engine.execute("drop table if exists record_check_error cascade")
     engine.execute("drop table if exists release_check cascade")
+    engine.execute("drop table if exists release_check_error cascade")
     engine.execute("drop table if exists record cascade")
     engine.execute("drop table if exists release cascade")
     engine.execute("drop table if exists package_data cascade")
@@ -309,11 +325,27 @@ def is_release_check_done(release_id):
     with engine.begin() as connection:
         s = sa.sql.select([release_check_table]).where(release_check_table.c.release_id == release_id)
         result = connection.execute(s)
-        return True if result.fetchone() else False
+        if result.fetchone():
+            return True
+
+        s = sa.sql.select([release_check_error_table]).where(release_check_error_table.c.release_id == release_id)
+        result = connection.execute(s)
+        if result.fetchone():
+            return True
+
+    return False
 
 
 def is_record_check_done(record_id):
     with engine.begin() as connection:
         s = sa.sql.select([record_check_table]).where(record_check_table.c.record_id == record_id)
         result = connection.execute(s)
-        return True if result.fetchone() else False
+        if result.fetchone():
+            return True
+
+        s = sa.sql.select([record_check_error_table]).where(record_check_error_table.c.record_id == record_id)
+        result = connection.execute(s)
+        if result.fetchone():
+            return True
+
+    return False
