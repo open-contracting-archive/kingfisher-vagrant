@@ -202,7 +202,7 @@ class Source:
                 try:
                     with open(os.path.join(self.full_directory, data['filename']),
                               encoding=data['encoding']) as f:
-                        json_data = json.load(f)
+                        file_json_data = json.load(f)
                 except Exception as e:
                     # TODO better way of dealing with this?
                     raise e
@@ -210,13 +210,15 @@ class Source:
 
                 objects_list = []
                 if data['data_type'] == 'record_package_list_in_results':
-                    objects_list.extend(json_data['results'])
+                    objects_list.extend(file_json_data['results'])
                 elif data['data_type'] == 'release_package_list_in_results':
-                    objects_list.extend(json_data['results'])
+                    objects_list.extend(file_json_data['results'])
                 elif data['data_type'] == 'record_package_list' or data['data_type'] == 'release_package_list':
-                    objects_list.extend(json_data)
+                    objects_list.extend(file_json_data)
                 else:
-                    objects_list.append(json_data)
+                    objects_list.append(file_json_data)
+
+                del file_json_data
 
                 for json_data in objects_list:
                     error_msg = ''
