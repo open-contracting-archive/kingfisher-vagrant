@@ -29,7 +29,7 @@ Set the `DB_URI` enviromental variable to use a custom PostgreSQL server, the de
 
 During or after a run you can use a command to check on the progress.
 
-Run `ocdsdata-status` with the source flag as the publisher you want to see. Pass the sample flag to, if it's a sample run.
+Run `ocdsdata-status` with the source flag as the publisher you want to see. Pass the sample flag too, if it's a sample run.
 
 By default it will show the progress for the latest run, but you can pass the dataversion flag to see different ones.
 
