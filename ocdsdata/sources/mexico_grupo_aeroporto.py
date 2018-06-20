@@ -18,7 +18,8 @@ class MexicoGrupoAeroportoSource(Source):
         for result in data['result']['results']:
             for resource in result['resources']:
                 if not self.sample or (self.sample and len(urls) < 10):
-                    if resource['format'] == 'JSON':
+                    if resource['format'] == 'JSON' and \
+                            resource['url'] != "http://datos.gob.mx/adela/api/v1/organizations/gacm/documents":
                         urls.append({
                             'url': resource['url'],
                             'filename': 'file-%s.json' % hashlib.md5(resource['url'].encode('utf-8')).hexdigest(),
