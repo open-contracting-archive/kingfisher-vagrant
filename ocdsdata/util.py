@@ -39,6 +39,25 @@ def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
     return get_url_request(url, headers, stream, tries + 1, errors)
 
 
+control_codes_to_filter_out = [
+    b'\\u0000',
+    b'\x02',
+    b'\x04',
+    b'\x05',
+    b'\x07',
+    b'\x0B',
+    b'\x0E',
+    b'\x11',
+    b'\x12',
+    b'\x13',
+    b'\x14',
+    b'\x15',
+    b'\x17',
+    b'\x19',
+    b'\x1A',
+]
+
+
 def save_content(url, filepath, headers=None):
     request, errors = get_url_request(url, stream=True, headers=headers)
 
@@ -48,6 +67,9 @@ def save_content(url, filepath, headers=None):
     try:
         with open(filepath, 'wb') as f:
             for chunk in request.iter_content(1024 ^ 2):
+                for control_code_to_filter_out in control_codes_to_filter_out:
+                    if control_code_to_filter_out in chunk:
+                        chunk = chunk.replace(control_code_to_filter_out, b'')
                 f.write(chunk)
         return []
     except Exception as e:
