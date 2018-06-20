@@ -1,6 +1,7 @@
 import hashlib
 
 import lxml.html
+import os
 
 from ocdsdata import util
 from ocdsdata.base import Source
@@ -11,6 +12,15 @@ class UkraineSource(Source):
     publisher_name = 'Ukraine'
     url = 'http://ocds.prozorro.openprocurement.io/'
     source_id = 'ukraine'
+    argument_definitions = [
+            {
+                'name': 'ukrainedate',
+                'help': 'For Ukraine scraper, optionally add to specify to download a certain date. Use YYYY-MM-DD format.',
+            }
+        ]
+
+    def set_arguments(self, arguments):
+        self.argument_date = arguments.ukrainedate
 
     def gather_all_download_urls(self):
         r = util.get_url_request('http://ocds.prozorro.openprocurement.io/')
@@ -18,17 +28,22 @@ class UkraineSource(Source):
             raise Exception(r[1])
         r = r[0]
         doc = lxml.html.fromstring(r.text)
-        out = []
+
+        last_url = None
         for item in doc.xpath('//li'):
             url = item.xpath('a')[0].get('href')
-            if not self.sample or (self.sample and len(out) < 1):
-                out.append({
-                    'url': 'http://ocds.prozorro.openprocurement.io/%s' % url,
-                    'filename': 'meta-%s.json' % url,
-                    'data_type': 'meta',
-                })
+            last_url = {
+                'url': 'http://ocds.prozorro.openprocurement.io/%s' % url,
+                'filename': 'meta-%s.json' % url,
+                'data_type': 'meta',
+            }
+            if self.argument_date and url == 'merged_with_extensions_' + self.argument_date:
+                return [last_url]
 
-        return out
+        if self.argument_date:
+            raise Exception("You requested the Ukraine data dated " + self.argument_date + " but we couldn't find that!")
+        else:
+            return [last_url]
 
     def save_url(self, filename, data, file_path):
         if data['data_type'] == 'meta':
@@ -53,5 +68,17 @@ class UkraineSource(Source):
                         })
 
             return additional, []
+
         else:
-            return [], save_content(data['url'], file_path)
+            errors = save_content(data['url'], file_path + '-download.json')
+            if errors:
+                return [], errors
+
+            with open(file_path + '-download.json') as infile:
+                with open(file_path, 'w') as outfile:
+                    for line in infile:
+                        outfile.write(line.replace('\\u0000', ''))
+
+            os.remove(file_path + '-download.json')
+
+            return [], []
