@@ -4,10 +4,10 @@ import json
 import datetime
 import traceback
 
-from .util import save_content
-from .checks import check_file
-from . import database
-from .metadata_db import MetadataDB
+from ocdsdata.util import save_content
+from ocdsdata.checks import check_file
+from ocdsdata import database
+from ocdsdata.metadata_db import MetadataDB
 
 """Base class for defining OCDS publisher sources.
 
