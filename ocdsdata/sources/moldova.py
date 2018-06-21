@@ -1,6 +1,5 @@
 from ocdsdata.base import Source
 from ocdsdata.util import save_content
-import os
 
 
 class MoldovaSource(Source):
@@ -32,15 +31,4 @@ class MoldovaSource(Source):
 
     # @rate_limited(1)
     def save_url(self, filename, data, file_path):
-        errors = save_content(data['url'], file_path + '-download.json')
-        if errors:
-            return [], errors
-
-        with open(file_path + '-download.json') as infile:
-            with open(file_path, 'w') as outfile:
-                for line in infile:
-                    outfile.write(line.replace('\\u0000', ''))
-
-        os.remove(file_path + '-download.json')
-
-        return [], []
+        return [], save_content(data['url'], file_path)

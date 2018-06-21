@@ -1,7 +1,6 @@
 import hashlib
 
 import lxml.html
-import os
 
 from ocdsdata import util
 from ocdsdata.base import Source
@@ -70,15 +69,4 @@ class UkraineSource(Source):
             return additional, []
 
         else:
-            errors = save_content(data['url'], file_path + '-download.json')
-            if errors:
-                return [], errors
-
-            with open(file_path + '-download.json') as infile:
-                with open(file_path, 'w') as outfile:
-                    for line in infile:
-                        outfile.write(line.replace('\\u0000', ''))
-
-            os.remove(file_path + '-download.json')
-
-            return [], []
+            return [], save_content(data['url'], file_path)
