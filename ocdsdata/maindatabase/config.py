@@ -5,7 +5,13 @@ import configparser
 
 config = configparser.ConfigParser()
 # User level config file.
-config.read(os.path.expanduser('~/.config/ocdsdata/config.ini'))
+read_files = config.read(os.path.expanduser('~/.config/ocdsdata/config.ini'))
+
+env_db_uri = os.environ.get('DB_URI')
+
+if (len(read_files) == 0 and not env_db_uri):
+    print("There are no config files nor DB_URI, therefore we cannot start.")
+    quit(-1)
 
 
 # Loads database details or defaults
@@ -38,4 +44,4 @@ except pgpasslib.PgPassException:
     database_uri = __gen_dburi(user, password, host, port, dbname)
 
 # Overwrites if DB_URI is specified.
-DB_URI = os.environ.get('DB_URI', database_uri)
+DB_URI = env_db_uri or database_uri
