@@ -21,10 +21,8 @@ if not env_db_uri:
     dbname = config.get('DBHOST', 'DBNAME')
     dbpass = config.get('DBHOST', 'PASSWORD')
 
-
     def __gen_dburi(user, password, host, port, dbname):
         return 'postgresql://{}:{}@{}:{}/{}'.format(user, password, host, port, dbname)
-
 
     try:
         fetched_pass = pgpasslib.getpass(host, port, user, dbname)
