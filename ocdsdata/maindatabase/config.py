@@ -15,11 +15,11 @@ if (len(read_files) == 0 and not env_db_uri):
 
 
 # Loads database details or defaults
-host = config.get('DBHOST', 'HOSTNAME', fallback='localhost')
-port = config.get('DBHOST', 'PORT', fallback='5432')
-user = config.get('DBHOST', 'USERNAME', fallback='ocdsdata')
-dbname = config.get('DBHOST', 'DBNAME', fallback='ocdsdata')
-dbpass = config.get('DBHOST', 'PASSWORD', fallback='ocdsdata')
+host = config.get('DBHOST', 'HOSTNAME')
+port = config.get('DBHOST', 'PORT')
+user = config.get('DBHOST', 'USERNAME')
+dbname = config.get('DBHOST', 'DBNAME')
+dbpass = config.get('DBHOST', 'PASSWORD')
 
 
 def __gen_dburi(user, password, host, port, dbname):
