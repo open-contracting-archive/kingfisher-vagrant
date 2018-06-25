@@ -5,8 +5,8 @@ from distutils.core import setup
 setup(name='ocdsdata',
       version='0.0',
       description='Get ocds data',
-      author='Open Contracting',
-      url='',
+      author='Open Contracting Partnership, Open Data Services, Iniciativa Latinoamericana para los Datos Abiertos',
+      url='https://open-contracting.org',
       packages=[
             'ocdsdata',
             'ocdsdata.sources',

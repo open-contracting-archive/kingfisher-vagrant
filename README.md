@@ -2,6 +2,8 @@
 
 ## Installation
 
+### Production Install
+
 Requirements: python3, postgresql-10
 
 Set up a venv and install requirements:
@@ -9,29 +11,29 @@ Set up a venv and install requirements:
 virtualenv -p python3 .ve
 source .ve/bin/activate
 pip install -r requirements.txt
+pip install -e .
 ```
 
 Example of creating an ocdsdata table and data:
 ```
 sudo -u postgres createuser ocdsdata --pwprompt
-sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8 
+sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8
 export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
 alembic --config mainalembic.ini upgrade head
 ```
+
+
+### Development Setup
 
 ## Running
 
 Run `ocdsdata-cli` with the argument of one of the publishers you want to fetch.
 
-Set the `DB_URI` enviromental variable to use a custom PostgreSQL server, the default is `postgres://ocdsdata:ocdsdata@localhost/ocdsdata`
+## Configuration
 
-## Status of a run
+Database and configuration settings can be set using `~/.config/ocdsdata/config.ini` file. A sample one is included in the main directory.
 
-During or after a run you can use a command to check on the progress.
-
-Run `ocdsdata-status` with the source flag as the publisher you want to see. Pass the sample flag too, if it's a sample run.
-
-By default it will show the progress for the latest run, but you can pass the dataversion flag to see different ones.
+You can also set the `DB_URI` enviromental variable to use a custom PostgreSQL server, the default is `postgres://ocdsdata:ocdsdata@localhost/ocdsdata`
 
 ## Run Tests
 
