@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import os
 from distutils.core import setup
 
 
@@ -26,9 +26,7 @@ setup(name='ocdsdata',
             'ocdsdata.maindatabase.migrations',
             'ocdsdata.maindatabase.migrations.versions'
       ],
-      install_requires=[
-        
-      ],
+      install_requires=[],
       classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
