@@ -12,9 +12,11 @@ setup(name='ocdsdata',
             'ocdsdata.sources',
             'ocdsdata.maindatabase',
             'ocdsdata.maindatabase.migrations',
-            'ocdsdata.maindatabase.migrations.versions'
+            'ocdsdata.maindatabase.migrations.versions',
+            'ocdsdata.cli',
+            'ocdsdata.cli.commands'
       ],
-      scripts=['ocdsdata-cli', 'ocdsdata-status'],
+      scripts=['ocdsdata-cli'],
       package_data={'ocdsdata': [
               'maindatabase/migrations/script.py.mako'
           ]},

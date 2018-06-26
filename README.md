@@ -16,12 +16,12 @@ Example of creating an ocdsdata table and data:
 sudo -u postgres createuser ocdsdata --pwprompt
 sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8 
 export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
-alembic --config mainalembic.ini upgrade head
+python ocdsdata-cli upgrade-database
 ```
 
 ## Running
 
-Run `ocdsdata-cli` with the argument of one of the publishers you want to fetch.
+Run `ocdsdata-cli run` with the argument of one of the publishers you want to fetch.
 
 ## Configuration
 
@@ -33,7 +33,7 @@ You can also set the `DB_URI` enviromental variable to use a custom PostgreSQL s
 
 During or after a run you can use a command to check on the progress.
 
-Run `ocdsdata-status` with the source flag as the publisher you want to see. Pass the sample flag too, if it's a sample run.
+Run `ocdsdata-cli status` with the source flag as the publisher you want to see. Pass the sample flag too, if it's a sample run.
 
 By default it will show the progress for the latest run, but you can pass the dataversion flag to see different ones.
 
