@@ -7,6 +7,9 @@ import ocdsdata.sources_util
 class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
     command = 'run'
 
+    def __init__(self):
+        self.sources = ocdsdata.sources_util.gather_sources()
+
     def configure_subparser(self, subparser):
         subparser.add_argument("--run", help="run one source only")
         subparser.add_argument("--runall", help="run all sources",
@@ -29,16 +32,19 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                                     "--dataversion, the latest version will be used. If there are no versions, a new one will be created.)",
                                action="store_true")
 
+        for source_id, source_class in self.sources.items():
+            for argument_definition in source_class.argument_definitions:
+                subparser.add_argument('--' + argument_definition['name'], help=argument_definition['help'])
+
     def run_command(self, args):
         run = []
-        sources = ocdsdata.sources_util.gather_sources()
 
         if args.runall:
-            for source_id, source_class in sources.items():
+            for source_id, source_class in self.sources.items():
                 run.append({'id': source_id, 'source_class': source_class})
         elif args.run:
-            if args.run in sources:
-                run.append({'id': args.run, 'source_class': sources[args.run]})
+            if args.run in self.sources:
+                run.append({'id': args.run, 'source_class': self.sources[args.run]})
             else:
                 print("We can not find a source that you requested! You requested: %s" % [args.run])
                 quit(-1)
@@ -46,7 +52,7 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
         if not run:
             print("You have not specified anything to run! Try --run=??? or --runall")
             print("You can run:")
-            for source_id, source_info in sorted(sources.items()):
+            for source_id, source_info in sorted(self.sources.items()):
                 print(" - %s" % source_id)
             quit(-1)
 
