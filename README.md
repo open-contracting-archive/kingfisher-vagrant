@@ -25,9 +25,17 @@ Run `ocdsdata-cli` with the argument of one of the publishers you want to fetch.
 
 ## Configuration
 
-Database and configuration settings can be set using `~/.config/ocdsdata/config.ini` file. A sample one is included in the main directory.
+Database settings can be set using a `~/.config/ocdsdata/config.ini` file. A sample one is included in the main directory.
 
-You can also set the `DB_URI` enviromental variable to use a custom PostgreSQL server, the default is `postgres://ocdsdata:ocdsdata@localhost/ocdsdata`
+It will also attempt to load the password from a '~/.pgpass' file, if one is present.
+
+You can also set the `DB_URI` environmental variable to use a custom PostgreSQL server, for example `postgresql://user:password@localhost:5432/dbname`.
+
+The order of precedence is (from least-important to most-important):
+
+  *  config file
+  *  password from ~/.pgpass
+  *  environmental variable
 
 ## Status of a run
 
