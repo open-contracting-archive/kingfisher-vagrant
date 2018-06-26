@@ -19,7 +19,7 @@ if not env_db_uri:
     port = config.get('DBHOST', 'PORT')
     user = config.get('DBHOST', 'USERNAME')
     dbname = config.get('DBHOST', 'DBNAME')
-    dbpass = config.get('DBHOST', 'PASSWORD')
+    dbpass = config.get('DBHOST', 'PASSWORD', fallback='')
 
     def __gen_dburi(user, password, host, port, dbname):
         return 'postgresql://{}:{}@{}:{}/{}'.format(user, password, host, port, dbname)
