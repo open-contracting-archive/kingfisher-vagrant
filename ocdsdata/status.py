@@ -1,6 +1,6 @@
 import os
-from .metadata_db import MetadataDB
-from . import database
+from ocdsdata.metadata_db import MetadataDB
+from ocdsdata import database
 
 
 class SourceStatus:

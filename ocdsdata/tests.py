@@ -1,10 +1,10 @@
 from os.path import join, exists
 import tempfile
 import pytest
-from .base import Source
-from . import util
-from . import database
-from . import checks
+from ocdsdata.base import Source
+from ocdsdata import util
+from ocdsdata import database
+from ocdsdata import checks
 from ocdsdata.metadata_db import MetadataDB
 import sqlalchemy as sa
 
