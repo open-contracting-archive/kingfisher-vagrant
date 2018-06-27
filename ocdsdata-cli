@@ -1,183 +1,28 @@
 #!/usr/bin/env python
 import argparse
-import importlib
-import os
-import glob
-import inspect
-from ocdsdata.base import Source
-from ocdsdata.database import create_tables, delete_tables
+import ocdsdata.cli.util
+
 
 def main():
 
-    sources = gather_sources()
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", help="increase output verbosity",
-                    action="store_true")
-    parser.add_argument("--run", help="run one source only")
-    parser.add_argument("--runall", help="run all sources",
-                    action="store_true")
-    parser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
-    parser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
-
-    parser.add_argument("--onlygather", help="only run the gather stage", action="store_true")
-    parser.add_argument("--ignoregather", help="don't run the gather stage", action="store_true")
-    parser.add_argument("--onlyfetch", help="only run the fetch stage", action="store_true")
-    parser.add_argument("--ignorefetch", help="don't run the fetch stage", action="store_true")
-    parser.add_argument("--onlystore", help="only run the store stage", action="store_true")
-    parser.add_argument("--ignorestore", help="don't run the store stage", action="store_true")
-    parser.add_argument("--onlycheck", help="only run the check stage", action="store_true")
-    parser.add_argument("--ignorecheck", help="don't run the check stage", action="store_true")
-    parser.add_argument("--upgradedatabase", help="Upgrade/Create Database", action="store_true")
-    parser.add_argument("--dropandcreatedatabase", help="Drop and Recreate Database", action="store_true")
-    parser.add_argument("--sample", help="Run sample only", action="store_true")
-    parser.add_argument("--dataversion", help="Specify a data version to resume")
-    parser.add_argument("--newversion", help="Forces the creation of a new data version (If you don't specify this or "+
-                                             "--dataversion, the latest version will be used. If there are no versions, a new one will be created.)",
                         action="store_true")
 
-    for source_id, source_class in sources.items():
-        for argument_definition in source_class.argument_definitions:
-            parser.add_argument('--' + argument_definition['name'], help=argument_definition['help'])
+    subparsers = parser.add_subparsers(dest='subcommand')
+
+    commands = ocdsdata.cli.util.gather_cli_commands_instances()
+
+    for command in commands.values():
+        command.configure_subparser(subparsers.add_parser(command.command))
 
     args = parser.parse_args()
 
-    if args.upgradedatabase:
-        if args.verbose:
-            print("Upgrading/Creating Database")
-        create_tables()
-        quit(0)
-    elif args.dropandcreatedatabase:
-        if args.verbose:
-            print("Dropping and Recreating Database")
-        delete_tables()
-        create_tables()
-        quit(0)
-
-    run = []
-
-    if args.runall:
-        for source_id, source_class in sources.items():
-            run.append({'id': source_id, 'source_class': source_class})
-    elif args.run:
-        if args.run in sources:
-            run.append({'id': args.run, 'source_class': sources[args.run]})
-        else:
-            print("We can not find a source that you requested! You requested: %s" % [args.run])
-            quit(-1)
-
-    if not run:
-        print("You have not specified anything to run! Try --run=??? or --runall")
-        print("You can run:")
-        for source_id, source_info in sorted(sources.items()):
-            print(" - %s" % source_id)
-        quit(-1)
-
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    base_dir = args.basedir or os.path.join(this_dir, "data")
-    remove_dir = False
-    sample_mode = args.sample
-    data_version = args.dataversion
-    new_version = args.newversion
-
-    if args.verbose:
-        print("We will run: ")
-        for sourceInfo in run:
-            print(" - %s" % sourceInfo['id'])
-        if sample_mode:
-            print("Sample mode is on!")
-        else:
-            print("Sample mode is off.")
-
-    run_gather = True
-    run_fetch = True
-    run_store = True
-    run_check = True
-    if args.onlygather:
-        run_fetch = False
-        run_store = False
-        run_check = False
-    elif args.onlyfetch:
-        run_gather = False
-        run_store = False
-        run_check = False
-    elif args.onlystore:
-        run_gather = False
-        run_fetch = False
-        run_check = False
-    elif args.onlycheck:
-        run_gather = False
-        run_fetch = False
-        run_store = False
+    if args.subcommand and args.subcommand in commands.keys():
+        commands[args.subcommand].run_command(args)
     else:
-        if args.ignoregather:
-            run_gather = False
-        if args.ignorefetch:
-            run_fetch = False
-        if args.ignorestore:
-            run_store = False
-        if args.ignorecheck:
-            run_check = False
+        print("Please select a subcommand (try --help)")
 
-    for source_info in run:
-        output_directory = source_info['id']
-        if len(run) == 1 and args.outputdir:
-            output_directory = args.outputdir
-
-        instance = source_info['source_class'](base_dir,
-                                               remove_dir=remove_dir,
-                                               output_directory=output_directory,
-                                               sample=sample_mode,
-                                               data_version=data_version,
-                                               new_version=new_version
-                                               )
-        instance.set_arguments(args)
-
-        if args.verbose:
-            print("Now running: %s (Output Dir: %s, Data Version: %s)" % (source_info['id'], instance.output_directory, instance.data_version))
-
-        if run_gather:
-            if args.verbose:
-                print(" - gathering ...")
-            instance.run_gather()
-        else:
-            if args.verbose:
-                print(" - skipping gather.")
-        if run_fetch:
-            if args.verbose:
-                print(" - fetching ...")
-            instance.run_fetch()
-        else:
-            if args.verbose:
-                print(" - skipping fetch.")
-        if run_store:
-            if args.verbose:
-                print(" - storing ...")
-            instance.run_store()
-        else:
-            if args.verbose:
-                print(" - skipping store.")
-        if run_check:
-            if args.verbose:
-                print(" - checking ...")
-            instance.run_check()
-        else:
-            if args.verbose:
-                print(" - skipping check.")
-
-
-def gather_sources():
-    sources = {}
-
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    sources_dir = os.path.join(dir_path, 'ocdsdata', 'sources')
-    for file in glob.glob(sources_dir + '/*.py'):
-        module = importlib.import_module('ocdsdata.sources.' + file.split('/')[-1].split('.')[0])
-        for item in dir(module):
-            value = getattr(module, item)
-            if inspect.isclass(value) and issubclass(value, Source) and value is not Source:
-                sources[getattr(value, 'source_id')] = value
-    return sources
 
 if __name__ == '__main__':
     main()

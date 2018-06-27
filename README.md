@@ -19,9 +19,15 @@ Example of creating an ocdsdata table and data:
 sudo -u postgres createuser ocdsdata --pwprompt
 sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8
 export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
-alembic --config mainalembic.ini upgrade head
+python ocdsdata-cli upgrade-database
 ```
 
+<<<<<<< HEAD
+=======
+## Running
+
+Run `ocdsdata-cli run` with the argument of one of the publishers you want to fetch.
+>>>>>>> master
 
 ### Development Setup
 
@@ -39,9 +45,12 @@ The order of precedence is (from least-important to most-important):
 
 Run `ocdsdata-cli` with the argument of one of the publishers you want to fetch.
 
+Run `ocdsdata-cli status` with the source flag as the publisher you want to see. Pass the sample flag too, if it's a sample run.
+
 ## Configuration
 
 Database and configuration settings can be set using `~/.config/ocdsdata/config.ini` file. A sample one is included in the main directory.
+
 
 You can also set the `DB_URI` enviromental variable to use a custom PostgreSQL server, the default is `postgres://ocdsdata:ocdsdata@localhost/ocdsdata`
 

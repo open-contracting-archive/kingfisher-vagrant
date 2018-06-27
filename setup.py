@@ -25,7 +25,9 @@ setup(name='ocdsdata',
             'ocdsdata.sources',
             'ocdsdata.maindatabase',
             'ocdsdata.maindatabase.migrations',
-            'ocdsdata.maindatabase.migrations.versions'
+            'ocdsdata.maindatabase.migrations.versions',
+            'ocdsdata.cli',
+            'ocdsdata.cli.commands'
       ],
       install_requires=[],
       classifiers=[
@@ -39,7 +41,7 @@ setup(name='ocdsdata',
         'Programming Language :: Python :: Implementation :: CPython',
         'Intended Audience :: Financial and Insurance Industry',
       ],
-      scripts=['ocdsdata-cli', 'ocdsdata-status'],
+      scripts=['ocdsdata-cli'],
       package_data={'ocdsdata': [
               'maindatabase/migrations/script.py.mako'
           ]},
