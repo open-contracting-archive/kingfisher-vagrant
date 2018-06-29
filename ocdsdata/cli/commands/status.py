@@ -49,5 +49,8 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
         elif not source_status.is_store_finished():
             print("####### Store Progress")
             print(source_status.get_store_progress_as_text())
+        elif not source_status.is_check_finished():
+            print("####### Check Progress")
+            print(source_status.get_check_progress_as_text())
         else:
-            print("Gather, Fetch and Store all Finished!")
+            print("Gather, Fetch, Store and Check all Finished!")

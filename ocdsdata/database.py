@@ -159,6 +159,39 @@ def get_id_of_store(source_id, data_version, sample):
         return result.fetchone()[0]
 
 
+def is_check_done(source_session_id):
+    with engine.begin() as connection:
+
+        # Have any releases NOT been done yet?
+        sql = sa.sql.text("""SELECT count(*) FROM release
+              JOIN source_session_file_status ON source_session_file_status.id = release.source_session_file_status_id
+              LEFT JOIN release_check ON release_check.release_id = release.id
+              LEFT JOIN release_check_error ON release_check_error.release_id = release.id
+              WHERE source_session_file_status.source_session_id = :id
+               AND release_check_error.id IS NULL AND release_check.id IS NULL """)
+
+        result = connection.execute(sql, id=source_session_id)
+        count = result.fetchone()[0]
+        if count > 0:
+            return False
+
+        # Have any records NOT been done yet?
+        sql = sa.sql.text("""SELECT count(*) FROM record
+              JOIN source_session_file_status ON source_session_file_status.id = record.source_session_file_status_id
+              LEFT JOIN record_check ON record_check.record_id = record.id
+              LEFT JOIN record_check_error ON record_check_error.record_id = record.id
+              WHERE source_session_file_status.source_session_id = :id
+               AND record_check_error.id IS NULL AND record_check.id IS NULL """)
+
+        result = connection.execute(sql, id=source_session_id)
+        count = result.fetchone()[0]
+        if count > 0:
+            return False
+
+        # Guess it's been done then!
+        return True
+
+
 def start_store(source_id, data_version, sample, metadata_db):
     # Note use of engine.begin means this happens in a DB transaction
     with engine.begin() as connection:
