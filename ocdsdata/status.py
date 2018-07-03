@@ -86,3 +86,10 @@ class SourceStatus:
 
     def get_store_progress_as_text(self):
         return 'Store is in progress'
+
+    def is_check_finished(self):
+        source_session_id = database.get_id_of_store(self.source_id, self.data_version, self.sample)
+        return database.is_check_done(source_session_id)
+
+    def get_check_progress_as_text(self):
+        return 'Check is in progress'
