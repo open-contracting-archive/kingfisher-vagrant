@@ -26,6 +26,7 @@ The keys are:
   *  url - the URL to download.
   *  data_type - the type of the file. See below.
   *  encoding - encoding of the file. Optional, defaults to utf-8.
+  *  priority - higher numbers will be fetched first, defaults to 1.
 
 The data_type should be one of the following options:
 
@@ -163,11 +164,9 @@ class Source:
 
         while not stop:
             stop = True
-            for data in self.metadata_db.list_filestatus():
-
-                if data['fetch_success']:
-                    continue
-
+            data = self.metadata_db.get_next_filestatus_to_fetch()
+            if data:
+                stop = False
                 self.metadata_db.update_filestatus_fetch_start(data['filename'])
                 try:
                     to_add_list, errors = self.save_url(data['filename'], data, os.path.join(self.full_directory, data['filename']))
