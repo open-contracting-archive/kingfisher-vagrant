@@ -25,6 +25,7 @@ class AustraliaSource(Source):
 
         return out
 
+    # @rate_limited(1)
     def save_url(self, filename, data, file_path):
         link = 'links'
         if data['data_type'] == 'release_package':
