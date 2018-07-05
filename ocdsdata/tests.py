@@ -274,6 +274,7 @@ def test_checks_records():
 
         # Test
         assert not database.is_record_check_done(record_id)
+        assert not database.is_check_done(source_session_id)
 
         # check!
         for data in metadata_db.list_filestatus():
@@ -281,6 +282,7 @@ def test_checks_records():
 
         # Test
         assert database.is_record_check_done(record_id)
+        assert database.is_check_done(source_session_id)
 
         with database.engine.begin() as connection:
             s = sa.sql.select([database.record_check_table])
@@ -310,6 +312,7 @@ def test_checks_records_error():
 
         # Test
         assert not database.is_record_check_done(record_id)
+        assert not database.is_check_done(source_session_id)
 
         # check!
         for data in metadata_db.list_filestatus():
@@ -317,6 +320,7 @@ def test_checks_records_error():
 
         # Test
         assert database.is_record_check_done(record_id)
+        assert database.is_check_done(source_session_id)
 
         with database.engine.begin() as connection:
             s = sa.sql.select([database.record_check_error_table])

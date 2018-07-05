@@ -1,6 +1,7 @@
 import os
 import ocdsdata.status
 import ocdsdata.cli.commands.base
+import ocdsdata.sources_util
 
 
 class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
@@ -19,6 +20,15 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
         base_dir = args.basedir or os.path.join(this_dir, "..", "..", "..", "data")
 
         source_id = args.source
+
+        sources = ocdsdata.sources_util.gather_sources()
+
+        if source_id not in sources:
+            print("You must specify a source!")
+            print("You can specify:")
+            for source_id, source_info in sorted(sources.items()):
+                print(" - %s" % source_id)
+            quit(-1)
 
         source_status = ocdsdata.status.SourceStatus(base_dir=base_dir,
                                                      source_id=source_id,
@@ -39,5 +49,8 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
         elif not source_status.is_store_finished():
             print("####### Store Progress")
             print(source_status.get_store_progress_as_text())
+        elif not source_status.is_check_finished():
+            print("####### Check Progress")
+            print(source_status.get_check_progress_as_text())
         else:
-            print("Gather, Fetch and Store all Finished!")
+            print("Gather, Fetch, Store and Check all Finished!")
