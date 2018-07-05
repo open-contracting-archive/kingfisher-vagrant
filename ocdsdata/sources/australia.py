@@ -13,7 +13,7 @@ class AustraliaSource(Source):
     def gather_all_download_urls(self):
         release_types = ['planning', 'tender', 'contract']
         url = 'https://tenders.nsw.gov.au'
-        url += '/?event=public.api.%s.search&ResultsPerPage=50'
+        url += '/?event=public.api.%s.search&ResultsPerPage=1000'
         out = []
         for r in release_types:
             out.append({
