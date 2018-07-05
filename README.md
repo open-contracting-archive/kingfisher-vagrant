@@ -22,12 +22,10 @@ export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
 python ocdsdata-cli upgrade-database
 ```
 
-<<<<<<< HEAD
 =======
 ## Running
 
 Run `ocdsdata-cli run` with the argument of one of the publishers you want to fetch.
->>>>>>> master
 
 ### Development Setup
 
