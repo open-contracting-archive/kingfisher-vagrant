@@ -50,6 +50,7 @@ class MetadataDB(object):
                                    sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
                                    sa.Column('fetch_errors', sa.Text, nullable=True),
                                    sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
+                                   sa.Column('priority', sa.Integer, nullable=False, server_default='1'),
                                    )
 
         alembic_cfg = alembic.config.Config(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'metaalembic.ini')))
@@ -88,6 +89,7 @@ class MetadataDB(object):
             'url': info['url'],
             'data_type': info['data_type'],
             'encoding': info.get('encoding', 'utf-8'),
+            'priority': info.get('priority', 1),
         }
         with self.engine.connect() as conn:
             return conn.execute(self.filestatus.insert(), **store)
@@ -98,6 +100,14 @@ class MetadataDB(object):
         with self.engine.connect() as conn:
             result = conn.execute(s)
             return list(result)
+
+    def get_next_filestatus_to_fetch(self):
+        sql = sa.sql.text("""SELECT * FROM filestatus
+                WHERE fetch_success == 0 AND fetch_errors IS NULL
+                ORDER BY priority DESC, filename DESC""")
+        with self.engine.begin() as connection:
+            result = connection.execute(sql)
+            return result.fetchone()
 
     """Updates filestatus with start time"""
     def update_filestatus_fetch_start(self, filename):

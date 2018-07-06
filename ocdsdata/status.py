@@ -73,6 +73,7 @@ class SourceStatus:
                 current_out.append("URL: " + file_status['url'])
                 current_out.append("Data Type: " + file_status['data_type'])
                 current_out.append("Encoding: " + file_status['encoding'])
+                current_out.append("Priority: " + str(file_status['priority']))
                 current_out.append("Started: " + file_status['fetch_start_datetime'].strftime("%c"))
 
         out = "Finished " + str(count_finished) + " out of " + str(len(file_statuses)) + " files.\n"
