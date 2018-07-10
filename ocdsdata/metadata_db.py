@@ -49,6 +49,7 @@ class MetadataDB(object):
                                    sa.Column('fetch_start_datetime', sa.DateTime, nullable=True),
                                    sa.Column('fetch_finished_datetime', sa.DateTime, nullable=True),
                                    sa.Column('fetch_errors', sa.Text, nullable=True),
+                                   sa.Column('fetch_warnings', sa.Text, nullable=True),
                                    sa.Column('fetch_success', sa.Boolean, nullable=False, default=False),
                                    sa.Column('priority', sa.Integer, nullable=False, server_default='1'),
                                    )
@@ -119,12 +120,13 @@ class MetadataDB(object):
             return conn.execute(stmt)
 
     """Updates filestatus when fetched, takes boolean success flag, and a string of errors."""
-    def update_filestatus_fetch_end(self, filename, success, errors=[]):
+    def update_filestatus_fetch_end(self, filename, errors=[], warnings=[]):
         stmt = self.filestatus.update().\
             where(self.filestatus.c.filename == filename).\
             values(fetch_finished_datetime=datetime.datetime.now(),
-                   fetch_success=success,
-                   fetch_errors=json.dumps(errors)
+                   fetch_success=(len(errors) == 0),
+                   fetch_errors=json.dumps(errors),
+                   fetch_warnings=json.dumps(warnings)
                    )
         with self.engine.connect() as conn:
             return conn.execute(stmt)
@@ -154,7 +156,14 @@ class MetadataDB(object):
             return conn.execute(stmt)
 
     """Updates session when done fetching, takes boolean success flag, and json string of errors."""
-    def update_session_fetch_end(self, success):
+    def update_session_fetch_end(self):
+
+        sql = sa.sql.text("""SELECT * FROM filestatus
+                       WHERE fetch_success == 0""")
+        with self.engine.begin() as connection:
+            result = connection.execute(sql)
+            success = not result.fetchone()
+
         stmt = self.session.update().values(
                                     fetch_success=success,
                                     fetch_finished_datetime=datetime.datetime.now())
@@ -175,6 +184,7 @@ class MetadataDB(object):
             for data in result:
                 data = dict(data)
                 data['fetch_errors'] = json.loads(data['fetch_errors']) if data['fetch_errors'] else None
+                data['fetch_warnings'] = json.loads(data['fetch_warnings']) if data['fetch_warnings'] else None
                 row['file_status'][data['filename']] = data
 
             return row

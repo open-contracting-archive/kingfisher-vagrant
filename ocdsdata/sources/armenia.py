@@ -1,6 +1,6 @@
 import json
 
-from ocdsdata.base import Source
+from ocdsdata.base import Source, SourceSaveUrlResponse
 from ocdsdata.util import save_content
 
 
@@ -21,9 +21,9 @@ class ArmeniaSource(Source):
     def save_url(self, filename, data, file_path):
         if data['data_type'] == 'release_package':
 
-            errors = save_content(data['url'], file_path)
-            if errors:
-                return [], errors
+            save_content_response = save_content(data['url'], file_path)
+            if save_content_response.errors:
+                return SourceSaveUrlResponse(errors=save_content_response.errors, warnings=save_content_response.warnings)
 
             additional = []
 
@@ -38,4 +38,4 @@ class ArmeniaSource(Source):
                     'filename': 'page-%d-.json' % page,
                     'data_type': 'release_package',
                 })
-            return additional, []
+            return SourceSaveUrlResponse(additional_files=additional, warnings=save_content_response.warnings)

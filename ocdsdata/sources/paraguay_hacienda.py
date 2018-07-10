@@ -3,7 +3,7 @@ from zipfile import ZipFile
 
 import requests
 
-from ocdsdata.base import Source
+from ocdsdata.base import Source, SourceSaveUrlResponse
 from ocdsdata.util import get_url_request
 
 REQUEST_TOKEN = '06034873-f3e1-47b8-8bfb-45b11b3fc83d'
@@ -52,7 +52,8 @@ class ParaguayHaciendaSource(Source):
         return ids
 
     def save_url(self, filename, data, file_path):
-        return [], self.save_content(data['url'], file_path, headers={"Authorization": self.get_access_token()})
+        errors = self.save_content(data['url'], file_path, headers={"Authorization": self.get_access_token()})
+        return SourceSaveUrlResponse(errors=errors)
 
     def save_content(self, url, filepath, headers=None):
         request, errors = get_url_request(url, stream=True, headers=headers)

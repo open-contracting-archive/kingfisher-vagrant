@@ -64,16 +64,25 @@ def save_content(url, filepath, headers=None):
     if not request:
         return errors
 
+    warnings = []
     try:
         with open(filepath, 'wb') as f:
             for chunk in request.iter_content(1024 ^ 2):
                 for control_code_to_filter_out in control_codes_to_filter_out:
                     if control_code_to_filter_out in chunk:
                         chunk = chunk.replace(control_code_to_filter_out, b'')
+                        warnings.append('We had to replace control codes: ' + str(control_code_to_filter_out))
                 f.write(chunk)
-        return []
+        return SaveContentResponse(warnings=warnings)
     except Exception as e:
-        return [str(e)]
+        return SaveContentResponse(errors=[str(e)], warnings=warnings)
+
+
+class SaveContentResponse:
+    def __init__(self, warnings=[], errors=[]):
+        self.errors = errors
+        self.warnings = warnings
+
 
 # if is_json:
 #    try:
