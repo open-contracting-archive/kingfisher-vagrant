@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import datetime
+import logging
 import traceback
 
 from ocdsdata.util import save_content
@@ -213,9 +214,8 @@ class Source:
                               encoding=data['encoding']) as f:
                         file_json_data = json.load(f)
                 except Exception as e:
-                    # TODO better way of dealing with this?
-                    raise e
-                    return
+                    logging.exception("Invaild file found: {}".format(data['filename']))
+                    continue
 
                 objects_list = []
                 if data['data_type'] == 'record_package_list_in_results':
