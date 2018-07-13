@@ -22,7 +22,6 @@ export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
 python ocdsdata-cli upgrade-database
 ```
 
-=======
 ## Running
 
 Run `ocdsdata-cli run` with the argument of one of the publishers you want to fetch.
@@ -41,9 +40,17 @@ The order of precedence is (from least-important to most-important):
   *  password from ~/.pgpass
   *  environmental variable
 
+
 Run `ocdsdata-cli` with the argument of one of the publishers you want to fetch.
 
+### Status of a run
+
+During or after a run you can use a command to check on the progress.
+
 Run `ocdsdata-cli status` with the source flag as the publisher you want to see. Pass the sample flag too, if it's a sample run.
+
+By default it will show the progress for the latest run, but you can pass the dataversion flag to see different ones.
+
 
 ## Configuration
 
@@ -68,7 +75,7 @@ Add changes to new migration, and make sure you update database.py table structu
 
 During Gather and Fetch stages, a local SQLite DB is used to track progress.
 
-Create DB Migrations with Alembic - http://alembic.zzzcomputing.com/en/latest/
+Create Meta DB Migrations with Alembic:
 
     alembic --config=metaalembic.ini revision -m "message"
 
