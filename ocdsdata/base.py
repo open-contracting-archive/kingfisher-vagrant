@@ -16,11 +16,11 @@ Each source should extend this class and add some variables and implement a few 
 method gather_all_download_urls - this is called once at the start and should return a list of files to download.
 
 method save_url - this is called once per file to download. You may not need to implement this for a simple source, as
-the default implementation may be good enough. It returns an instance of SourceSaveUrlResponse which can hold errors,
+the default implementation may be good enough. It returns an instance of Source.SaveURLResult which can hold errors,
 warnings, and new files to download.
 
-Files to be downloaded are described by a dict. Both gather_all_download_urls and SourceSaveUrlResponse use the same
-structure. The keys are:
+Files to be downloaded are described by a dict. Both gather_all_download_urls and Source.SaveURLResult.additional_files
+use the same structure. The keys are:
 
   *  filename - the name of the file that will be saved locally. These need to be unique per source.
   *  url - the URL to download.
@@ -266,7 +266,13 @@ class Source:
 
     def save_url(self, file_name, data, file_path):
         save_content_response = save_content(data['url'], file_path)
-        return SourceSaveUrlResponse(errors=save_content_response.errors, warnings=save_content_response.warnings)
+        return self.SaveUrlResult(errors=save_content_response.errors, warnings=save_content_response.warnings)
+
+    class SaveUrlResult:
+        def __init__(self, additional_files=[], errors=[], warnings=[]):
+            self.additional_files = additional_files
+            self.errors = errors
+            self.warnings = warnings
 
     def run_check(self):
         if not database.is_store_done(self.source_id, self.data_version, self.sample):
@@ -287,10 +293,3 @@ class Source:
         self.run_fetch()
         self.run_store()
         self.run_check()
-
-
-class SourceSaveUrlResponse:
-    def __init__(self, additional_files=[], errors=[], warnings=[]):
-        self.additional_files = additional_files
-        self.errors = errors
-        self.warnings = warnings

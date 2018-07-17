@@ -73,12 +73,12 @@ def save_content(url, filepath, headers=None):
                         chunk = chunk.replace(control_code_to_filter_out, b'')
                         warnings.append('We had to replace control codes: ' + str(control_code_to_filter_out))
                 f.write(chunk)
-        return SaveContentResponse(warnings=warnings)
+        return SaveContentResult(warnings=warnings)
     except Exception as e:
-        return SaveContentResponse(errors=[str(e)], warnings=warnings)
+        return SaveContentResult(errors=[str(e)], warnings=warnings)
 
 
-class SaveContentResponse:
+class SaveContentResult:
     def __init__(self, warnings=[], errors=[]):
         self.errors = errors
         self.warnings = warnings

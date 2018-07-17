@@ -3,7 +3,7 @@ import hashlib
 import lxml.html
 
 from ocdsdata import util
-from ocdsdata.base import Source, SourceSaveUrlResponse
+from ocdsdata.base import Source
 
 
 class UkraineSource(Source):
@@ -48,7 +48,7 @@ class UkraineSource(Source):
 
             response, errors = util.get_url_request(data['url'])
             if errors:
-                return SourceSaveUrlResponse(errors=errors)
+                return self.SaveUrlResult(errors=errors)
 
             doc = lxml.html.fromstring(response.text)
 
@@ -65,7 +65,7 @@ class UkraineSource(Source):
                             'data_type': 'release_package',
                         })
 
-            return SourceSaveUrlResponse(additional_files=additional)
+            return self.SaveUrlResult(additional_files=additional)
 
         else:
             return super(UkraineSource, self).save_url(file_name=filename, data=data, file_path=file_path)

@@ -5,7 +5,7 @@ import json
 import requests
 
 from ocdsdata import util
-from ocdsdata.base import Source, SourceSaveUrlResponse
+from ocdsdata.base import Source
 from ocdsdata.util import get_url_request
 
 REQUEST_TOKEN = "Basic " \
@@ -63,7 +63,7 @@ class ParaguayDNCPSource(Source):
             errors = self.save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
 
             if errors:
-                return SourceSaveUrlResponse(errors=errors)
+                return self.SaveUrlResult(errors=errors)
 
             additional = []
 
@@ -83,10 +83,10 @@ class ParaguayDNCPSource(Source):
                         'data_type': 'release_package',
                     })
 
-            return SourceSaveUrlResponse(additional_files=additional)
+            return self.SaveUrlResult(additional_files=additional)
         else:
             errors = self.save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
-            return SourceSaveUrlResponse(errors=errors)
+            return self.SaveUrlResult(errors=errors)
 
     def save_content(self, url, filepath, headers=None):
         request, errors = get_url_request(url, stream=True, headers=headers)

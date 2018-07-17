@@ -1,7 +1,7 @@
 from os.path import join, exists
 import tempfile
 import pytest
-from ocdsdata.base import Source, SourceSaveUrlResponse
+from ocdsdata.base import Source
 from ocdsdata import util
 from ocdsdata import database
 from ocdsdata import checks
@@ -122,7 +122,7 @@ class BadFetchErrors(Source):
                'errors': []}
 
     def save_url(self, file_name, data, file_path):
-        return SourceSaveUrlResponse(errors=['A really bad error occured!'])
+        return self.SaveUrlResult(errors=['A really bad error occured!'])
 
 
 def test_bad_fetch_errors():
@@ -160,7 +160,7 @@ class BadFetchWarnings(Source):
                'errors': []}
 
     def save_url(self, file_name, data, file_path):
-        return SourceSaveUrlResponse(warnings=['We found a control character!'])
+        return self.SaveUrlResult(warnings=['We found a control character!'])
 
 
 def test_bad_fetch_warnings():
