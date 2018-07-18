@@ -27,9 +27,10 @@ class AustraliaSource(Source):
 
     # @rate_limited(1)
     def save_url(self, filename, data, file_path):
-        errors = save_content(data['url'], file_path)
-        if errors:
-            return [], errors
+
+        save_content_response = save_content(data['url'], file_path)
+        if save_content_response.errors:
+            return self.SaveUrlResult(errors=save_content_response.errors, warnings=save_content_response.warnings)
 
         additional = []
 
@@ -74,4 +75,4 @@ class AustraliaSource(Source):
                             'priority': 1,
                         })
 
-        return additional, []
+        return self.SaveUrlResult(additional_files=additional, warnings=save_content_response.warnings)

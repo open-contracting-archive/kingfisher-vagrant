@@ -35,6 +35,7 @@ source_session_file_status_table = sa.Table('source_session_file_status', metada
                                             sa.Column('filename', sa.Text, nullable=True),
                                             sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=True),
                                             sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
+                                            sa.Column('warnings', JSONB, nullable=True),
                                             sa.UniqueConstraint('source_session_id', 'filename'),
                                             )
 
@@ -208,9 +209,11 @@ def start_store(source_id, data_version, sample, metadata_db):
 
             for file_info in metadata_db.list_filestatus():
                 if not file_info['data_type'].startswith('meta'):
+                    warnings = json.loads(file_info['fetch_warnings']) if file_info['fetch_warnings'] else []
                     connection.execute(source_session_file_status_table.insert(), {
                         'source_session_id': value.inserted_primary_key[0],
                         'filename': file_info['filename'],
+                        'warnings': warnings if len(warnings) > 0 else None
                     })
 
             return value.inserted_primary_key[0]

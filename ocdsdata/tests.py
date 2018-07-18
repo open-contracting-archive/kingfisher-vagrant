@@ -122,7 +122,7 @@ class BadFetchErrors(Source):
                'errors': []}
 
     def save_url(self, file_name, data, file_path):
-        return [], ['A really bad error occured!']
+        return self.SaveUrlResult(errors=['A really bad error occured!'])
 
 
 def test_bad_fetch_errors():
@@ -140,9 +140,47 @@ def test_bad_fetch_errors():
         assert data['file_status']['file1.json']['fetch_start_datetime']
         assert data['file_status']['file1.json']['fetch_finished_datetime']
         assert data['file_status']['file1.json']['fetch_errors'] == ['A really bad error occured!']
+        assert data['file_status']['file1.json']['fetch_warnings'] == []
 
         with pytest.raises(Exception):
             fetcher.run_store()
+
+
+class BadFetchWarnings(Source):
+    publisher_name = 'test'
+    url = 'test_url'
+    source_id = 'test'
+    data_version = 'v1'
+
+    def gather_all_download_urls(self):
+        yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                      '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+               'filename': 'file1.json',
+               'data_type': 'releases',
+               'errors': []}
+
+    def save_url(self, file_name, data, file_path):
+        return self.SaveUrlResult(warnings=['We found a control character!'])
+
+
+def test_bad_fetch_warnings():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fetcher = BadFetchWarnings(tmpdir)
+        fetcher.run_gather()
+        fetcher.run_fetch()
+
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert data['gather_success']
+        assert data['gather_finished_datetime']
+        assert data['fetch_success']
+        assert data['file_status']['file1.json']['fetch_success']
+        assert data['file_status']['file1.json']['fetch_start_datetime']
+        assert data['file_status']['file1.json']['fetch_finished_datetime']
+        assert data['file_status']['file1.json']['fetch_errors'] == []
+        assert data['file_status']['file1.json']['fetch_warnings'] == ['We found a control character!']
+
+        fetcher.run_store()
 
 
 class BadFetchException(Source):

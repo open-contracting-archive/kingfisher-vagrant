@@ -52,7 +52,8 @@ class ParaguayHaciendaSource(Source):
         return ids
 
     def save_url(self, filename, data, file_path):
-        return [], self.save_content(data['url'], file_path, headers={"Authorization": self.get_access_token()})
+        errors = self.save_content(data['url'], file_path, headers={"Authorization": self.get_access_token()})
+        return self.SaveUrlResult(errors=errors)
 
     def save_content(self, url, filepath, headers=None):
         request, errors = get_url_request(url, stream=True, headers=headers)

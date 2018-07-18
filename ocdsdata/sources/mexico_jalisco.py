@@ -28,13 +28,15 @@ class MexicoJaliscoSource(Source):
         return out
 
     def save_url(self, filename, data, file_path):
+
+        save_content_response = save_content(data['url'], file_path)
+        if save_content_response.errors:
+            return self.SaveUrlResult(errors=save_content_response.errors,
+                                      warnings=save_content_response.warnings)
+
+        additional = []
+
         if data['data_type'] == 'record_package':
-
-            errors = save_content(data['url'], file_path)
-            if errors:
-                return [], errors
-
-            additional = []
 
             with open(file_path) as f:
                 json_data = json.load(f)
@@ -47,6 +49,4 @@ class MexicoJaliscoSource(Source):
                         'data_type': 'release_package',
                     })
 
-            return additional, []
-        else:
-            return [], save_content(data['url'], file_path)
+        return self.SaveUrlResult(additional_files=additional, warnings=save_content_response.warnings)
