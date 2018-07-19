@@ -299,7 +299,7 @@ class Source:
             self.errors = errors
             self.warnings = warnings
 
-    def run_check(self):
+    def run_check(self, override_schema_version=None):
         self.logger.info("Starting run_check")
         if not database.is_store_done(self.source_id, self.data_version, self.sample):
             raise Exception('Can not run check without a successful store')
@@ -313,10 +313,10 @@ class Source:
 
             self.logger.info("Starting run_check for file " + data['filename'])
 
-            check_file(self, source_session_id, data)
+            check_file(self, source_session_id, data, override_schema_version)
 
     """Called with data to check before checks are run, so any problems can be fixed (See Australia)"""
-    def before_check_data(self, data):
+    def before_check_data(self, data, override_schema_version=None):
         return data
 
     """Gather, Fetch, Store and Check data from this publisher."""

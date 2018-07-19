@@ -73,29 +73,41 @@ record_table = sa.Table('record', metadata,
 release_check_table = sa.Table('release_check', metadata,
                                sa.Column('id', sa.Integer, primary_key=True),
                                sa.Column('release_id', sa.Integer, sa.ForeignKey("release.id"), index=True,
-                                         unique=True, nullable=False),
-                               sa.Column('cove_output', JSONB, nullable=False)
+                                         unique=False, nullable=False),
+                               sa.Column('override_schema_version', sa.Text, nullable=True),
+                               sa.Column('cove_output', JSONB, nullable=False),
+                               sa.UniqueConstraint('release_id', 'override_schema_version',
+                                                   name='ix_release_check_release_id_and_more')
                                )
 
 record_check_table = sa.Table('record_check', metadata,
                               sa.Column('id', sa.Integer, primary_key=True),
-                              sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True, unique=True,
+                              sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True, unique=False,
                                         nullable=False),
-                              sa.Column('cove_output', JSONB, nullable=False)
+                              sa.Column('override_schema_version', sa.Text, nullable=True),
+                              sa.Column('cove_output', JSONB, nullable=False),
+                              sa.UniqueConstraint('record_id', 'override_schema_version',
+                                                  name='ix_record_check_record_id_and_more')
                               )
 
 release_check_error_table = sa.Table('release_check_error', metadata,
                                      sa.Column('id', sa.Integer, primary_key=True),
                                      sa.Column('release_id', sa.Integer, sa.ForeignKey("release.id"), index=True,
-                                               unique=True, nullable=False),
-                                     sa.Column('error',  sa.Text, nullable=False)
+                                               unique=False, nullable=False),
+                                     sa.Column('override_schema_version', sa.Text, nullable=True),
+                                     sa.Column('error',  sa.Text, nullable=False),
+                                     sa.UniqueConstraint('release_id', 'override_schema_version',
+                                                         name='ix_release_check_error_release_id_and_more')
                                      )
 
 record_check_error_table = sa.Table('record_check_error', metadata,
                                     sa.Column('id', sa.Integer, primary_key=True),
                                     sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True,
-                                              unique=True, nullable=False),
-                                    sa.Column('error',  sa.Text, nullable=False)
+                                              unique=False, nullable=False),
+                                    sa.Column('override_schema_version', sa.Text, nullable=True),
+                                    sa.Column('error',  sa.Text, nullable=False),
+                                    sa.UniqueConstraint('record_id', 'override_schema_version',
+                                                        name='ix_record_check_error_record_id_and_more')
                                     )
 
 
@@ -358,14 +370,18 @@ def get_hash_md5_for_data(data):
     return hashlib.md5(data_str.encode('utf-8')).hexdigest()
 
 
-def is_release_check_done(release_id):
+def is_release_check_done(release_id, override_schema_version=None):
     with engine.begin() as connection:
-        s = sa.sql.select([release_check_table]).where(release_check_table.c.release_id == release_id)
+        s = sa.sql.select([release_check_table])\
+            .where((release_check_table.c.release_id == release_id) &
+                   (release_check_table.c.override_schema_version == override_schema_version))
         result = connection.execute(s)
         if result.fetchone():
             return True
 
-        s = sa.sql.select([release_check_error_table]).where(release_check_error_table.c.release_id == release_id)
+        s = sa.sql.select([release_check_error_table])\
+            .where((release_check_error_table.c.release_id == release_id) &
+                   (release_check_error_table.c.override_schema_version == override_schema_version))
         result = connection.execute(s)
         if result.fetchone():
             return True
@@ -373,14 +389,18 @@ def is_release_check_done(release_id):
     return False
 
 
-def is_record_check_done(record_id):
+def is_record_check_done(record_id, override_schema_version=None):
     with engine.begin() as connection:
-        s = sa.sql.select([record_check_table]).where(record_check_table.c.record_id == record_id)
+        s = sa.sql.select([record_check_table])\
+            .where((record_check_table.c.record_id == record_id) &
+                   (record_check_table.c.override_schema_version == override_schema_version))
         result = connection.execute(s)
         if result.fetchone():
             return True
 
-        s = sa.sql.select([record_check_error_table]).where(record_check_error_table.c.record_id == record_id)
+        s = sa.sql.select([record_check_error_table])\
+            .where((record_check_error_table.c.record_id == record_id) &
+                   (record_check_error_table.c.override_schema_version == override_schema_version))
         result = connection.execute(s)
         if result.fetchone():
             return True

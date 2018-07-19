@@ -77,7 +77,7 @@ class AustraliaSource(Source):
 
         return self.SaveUrlResult(additional_files=additional, warnings=save_content_response.warnings)
 
-    def before_check_data(self, data):
-        if isinstance(data['version'], float) and data['version'] == 1.0:
+    def before_check_data(self, data, override_schema_version=None):
+        if not override_schema_version and isinstance(data['version'], float) and data['version'] == 1.0:
             data['version'] = '1.0'
         return data
