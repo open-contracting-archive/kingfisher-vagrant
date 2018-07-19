@@ -445,3 +445,72 @@ def test_database_get_hash_md5_for_data():
 
 def test_database_get_hash_md5_for_data2():
     assert database.get_hash_md5_for_data({'cats': 'none'}) == '562c5f4221c75c8f08da103cc10c4e4c'
+
+
+def test_metadatabase_store():
+    setup_main_database()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+
+        # No files
+        assert not metadata_db.has_filestatus_filename('file1.json')
+
+        # Add files
+        metadata_db.add_filestatus({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases'})
+
+        # Check file
+        assert metadata_db.has_filestatus_filename('file1.json')
+
+        assert metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases'})
+
+        assert metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'priority': 1})
+
+        assert metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'encoding': 'utf-8'})
+
+        #  .... different data_type
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases-package'})
+
+        # .... different url
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://www.google.com/',
+            'filename': 'file1.json',
+            'data_type': 'releases'})
+
+        # .... different priority
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'priority': 10})
+
+        # .... different encoding
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'encoding': 'ascii'})

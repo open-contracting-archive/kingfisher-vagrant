@@ -139,7 +139,12 @@ class Source:
 
         try:
             for info in self.gather_all_download_urls():
-                self.metadata_db.add_filestatus(info)
+                if self.metadata_db.has_filestatus_filename(info['filename']):
+                    if not self.metadata_db.compare_filestatus_to_database(info):
+                        raise Exception("Tried to add the file " + info['filename'] +
+                                        " but it clashed with a file already in the list!")
+                else:
+                    self.metadata_db.add_filestatus(info)
         except Exception as e:
             error = repr(e)
             stacktrace = traceback.format_exception(*sys.exc_info())
@@ -166,7 +171,12 @@ class Source:
                 response = self.save_url(data['filename'], data, os.path.join(self.full_directory, data['filename']))
                 if response.additional_files:
                     for info in response.additional_files:
-                        self.metadata_db.add_filestatus(info)
+                        if self.metadata_db.has_filestatus_filename(info['filename']):
+                            if not self.metadata_db.compare_filestatus_to_database(info):
+                                response.errors.append("Tried to add the file " + info['filename'] +
+                                                       " but it clashed with a file already in the list!")
+                        else:
+                            self.metadata_db.add_filestatus(info)
                 self.metadata_db.update_filestatus_fetch_end(data['filename'], response.errors, response.warnings)
 
             except Exception as e:

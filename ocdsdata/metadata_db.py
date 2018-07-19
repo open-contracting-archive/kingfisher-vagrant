@@ -84,6 +84,37 @@ class MetadataDB(object):
             row = result.fetchone()
             return row
 
+    def has_filestatus_filename(self, file_name):
+        sql = sa.sql.text("""SELECT * FROM filestatus
+                        WHERE filename =  :filename """)
+        with self.engine.begin() as connection:
+            result = connection.execute(sql, filename=file_name)
+            return True if result.fetchone() else False
+
+    def compare_filestatus_to_database(self, info):
+        sql = sa.sql.text("""SELECT * FROM filestatus
+                        WHERE filename =  :filename """)
+        with self.engine.begin() as connection:
+            result = connection.execute(sql, filename=info['filename'])
+            database_info = result.fetchone()
+
+        if not database_info:
+            raise Exception('That filename does not exist!')
+
+        if database_info['url'] != info['url']:
+            return False
+
+        if database_info['data_type'] != info['data_type']:
+            return False
+
+        if database_info['encoding'] != info.get('encoding', 'utf-8'):
+            return False
+
+        if database_info['priority'] != info.get('priority', 1):
+            return False
+
+        return True
+
     def add_filestatus(self, info):
         store = {
             'filename': info['filename'],
