@@ -17,6 +17,16 @@ def setup_main_database():
     database.create_tables()
 
 
+class EmptySource(Source):
+    publisher_name = 'test'
+    url = 'test_url'
+    source_id = 'test'
+    data_version = 'v1'
+
+    def gather_all_download_urls(self):
+        return []
+
+
 class Basic(Source):
     publisher_name = 'test'
     url = 'test_url'
@@ -296,6 +306,7 @@ def test_database_store_file():
 def test_checks_records():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'record_package'})
@@ -316,7 +327,7 @@ def test_checks_records():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_record_check_done(record_id)
@@ -334,6 +345,7 @@ def test_checks_records():
 def test_checks_records_error():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'record_package'})
@@ -354,7 +366,7 @@ def test_checks_records_error():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_record_check_done(record_id)
@@ -371,6 +383,7 @@ def test_checks_records_error():
 def test_checks_releases():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'release_package'})
@@ -390,7 +403,7 @@ def test_checks_releases():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_release_check_done(release_id)
@@ -407,6 +420,7 @@ def test_checks_releases():
 def test_checks_releases_error():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'release_package'})
@@ -426,7 +440,7 @@ def test_checks_releases_error():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_release_check_done(release_id)

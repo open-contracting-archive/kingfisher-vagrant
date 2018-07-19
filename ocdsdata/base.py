@@ -298,7 +298,11 @@ class Source:
             if data['data_type'].startswith('meta'):
                 continue
 
-            check_file(source_session_id, data)
+            check_file(self, source_session_id, data)
+
+    """Called with data to check before checks are run, so any problems can be fixed (See Australia)"""
+    def before_check_data(self, data):
+        return data
 
     """Gather, Fetch, Store and Check data from this publisher."""
     def run_all(self):
