@@ -73,13 +73,14 @@ record_table = sa.Table('record', metadata,
 release_check_table = sa.Table('release_check', metadata,
                                sa.Column('id', sa.Integer, primary_key=True),
                                sa.Column('release_id', sa.Integer, sa.ForeignKey("release.id"), index=True,
-                                         unique=True),
+                                         unique=True, nullable=False),
                                sa.Column('cove_output', JSONB, nullable=False)
                                )
 
 record_check_table = sa.Table('record_check', metadata,
                               sa.Column('id', sa.Integer, primary_key=True),
-                              sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True, unique=True),
+                              sa.Column('record_id', sa.Integer, sa.ForeignKey("record.id"), index=True, unique=True,
+                                        nullable=False),
                               sa.Column('cove_output', JSONB, nullable=False)
                               )
 
