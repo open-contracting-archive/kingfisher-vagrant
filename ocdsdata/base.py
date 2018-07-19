@@ -160,7 +160,10 @@ class Source:
             return
 
         if not metadata['gather_success']:
-            raise Exception('Can not run fetch without a successful gather')
+            msg = 'Can not run fetch without a successful gather!'
+            if metadata['gather_errors']:
+                msg += ' Gather errors: ' + metadata['gather_errors']
+            raise Exception(msg)
 
         self.metadata_db.update_session_fetch_start()
 
