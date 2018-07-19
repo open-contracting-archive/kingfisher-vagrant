@@ -45,6 +45,12 @@ Run `ocdsdata-cli status` with the source flag as the publisher you want to see.
 
 By default it will show the progress for the latest run, but you can pass the dataversion flag to see different ones.
 
+## Logging Configuration
+
+This will provide additional logging information using the standard Python logging module, with loggers in the "ocdsdata" namespace.
+
+When using the command line tool, it can be configured by setting a '~/.config/ocdsdata/logging.json' file. A sample one is included in the main directory.
+
 ## Run Tests
 
 Run `py.test` from root directory.
@@ -66,3 +72,4 @@ Create DB Migrations with Alembic - http://alembic.zzzcomputing.com/en/latest/
     alembic --config=metaalembic.ini revision -m "message"
 
 Add changes to new migration, and make sure you update metadata_db.py table structures to.
+

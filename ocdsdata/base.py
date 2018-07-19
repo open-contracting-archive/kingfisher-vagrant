@@ -3,6 +3,7 @@ import sys
 import json
 import datetime
 import traceback
+import logging
 
 from ocdsdata.util import save_content
 from ocdsdata.checks import check_file
@@ -120,6 +121,8 @@ class Source:
             data_version=self.data_version
         )
 
+        self.logger = logging.getLogger('ocdsdata.source')
+
     """Returns an array with objects for each url.
 
     The return objects includes url,filename,type and more."""
@@ -130,6 +133,8 @@ class Source:
         pass
 
     def run_gather(self):
+        self.logger.info("Starting run_gather")
+
         metadata = self.metadata_db.get_session()
 
         if metadata['gather_success']:
@@ -154,6 +159,8 @@ class Source:
         self.metadata_db.update_session_gather_end(True, None, None)
 
     def run_fetch(self):
+        self.logger.info("Starting run_fetch")
+
         metadata = self.metadata_db.get_session()
 
         if metadata['fetch_success']:
@@ -169,6 +176,8 @@ class Source:
 
         data = self.metadata_db.get_next_filestatus_to_fetch()
         while data:
+
+            self.logger.info("Starting run_fetch for file " + data['filename'])
             self.metadata_db.update_filestatus_fetch_start(data['filename'])
             try:
                 response = self.save_url(data['filename'], data, os.path.join(self.full_directory, data['filename']))
@@ -191,6 +200,7 @@ class Source:
 
     """Uploads the fetched data as record rows to the Database"""
     def run_store(self):
+        self.logger.info("Starting run_store")
         metadata = self.metadata_db.get_session()
 
         if not metadata['fetch_success']:
@@ -210,6 +220,8 @@ class Source:
                 continue
 
             with database.add_file(source_session_id, data) as database_file:
+
+                self.logger.info("Starting run_store for file " + data['filename'])
 
                 try:
                     with open(os.path.join(self.full_directory, data['filename']),
@@ -288,6 +300,7 @@ class Source:
             self.warnings = warnings
 
     def run_check(self):
+        self.logger.info("Starting run_check")
         if not database.is_store_done(self.source_id, self.data_version, self.sample):
             raise Exception('Can not run check without a successful store')
 
@@ -297,6 +310,8 @@ class Source:
 
             if data['data_type'].startswith('meta'):
                 continue
+
+            self.logger.info("Starting run_check for file " + data['filename'])
 
             check_file(self, source_session_id, data)
 
