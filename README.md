@@ -2,8 +2,6 @@
 
 ## Installation
 
-### Production Install
-
 Requirements: python3, postgresql-10
 
 Set up a venv and install requirements:
@@ -11,7 +9,6 @@ Set up a venv and install requirements:
 virtualenv -p python3 .ve
 source .ve/bin/activate
 pip install -r requirements.txt
-pip install -e .
 ```
 
 Example of creating an ocdsdata table and data:
@@ -26,7 +23,7 @@ python ocdsdata-cli upgrade-database
 
 Run `ocdsdata-cli run` with the argument of one of the publishers you want to fetch.
 
-### Development Setup
+## Configuration
 
 Database settings can be set using a `~/.config/ocdsdata/config.ini` file. A sample one is included in the main directory.
 
@@ -40,24 +37,13 @@ The order of precedence is (from least-important to most-important):
   *  password from ~/.pgpass
   *  environmental variable
 
-
-Run `ocdsdata-cli` with the argument of one of the publishers you want to fetch.
-
-### Status of a run
+## Status of a run
 
 During or after a run you can use a command to check on the progress.
 
 Run `ocdsdata-cli status` with the source flag as the publisher you want to see. Pass the sample flag too, if it's a sample run.
 
 By default it will show the progress for the latest run, but you can pass the dataversion flag to see different ones.
-
-
-## Configuration
-
-Database and configuration settings can be set using `~/.config/ocdsdata/config.ini` file. A sample one is included in the main directory.
-
-
-You can also set the `DB_URI` enviromental variable to use a custom PostgreSQL server, the default is `postgres://ocdsdata:ocdsdata@localhost/ocdsdata`
 
 ## Run Tests
 
