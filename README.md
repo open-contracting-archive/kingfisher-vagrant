@@ -9,6 +9,7 @@ Set up a venv and install requirements:
 virtualenv -p python3 .ve
 source .ve/bin/activate
 pip install -r requirements.txt
+pip install -e .
 ```
 
 Example of creating an ocdsdata table and data:
@@ -61,7 +62,7 @@ Add changes to new migration, and make sure you update database.py table structu
 
 During Gather and Fetch stages, a local SQLite DB is used to track progress.
 
-Create Meta DB Migrations with Alembic:
+Create DB Migrations with Alembic - http://alembic.zzzcomputing.com/en/latest/
 
     alembic --config=metaalembic.ini revision -m "message"
 
