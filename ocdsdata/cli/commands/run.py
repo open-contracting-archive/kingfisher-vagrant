@@ -11,8 +11,8 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
         self.sources = ocdsdata.sources_util.gather_sources()
 
     def configure_subparser(self, subparser):
-        subparser.add_argument("--run", help="run one source only")
-        subparser.add_argument("--runall", help="run all sources",
+        subparser.add_argument("--source", help="run one source only") # type=list)
+        subparser.add_argument("--allsources", help="run all sources",
                                action="store_true")
         subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
         subparser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
@@ -39,18 +39,18 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
     def run_command(self, args):
         run = []
 
-        if args.runall:
+        if args.allsources:
             for source_id, source_class in self.sources.items():
                 run.append({'id': source_id, 'source_class': source_class})
-        elif args.run:
-            if args.run in self.sources:
-                run.append({'id': args.run, 'source_class': self.sources[args.run]})
+        elif args.source:
+            if args.source in self.sources:
+                run.append({'id': args.source, 'source_class': self.sources[args.source]})
             else:
                 print("We can not find a source that you requested! You requested: %s" % [args.run])
                 quit(-1)
 
         if not run:
-            print("You have not specified anything to run! Try --run=??? or --runall")
+            print("You have not specified anything to run! Try source=??? or allsources")
             print("You can run:")
             for source_id, source_info in sorted(self.sources.items()):
                 print(" - %s" % source_id)
