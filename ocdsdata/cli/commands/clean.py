@@ -1,5 +1,3 @@
-import os
-
 import ocdsdata.cli.commands.base
 import ocdsdata.sources_util
 
