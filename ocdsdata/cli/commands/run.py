@@ -11,7 +11,8 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
         self.sources = ocdsdata.sources_util.gather_sources()
 
     def configure_subparser(self, subparser):
-        subparser.add_argument("source", help="run one or more sources", nargs="+")
+        subparser.add_argument("source", help="run one or more sources", nargs="*")
+        subparser.add_argument("--all", help="run all sources",	action="store_true")
         subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
         subparser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
 
@@ -37,7 +38,11 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
     def run_command(self, args):
         run = []
 
-        if "all" in args.source:
+        if args.all and args.source:
+            print("You need to either specifiy a source or use all flag, not both.")
+            quit(-1)
+
+        if args.all:
             for source_id, source_class in self.sources.items():
                 run.append({'id': source_id, 'source_class': source_class})
         elif args.source:
