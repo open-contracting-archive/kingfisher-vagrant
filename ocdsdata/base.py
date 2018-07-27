@@ -4,7 +4,6 @@ import json
 import datetime
 import logging
 import traceback
-import logging
 
 from ocdsdata.util import save_content
 from ocdsdata.checks import check_file
