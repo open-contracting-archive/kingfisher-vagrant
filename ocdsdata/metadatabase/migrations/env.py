@@ -1,17 +1,14 @@
 from __future__ import with_statement
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from logging.config import fileConfig
 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-fileConfig(config.config_file_name)
+# We do NOT set up logging here; our command line tool already does that.
+# Also if this code is being used as a library, it's up to the calling code to configure logging, not us.
 
 # add your model's MetaData object here
 # for 'autogenerate' support

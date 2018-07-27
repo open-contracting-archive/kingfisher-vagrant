@@ -63,7 +63,7 @@ class ParaguayDNCPSource(Source):
             errors = self.save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
 
             if errors:
-                return [], errors
+                return self.SaveUrlResult(errors=errors)
 
             additional = []
 
@@ -83,9 +83,10 @@ class ParaguayDNCPSource(Source):
                         'data_type': 'release_package',
                     })
 
-            return additional, []
+            return self.SaveUrlResult(additional_files=additional)
         else:
-            return [], self.save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
+            errors = self.save_content(data['url'], file_path, headers={"Authorization": self.getAccessToken()})
+            return self.SaveUrlResult(errors=errors)
 
     def save_content(self, url, filepath, headers=None):
         request, errors = get_url_request(url, stream=True, headers=headers)

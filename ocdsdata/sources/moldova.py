@@ -1,5 +1,4 @@
 from ocdsdata.base import Source
-from ocdsdata.util import save_content
 
 
 class MoldovaSource(Source):
@@ -31,4 +30,4 @@ class MoldovaSource(Source):
 
     # @rate_limited(1)
     def save_url(self, filename, data, file_path):
-        return [], save_content(data['url'], file_path)
+        return super(MoldovaSource, self).save_url(file_name=filename, data=data, file_path=file_path)

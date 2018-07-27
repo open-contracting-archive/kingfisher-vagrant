@@ -17,6 +17,16 @@ def setup_main_database():
     database.create_tables()
 
 
+class EmptySource(Source):
+    publisher_name = 'test'
+    url = 'test_url'
+    source_id = 'test'
+    data_version = 'v1'
+
+    def gather_all_download_urls(self):
+        return []
+
+
 class Basic(Source):
     publisher_name = 'test'
     url = 'test_url'
@@ -122,7 +132,7 @@ class BadFetchErrors(Source):
                'errors': []}
 
     def save_url(self, file_name, data, file_path):
-        return [], ['A really bad error occured!']
+        return self.SaveUrlResult(errors=['A really bad error occured!'])
 
 
 def test_bad_fetch_errors():
@@ -140,9 +150,47 @@ def test_bad_fetch_errors():
         assert data['file_status']['file1.json']['fetch_start_datetime']
         assert data['file_status']['file1.json']['fetch_finished_datetime']
         assert data['file_status']['file1.json']['fetch_errors'] == ['A really bad error occured!']
+        assert data['file_status']['file1.json']['fetch_warnings'] == []
 
         with pytest.raises(Exception):
             fetcher.run_store()
+
+
+class BadFetchWarnings(Source):
+    publisher_name = 'test'
+    url = 'test_url'
+    source_id = 'test'
+    data_version = 'v1'
+
+    def gather_all_download_urls(self):
+        yield {'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                      '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+               'filename': 'file1.json',
+               'data_type': 'releases',
+               'errors': []}
+
+    def save_url(self, file_name, data, file_path):
+        return self.SaveUrlResult(warnings=['We found a control character!'])
+
+
+def test_bad_fetch_warnings():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fetcher = BadFetchWarnings(tmpdir)
+        fetcher.run_gather()
+        fetcher.run_fetch()
+
+        metadata_db = MetadataDB(join(tmpdir, 'test', 'v1'))
+        data = metadata_db.get_dict()
+        assert data['gather_success']
+        assert data['gather_finished_datetime']
+        assert data['fetch_success']
+        assert data['file_status']['file1.json']['fetch_success']
+        assert data['file_status']['file1.json']['fetch_start_datetime']
+        assert data['file_status']['file1.json']['fetch_finished_datetime']
+        assert data['file_status']['file1.json']['fetch_errors'] == []
+        assert data['file_status']['file1.json']['fetch_warnings'] == ['We found a control character!']
+
+        fetcher.run_store()
 
 
 class BadFetchException(Source):
@@ -258,6 +306,7 @@ def test_database_store_file():
 def test_checks_records():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'record_package'})
@@ -278,7 +327,7 @@ def test_checks_records():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_record_check_done(record_id)
@@ -296,6 +345,7 @@ def test_checks_records():
 def test_checks_records_error():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'record_package'})
@@ -316,7 +366,7 @@ def test_checks_records_error():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_record_check_done(record_id)
@@ -333,6 +383,7 @@ def test_checks_records_error():
 def test_checks_releases():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'release_package'})
@@ -352,7 +403,7 @@ def test_checks_releases():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_release_check_done(release_id)
@@ -369,6 +420,7 @@ def test_checks_releases():
 def test_checks_releases_error():
     setup_main_database()
     with tempfile.TemporaryDirectory() as tmpdir:
+        source = EmptySource(tmpdir)
         metadata_db = MetadataDB(tmpdir)
         metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
         metadata_db.add_filestatus({'filename': 'test1.json', 'url': 'http://www.test.com', 'data_type': 'release_package'})
@@ -388,7 +440,7 @@ def test_checks_releases_error():
 
         # check!
         for data in metadata_db.list_filestatus():
-            checks.check_file(source_session_id, data)
+            checks.check_file(source, source_session_id, data)
 
         # Test
         assert database.is_release_check_done(release_id)
@@ -407,3 +459,72 @@ def test_database_get_hash_md5_for_data():
 
 def test_database_get_hash_md5_for_data2():
     assert database.get_hash_md5_for_data({'cats': 'none'}) == '562c5f4221c75c8f08da103cc10c4e4c'
+
+
+def test_metadatabase_store():
+    setup_main_database()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metadata_db = MetadataDB(tmpdir)
+        metadata_db.create_session_metadata("Test", True, "http://www.test.com", "2018-01-01-10-00-00")
+
+        # No files
+        assert not metadata_db.has_filestatus_filename('file1.json')
+
+        # Add files
+        metadata_db.add_filestatus({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases'})
+
+        # Check file
+        assert metadata_db.has_filestatus_filename('file1.json')
+
+        assert metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases'})
+
+        assert metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'priority': 1})
+
+        assert metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'encoding': 'utf-8'})
+
+        #  .... different data_type
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases-package'})
+
+        # .... different url
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://www.google.com/',
+            'filename': 'file1.json',
+            'data_type': 'releases'})
+
+        # .... different priority
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'priority': 10})
+
+        # .... different encoding
+        assert not metadata_db.compare_filestatus_to_database({
+            'url': 'https://raw.githubusercontent.com/open-contracting/sample-data/' +
+                   '5bcbfcf48bf6e6599194b8acae61e2c6e8fb5009/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json',
+            'filename': 'file1.json',
+            'data_type': 'releases',
+            'encoding': 'ascii'})

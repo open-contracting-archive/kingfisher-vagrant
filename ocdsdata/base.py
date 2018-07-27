@@ -4,6 +4,7 @@ import json
 import datetime
 import logging
 import traceback
+import logging
 
 from ocdsdata.util import save_content
 from ocdsdata.checks import check_file
@@ -17,11 +18,11 @@ Each source should extend this class and add some variables and implement a few 
 method gather_all_download_urls - this is called once at the start and should return a list of files to download.
 
 method save_url - this is called once per file to download. You may not need to implement this for a simple source, as
-the default implementation may be good enough. It returns two lists - the first list is a list of new files to download,
-and the second list is a list of errors.
+the default implementation may be good enough. It returns an instance of Source.SaveURLResult which can hold errors,
+warnings, and new files to download.
 
-Files to be downloaded are described by a dict. Both gather_all_download_urls and save_url return the same structure.
-The keys are:
+Files to be downloaded are described by a dict. Both gather_all_download_urls and Source.SaveURLResult.additional_files
+use the same structure. The keys are:
 
   *  filename - the name of the file that will be saved locally. These need to be unique per source.
   *  url - the URL to download.
@@ -121,6 +122,8 @@ class Source:
             data_version=self.data_version
         )
 
+        self.logger = logging.getLogger('ocdsdata.source')
+
     """Returns an array with objects for each url.
 
     The return objects includes url,filename,type and more."""
@@ -131,6 +134,8 @@ class Source:
         pass
 
     def run_gather(self):
+        self.logger.info("Starting run_gather")
+
         metadata = self.metadata_db.get_session()
 
         if metadata['gather_success']:
@@ -140,7 +145,12 @@ class Source:
 
         try:
             for info in self.gather_all_download_urls():
-                self.metadata_db.add_filestatus(info)
+                if self.metadata_db.has_filestatus_filename(info['filename']):
+                    if not self.metadata_db.compare_filestatus_to_database(info):
+                        raise Exception("Tried to add the file " + info['filename'] +
+                                        " but it clashed with a file already in the list!")
+                else:
+                    self.metadata_db.add_filestatus(info)
         except Exception as e:
             error = repr(e)
             stacktrace = traceback.format_exception(*sys.exc_info())
@@ -150,45 +160,48 @@ class Source:
         self.metadata_db.update_session_gather_end(True, None, None)
 
     def run_fetch(self):
+        self.logger.info("Starting run_fetch")
+
         metadata = self.metadata_db.get_session()
 
         if metadata['fetch_success']:
             return
 
         if not metadata['gather_success']:
-            raise Exception('Can not run fetch without a successful gather')
+            msg = 'Can not run fetch without a successful gather!'
+            if metadata['gather_errors']:
+                msg += ' Gather errors: ' + metadata['gather_errors']
+            raise Exception(msg)
 
         self.metadata_db.update_session_fetch_start()
 
-        failed = False
-        stop = False
+        data = self.metadata_db.get_next_filestatus_to_fetch()
+        while data:
 
-        while not stop:
-            stop = True
-            data = self.metadata_db.get_next_filestatus_to_fetch()
-            if data:
-                stop = False
-                self.metadata_db.update_filestatus_fetch_start(data['filename'])
-                try:
-                    to_add_list, errors = self.save_url(data['filename'], data, os.path.join(self.full_directory, data['filename']))
-                    if to_add_list:
-                        stop = False
-                        for info in to_add_list:
+            self.logger.info("Starting run_fetch for file " + data['filename'])
+            self.metadata_db.update_filestatus_fetch_start(data['filename'])
+            try:
+                response = self.save_url(data['filename'], data, os.path.join(self.full_directory, data['filename']))
+                if response.additional_files:
+                    for info in response.additional_files:
+                        if self.metadata_db.has_filestatus_filename(info['filename']):
+                            if not self.metadata_db.compare_filestatus_to_database(info):
+                                response.errors.append("Tried to add the file " + info['filename'] +
+                                                       " but it clashed with a file already in the list!")
+                        else:
                             self.metadata_db.add_filestatus(info)
+                self.metadata_db.update_filestatus_fetch_end(data['filename'], response.errors, response.warnings)
 
-                except Exception as e:
-                    errors = [repr(e)]
+            except Exception as e:
+                self.metadata_db.update_filestatus_fetch_end(data['filename'], [repr(e)])
 
-                if errors:
-                    self.metadata_db.update_filestatus_fetch_end(data['filename'], False, errors)
-                    failed = True
-                else:
-                    self.metadata_db.update_filestatus_fetch_end(data['filename'], True)
+            data = self.metadata_db.get_next_filestatus_to_fetch()
 
-        self.metadata_db.update_session_fetch_end(not failed)
+        self.metadata_db.update_session_fetch_end()
 
     """Uploads the fetched data as record rows to the Database"""
     def run_store(self):
+        self.logger.info("Starting run_store")
         metadata = self.metadata_db.get_session()
 
         if not metadata['fetch_success']:
@@ -208,6 +221,8 @@ class Source:
                 continue
 
             with database.add_file(source_session_id, data) as database_file:
+
+                self.logger.info("Starting run_store for file " + data['filename'])
 
                 try:
                     with open(os.path.join(self.full_directory, data['filename']),
@@ -275,9 +290,17 @@ class Source:
         database.end_store(source_session_id)
 
     def save_url(self, file_name, data, file_path):
-        return [], save_content(data['url'], file_path)
+        save_content_response = save_content(data['url'], file_path)
+        return self.SaveUrlResult(errors=save_content_response.errors, warnings=save_content_response.warnings)
+
+    class SaveUrlResult:
+        def __init__(self, additional_files=[], errors=[], warnings=[]):
+            self.additional_files = additional_files
+            self.errors = errors
+            self.warnings = warnings
 
     def run_check(self):
+        self.logger.info("Starting run_check")
         if not database.is_store_done(self.source_id, self.data_version, self.sample):
             raise Exception('Can not run check without a successful store')
 
@@ -288,7 +311,13 @@ class Source:
             if data['data_type'].startswith('meta'):
                 continue
 
-            check_file(source_session_id, data)
+            self.logger.info("Starting run_check for file " + data['filename'])
+
+            check_file(self, source_session_id, data)
+
+    """Called with data to check before checks are run, so any problems can be fixed (See Australia)"""
+    def before_check_data(self, data):
+        return data
 
     """Gather, Fetch, Store and Check data from this publisher."""
     def run_all(self):
