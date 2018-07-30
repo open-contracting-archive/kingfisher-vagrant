@@ -39,7 +39,7 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
         run = []
 
         if args.all and args.source:
-            print("You need to either specifiy a source or use all flag, not both.")
+            print("You need to either specify a source or use --all flag, not both.")
             quit(-1)
 
         if args.all:
@@ -47,7 +47,6 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                 run.append({'id': source_id, 'source_class': source_class})
         elif args.source:
             for selected_source in args.source:
-                print(selected_source)
                 if selected_source in self.sources:
                     run.append({'id': selected_source, 'source_class': self.sources[selected_source]})
                 else:
@@ -55,7 +54,7 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                     quit(-1)
 
         if not run:
-            print("You have not specified anything to run! Try listing your sources names or special argument all")
+            print("You have not specified anything to run! Try listing your sources names or flag --all")
             print("You can run:")
             for source_id, source_info in sorted(self.sources.items()):
                 print(" - %s" % source_id)
