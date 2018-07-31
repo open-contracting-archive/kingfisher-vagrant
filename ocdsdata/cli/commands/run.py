@@ -14,7 +14,6 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
         subparser.add_argument("source", help="run one or more sources", nargs="*")
         subparser.add_argument("--all", help="run all sources",	action="store_true")
         subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
-        subparser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
 
         subparser.add_argument("--onlygather", help="only run the gather stage", action="store_true")
         subparser.add_argument("--ignoregather", help="don't run the gather stage", action="store_true")
@@ -107,13 +106,9 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                 run_check = False
 
         for source_info in run:
-            output_directory = source_info['id']
-            if len(run) == 1 and args.outputdir:
-                output_directory = args.outputdir
 
             instance = source_info['source_class'](base_dir,
                                                    remove_dir=remove_dir,
-                                                   output_directory=output_directory,
                                                    sample=sample_mode,
                                                    data_version=data_version,
                                                    new_version=new_version

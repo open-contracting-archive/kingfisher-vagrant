@@ -59,7 +59,7 @@ class Source:
     """
     argument_definitions = []
 
-    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, output_directory=None, sample=False, data_version=None, new_version=False):
+    def __init__(self, base_dir, remove_dir=False, publisher_name=None, url=None, sample=False, data_version=None, new_version=False):
 
         self.base_dir = base_dir
         self.sample = sample
@@ -69,7 +69,7 @@ class Source:
             raise AttributeError('A publisher name needs to be specified')
 
         # Make sure the output directory is fully specified, including sample bit (if applicable)
-        self.output_directory = output_directory or self.output_directory or self.source_id
+        self.output_directory = self.output_directory or self.source_id
         if not self.output_directory:
             raise AttributeError('An output directory needs to be specified')
 
