@@ -11,9 +11,8 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
         self.sources = ocdsdata.sources_util.gather_sources()
 
     def configure_subparser(self, subparser):
-        subparser.add_argument("--run", help="run one source only")
-        subparser.add_argument("--runall", help="run all sources",
-                               action="store_true")
+        subparser.add_argument("source", help="run one or more sources", nargs="*")
+        subparser.add_argument("--all", help="run all sources",	action="store_true")
         subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
         subparser.add_argument("--outputdir", help="output dir - defaults to id. Ignored if running more than one source.")
 
@@ -39,18 +38,23 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
     def run_command(self, args):
         run = []
 
-        if args.runall:
+        if args.all and args.source:
+            print("You need to either specify a source or use --all flag, not both.")
+            quit(-1)
+
+        if args.all:
             for source_id, source_class in self.sources.items():
                 run.append({'id': source_id, 'source_class': source_class})
-        elif args.run:
-            if args.run in self.sources:
-                run.append({'id': args.run, 'source_class': self.sources[args.run]})
-            else:
-                print("We can not find a source that you requested! You requested: %s" % [args.run])
-                quit(-1)
+        elif args.source:
+            for selected_source in args.source:
+                if selected_source in self.sources:
+                    run.append({'id': selected_source, 'source_class': self.sources[selected_source]})
+                else:
+                    print("We can not find a source that you requested! You requested: %s" % selected_source)
+                    quit(-1)
 
         if not run:
-            print("You have not specified anything to run! Try --run=??? or --runall")
+            print("You have not specified anything to run! Try listing your sources names or flag --all")
             print("You can run:")
             for source_id, source_info in sorted(self.sources.items()):
                 print(" - %s" % source_id)

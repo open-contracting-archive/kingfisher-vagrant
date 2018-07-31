@@ -8,7 +8,7 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
     command = 'status'
 
     def configure_subparser(self, subparser):
-        subparser.add_argument("--source", help="Which source do you want to see status for?")
+        subparser.add_argument("source", help="Which source do you want to see status for?")
         subparser.add_argument("--dataversion", help="Specify a data version - defaults to latest one")
         subparser.add_argument("--sample", help="See status for a sample", action="store_true")
         subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")

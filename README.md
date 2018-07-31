@@ -14,14 +14,14 @@ pip install -r requirements.txt
 Example of creating an ocdsdata table and data:
 ```
 sudo -u postgres createuser ocdsdata --pwprompt
-sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8 
+sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8
 export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
 python ocdsdata-cli upgrade-database
 ```
 
 ## Running
 
-Run `ocdsdata-cli run` with the argument of one of the publishers you want to fetch.
+Run `ocdsdata-cli run ` followed by the name of one or more of the publishers you want to fetch. You can also use the `--all` flag instead to run all.
 
 ## Configuration
 
@@ -72,4 +72,3 @@ Create DB Migrations with Alembic - http://alembic.zzzcomputing.com/en/latest/
     alembic --config=metaalembic.ini revision -m "message"
 
 Add changes to new migration, and make sure you update metadata_db.py table structures to.
-
