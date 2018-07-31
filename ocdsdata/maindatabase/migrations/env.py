@@ -8,7 +8,7 @@ import ocdsdata.maindatabase.config
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", ocdsdata.maindatabase.config.DB_URI)
+config.set_main_option("sqlalchemy.url", ocdsdata.maindatabase.config.get_database_uri())
 
 # We do NOT set up logging here; our command line tool already does that.
 # Also if this code is being used as a library, it's up to the calling code to configure logging, not us.

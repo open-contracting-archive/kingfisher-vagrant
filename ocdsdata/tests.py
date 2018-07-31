@@ -333,7 +333,7 @@ def test_checks_records():
         assert database.is_record_check_done(record_id)
         assert database.is_check_done(source_session_id)
 
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             s = sa.sql.select([database.record_check_table])
             result = connection.execute(s)
             data = result.fetchone()
@@ -372,7 +372,7 @@ def test_checks_records_error():
         assert database.is_record_check_done(record_id)
         assert database.is_check_done(source_session_id)
 
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             s = sa.sql.select([database.record_check_error_table])
             result = connection.execute(s)
             data = result.fetchone()
@@ -408,7 +408,7 @@ def test_checks_releases():
         # Test
         assert database.is_release_check_done(release_id)
 
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             s = sa.sql.select([database.release_check_table])
             result = connection.execute(s)
             data = result.fetchone()
@@ -445,7 +445,7 @@ def test_checks_releases_error():
         # Test
         assert database.is_release_check_done(release_id)
 
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             s = sa.sql.select([database.release_check_error_table])
             result = connection.execute(s)
             data = result.fetchone()

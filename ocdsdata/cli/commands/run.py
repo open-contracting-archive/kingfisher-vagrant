@@ -2,6 +2,7 @@ import os
 
 import ocdsdata.cli.commands.base
 import ocdsdata.sources_util
+import ocdsdata.database
 
 
 class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
@@ -105,6 +106,11 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                 run_store = False
             if args.ignorecheck:
                 run_check = False
+
+        if run_store or run_check:
+            # If we are doing an operation that requires the database, try and initialise it now
+            # so that errors are caught before we start
+            ocdsdata.database.init()
 
         for source_info in run:
             output_directory = source_info['id']
