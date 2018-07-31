@@ -12,7 +12,6 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
         subparser.add_argument("--dataversion", help="Specify a data version - defaults to latest one")
         subparser.add_argument("--sample", help="See status for a sample", action="store_true")
         subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
-        subparser.add_argument("--outputdir", help="output dir - defaults to source id.")
 
     def run_command(self, args):
 
@@ -32,7 +31,6 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
 
         source_status = ocdsdata.status.SourceStatus(base_dir=base_dir,
                                                      source_id=source_id,
-                                                     output_directory=args.outputdir,
                                                      sample=args.sample,
                                                      data_version=args.dataversion
                                                      )
