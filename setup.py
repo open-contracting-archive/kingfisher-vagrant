@@ -29,11 +29,6 @@ setup(name='ocdsdata',
             'ocdsdata.cli',
             'ocdsdata.cli.commands'
       ],
-      install_requires=[],
-      classifiers=[
-        # Trove classifiers
-        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-      ],
       scripts=['ocdsdata-cli'],
       package_data={'ocdsdata': [
               'maindatabase/migrations/script.py.mako'
