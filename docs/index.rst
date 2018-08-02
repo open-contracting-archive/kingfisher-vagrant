@@ -9,6 +9,8 @@ It is Python tool that can be used as a library from other Python programmes, or
 
 .. toctree::
 
+   pipeline.rst
+   sources.rst
    requirements-install.rst
    config.rst
    cli.rst
