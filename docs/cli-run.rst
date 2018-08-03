@@ -56,10 +56,10 @@ You can specify that only one stage should be run with the following flags:
 
 You can specify that stages should be skipped with the following flags:
 
-  *  skipgather
-  *  skipfetch
-  *  skipstore
-  *  skipcheck
+  *  ignoregather
+  *  ignorefetch
+  *  ignorestore
+  *  ignorecheck
 
 For example:
 
