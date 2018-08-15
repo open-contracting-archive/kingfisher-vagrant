@@ -15,7 +15,24 @@ class SetEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-engine = sa.create_engine(ocdsdata.maindatabase.config.DB_URI, json_serializer=SetEncoder().encode)
+_engine = None
+
+
+# We must only create a connection if actually needed; sometimes people do operations that don't need a database
+#   and in that case it shouldn't error that it can't connect to one!
+def get_engine():
+    global _engine
+    if not _engine:
+        _engine = sa.create_engine(ocdsdata.maindatabase.config.get_database_uri(), json_serializer=SetEncoder().encode)
+    return _engine
+
+
+# This can be called by scripts that know they are going to use the database later.
+# It should setup any thing needed and raise any errors now.
+def init():
+    get_engine()
+
+
 metadata = sa.MetaData()
 
 source_session_table = sa.Table('source_session', metadata,
@@ -112,6 +129,7 @@ record_check_error_table = sa.Table('record_check_error', metadata,
 
 
 def delete_tables():
+    engine = get_engine()
     engine.execute("drop table if exists record_check cascade")
     engine.execute("drop table if exists record_check_error cascade")
     engine.execute("drop table if exists release_check cascade")
@@ -135,7 +153,7 @@ def create_tables():
 
 
 def is_store_done(source_id, data_version, sample):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
                                                         (source_session_table.c.sample == sample) &
@@ -145,7 +163,7 @@ def is_store_done(source_id, data_version, sample):
 
 
 def is_store_in_progress(source_id, data_version, sample):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
                                                         (source_session_table.c.sample == sample) &
@@ -155,7 +173,7 @@ def is_store_in_progress(source_id, data_version, sample):
 
 
 def get_id_of_store_in_progress(source_id, data_version, sample):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
                                                         (source_session_table.c.sample == sample) &
@@ -165,7 +183,7 @@ def get_id_of_store_in_progress(source_id, data_version, sample):
 
 
 def get_id_of_store(source_id, data_version, sample):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
                                                         (source_session_table.c.data_version == data_version) &
                                                         (source_session_table.c.sample == sample))
@@ -174,7 +192,7 @@ def get_id_of_store(source_id, data_version, sample):
 
 
 def is_check_done(source_session_id):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
 
         # Have any releases NOT been done yet?
         sql = sa.sql.text("""SELECT count(*) FROM release
@@ -208,7 +226,7 @@ def is_check_done(source_session_id):
 
 def start_store(source_id, data_version, sample, metadata_db):
     # Note use of engine.begin means this happens in a DB transaction
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
 
         if is_store_in_progress(source_id, data_version, sample):
             return get_id_of_store_in_progress(source_id, data_version, sample)
@@ -233,7 +251,7 @@ def start_store(source_id, data_version, sample, metadata_db):
 
 
 def end_store(source_session_id):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
 
         connection.execute(
             source_session_table.update().where(source_session_table.c.id == source_session_id).values(store_end_at=datetime.datetime.utcnow())
@@ -241,7 +259,7 @@ def end_store(source_session_id):
 
 
 def is_store_file_done(source_session_id, file_info):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([source_session_file_status_table]).where((source_session_file_status_table.c.source_session_id == source_session_id) &
             (source_session_file_status_table.c.filename == file_info['filename']) &
             (source_session_file_status_table.c.store_end_at != None))  # noqa
@@ -250,7 +268,7 @@ def is_store_file_done(source_session_id, file_info):
 
 
 def get_id_of_store_file(source_session_id, file_info):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([source_session_file_status_table]).where((source_session_file_status_table.c.source_session_id == source_session_id) &
             (source_session_file_status_table.c.filename == file_info['filename']))  # noqa
         result = connection.execute(s)
@@ -269,7 +287,7 @@ class add_file():
         self.file_info = file_info
 
     def __enter__(self):
-        self.connection = engine.connect()
+        self.connection = get_engine().connect()
         self.transaction = self.connection.begin()
 
         # Look up the id for this file
@@ -371,7 +389,7 @@ def get_hash_md5_for_data(data):
 
 
 def is_release_check_done(release_id, override_schema_version=None):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([release_check_table])\
             .where((release_check_table.c.release_id == release_id) &
                    (release_check_table.c.override_schema_version == override_schema_version))
@@ -390,7 +408,7 @@ def is_release_check_done(release_id, override_schema_version=None):
 
 
 def is_record_check_done(record_id, override_schema_version=None):
-    with engine.begin() as connection:
+    with get_engine().begin() as connection:
         s = sa.sql.select([record_check_table])\
             .where((record_check_table.c.record_id == record_id) &
                    (record_check_table.c.override_schema_version == override_schema_version))

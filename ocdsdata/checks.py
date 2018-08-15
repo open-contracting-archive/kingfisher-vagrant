@@ -16,7 +16,7 @@ def handle_package(package):
 
 
 def get_package_data(package_data_id):
-    with database.engine.begin() as connection:
+    with database.get_engine().begin() as connection:
         s = sa.sql.select([database.package_data_table]) \
             .where(database.package_data_table.c.id == package_data_id)
         result = connection.execute(s)
@@ -25,7 +25,7 @@ def get_package_data(package_data_id):
 
 
 def get_data(data_id):
-    with database.engine.begin() as connection:
+    with database.get_engine().begin() as connection:
         s = sa.sql.select([database.data_table]) \
             .where(database.data_table.c.id == data_id)
         result = connection.execute(s)
@@ -37,7 +37,7 @@ def check_file(source, source_session_id, file_info, override_schema_version=Non
 
     file_id = database.get_id_of_store_file(source_session_id, file_info)
 
-    with database.engine.begin() as connection:
+    with database.get_engine().begin() as connection:
 
         release_rows = connection.execute(
             database.release_table.select().where(database.release_table.c.source_session_file_status_id == file_id)
@@ -49,7 +49,7 @@ def check_file(source, source_session_id, file_info, override_schema_version=Non
 
     del release_rows
 
-    with database.engine.begin() as connection:
+    with database.get_engine().begin() as connection:
 
         record_rows = connection.execute(
             database.record_table.select().where(database.record_table.c.source_session_file_status_id == file_id)
@@ -73,7 +73,7 @@ def check_release_row(source, release_row, override_schema_version=None):
             'cove_output': cove_output,
             'override_schema_version': override_schema_version
         }]
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             connection.execute(database.release_check_table.insert(), checks)
     except APIException as err:
         checks = [{
@@ -81,7 +81,7 @@ def check_release_row(source, release_row, override_schema_version=None):
             'error': str(err),
             'override_schema_version': override_schema_version
         }]
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             connection.execute(database.release_check_error_table.insert(), checks)
 
 
@@ -98,7 +98,7 @@ def check_record_row(source, record_row, override_schema_version=None):
             'cove_output': cove_output,
             'override_schema_version': override_schema_version
         }]
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             connection.execute(database.record_check_table.insert(), checks)
     except APIException as err:
         checks = [{
@@ -106,5 +106,5 @@ def check_record_row(source, record_row, override_schema_version=None):
             'error': str(err),
             'override_schema_version': override_schema_version
         }]
-        with database.engine.begin() as connection:
+        with database.get_engine().begin() as connection:
             connection.execute(database.record_check_error_table.insert(), checks)
