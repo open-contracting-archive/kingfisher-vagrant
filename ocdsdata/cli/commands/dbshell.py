@@ -12,4 +12,4 @@ class DBShellCommand(ocdsdata.cli.commands.base.CLICommand):
 
     def run_command(self, args):
         print("Starting a PSQL Shell.")
-        shell = subprocess.run(["psql", self.uri])
+        subprocess.run(["psql", self.uri])
