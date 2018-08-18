@@ -1,4 +1,5 @@
 import os
+import logging
 import ocdsdata.status
 import ocdsdata.cli.commands.base
 import ocdsdata.sources_util
@@ -23,7 +24,7 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
         sources = ocdsdata.sources_util.gather_sources()
 
         if source_id not in sources:
-            print("You must specify a source!")
+            logging.error("You must specify a source!")
             print("You can specify:")
             for source_id, source_info in sorted(sources.items()):
                 print(" - %s" % source_id)

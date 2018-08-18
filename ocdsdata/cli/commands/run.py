@@ -1,4 +1,5 @@
 import os
+import logging
 
 import ocdsdata.cli.commands.base
 import ocdsdata.sources_util
@@ -50,7 +51,7 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                 if selected_source in self.sources:
                     run.append({'id': selected_source, 'source_class': self.sources[selected_source]})
                 else:
-                    print("We can not find a source that you requested! You requested: %s" % selected_source)
+                    logging.error("We can not find a source that you requested! You requested: %s" % selected_source)
                     quit(-1)
 
         if not run:
@@ -67,14 +68,13 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
         data_version = args.dataversion
         new_version = args.newversion
 
-        if args.verbose:
-            print("We will run: ")
-            for sourceInfo in run:
-                print(" - %s" % sourceInfo['id'])
-            if sample_mode:
-                print("Sample mode is on!")
-            else:
-                print("Sample mode is off.")
+        logging.debug("We will run: ")
+        for sourceInfo in run:
+            logging.debug(" - %s" % sourceInfo['id'])
+        if sample_mode:
+            print("Sample mode is on!")
+        else:
+            print("Sample mode is off.")
 
         run_gather = True
         run_fetch = True
@@ -121,34 +121,25 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                                                    )
             instance.set_arguments(args)
 
-            if args.verbose:
-                print("Now running: %s (Output Dir: %s, Data Version: %s)" % (source_info['id'], instance.output_directory, instance.data_version))
+            logging.debug("Now running: %s (Output Dir: %s, Data Version: %s)" % (source_info['id'], instance.output_directory, instance.data_version))
 
             if run_gather:
-                if args.verbose:
-                    print(" - gathering ...")
+                logging.debug(" - gathering ...")
                 instance.run_gather()
             else:
-                if args.verbose:
-                    print(" - skipping gather.")
+                logging.debug(" - skipping gather.")
             if run_fetch:
-                if args.verbose:
-                    print(" - fetching ...")
+                logging.debug(" - fetching ...")
                 instance.run_fetch()
             else:
-                if args.verbose:
-                    print(" - skipping fetch.")
+                logging.debug(" - skipping fetch.")
             if run_store:
-                if args.verbose:
-                    print(" - storing ...")
+                logging.debug(" - storing ...")
                 instance.run_store()
             else:
-                if args.verbose:
-                    print(" - skipping store.")
+                logging.debug(" - skipping store.")
             if run_check:
-                if args.verbose:
-                    print(" - checking ...")
+                logging.debug(" - checking ...")
                 instance.run_check()
             else:
-                if args.verbose:
-                    print(" - skipping check.")
+                logging.debug(" - skipping check.")
