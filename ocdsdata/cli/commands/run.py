@@ -55,7 +55,7 @@ class RunCLICommand(ocdsdata.cli.commands.base.CLICommand):
                     quit(-1)
 
         if not run:
-            print("You have not specified anything to run! Try listing your sources names or flag --all")
+            logging.error("You have not specified anything to run! Try listing your sources names or flag --all")
             print("You can run:")
             for source_id, source_info in sorted(self.sources.items()):
                 print(" - %s" % source_id)

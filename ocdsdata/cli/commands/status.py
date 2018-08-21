@@ -36,20 +36,20 @@ class StatusCLICommand(ocdsdata.cli.commands.base.CLICommand):
                                                      data_version=args.dataversion
                                                      )
 
-        print("Status for: %s (Output Dir: %s, Data Version: %s)" % (
+        logging.debug("Status for: %s (Output Dir: %s, Data Version: %s)" % (
             source_id, source_status.output_directory, source_status.data_version))
 
         if not source_status.is_gather_finished():
-            print("####### Gather Progress")
-            print(source_status.get_gather_progress_as_text())
+            logging.debug("####### Gather Progress")
+            logging.debug(source_status.get_gather_progress_as_text())
         elif not source_status.is_fetch_finished():
-            print("####### Fetch Progress")
-            print(source_status.get_fetch_progress_as_text())
+            logging.debug("####### Fetch Progress")
+            logging.debug(source_status.get_fetch_progress_as_text())
         elif not source_status.is_store_finished():
-            print("####### Store Progress")
-            print(source_status.get_store_progress_as_text())
+            logging.debug("####### Store Progress")
+            logging.debug(source_status.get_store_progress_as_text())
         elif not source_status.is_check_finished():
-            print("####### Check Progress")
-            print(source_status.get_check_progress_as_text())
+            logging.debug("####### Check Progress")
+            logging.debug(source_status.get_check_progress_as_text())
         else:
-            print("Gather, Fetch, Store and Check all Finished!")
+            logging.debug("Gather, Fetch, Store and Check all Finished!")

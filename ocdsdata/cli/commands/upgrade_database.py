@@ -1,3 +1,4 @@
+import logging
 import ocdsdata.database
 import ocdsdata.cli.commands.base
 
@@ -11,10 +12,8 @@ class UpgradeDataBaseCLICommand(ocdsdata.cli.commands.base.CLICommand):
     def run_command(self, args):
 
         if args.deletefirst:
-            if args.verbose:
-                print("Dropping Database")
+            logging.debug("Dropping Database")
             ocdsdata.database.delete_tables()
 
-        if args.verbose:
-            print("Upgrading/Creating Database")
+        logging.debug("Upgrading/Creating Database")
         ocdsdata.database.create_tables()
