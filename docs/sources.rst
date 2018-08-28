@@ -10,6 +10,7 @@ A full list of sources is:
   *  australia
   *  canada_buyandsell
   *  canada_montreal
+  *  chile_compra
   *  colombia
   *  mexico_administracion_publica_federal
   *  mexico_cdmx
