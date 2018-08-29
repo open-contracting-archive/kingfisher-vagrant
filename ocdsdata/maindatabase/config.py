@@ -1,4 +1,5 @@
 import os
+import logging
 import sys
 import pgpasslib
 import configparser
@@ -17,7 +18,7 @@ def get_database_uri():
     read_files = config.read(os.path.expanduser('~/.config/ocdsdata/config.ini'))
 
     if len(read_files) == 0:
-        print("There are no config files nor DB_URI, therefore we cannot start.")
+        logging.error("There are no config files nor DB_URI, therefore we cannot start.")
         quit(-1)
 
     # Loads database details or defaults
@@ -35,10 +36,10 @@ def get_database_uri():
         # Fail silently when no files found.
         database_uri = __gen_dburi(user, dbpass, host, port, dbname)
     except pgpasslib.InvalidPermissions:
-        print("Your pgpass file has the wrong permissions, for your safety this file will be ignored. Please fix the permissions and try again.")
+        logging.warning("Your pgpass file has the wrong permissions, for your safety this file will be ignored. Please fix the permissions and try again.")
         database_uri = __gen_dburi(user, dbpass, host, port, dbname)
     except pgpasslib.PgPassException:
-        print("Unexpected error:", sys.exc_info()[0])
+        logging.error("Unexpected error:", sys.exc_info()[0])
         database_uri = __gen_dburi(user, dbpass, host, port, dbname)
 
     return database_uri
