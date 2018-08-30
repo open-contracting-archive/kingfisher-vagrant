@@ -50,7 +50,7 @@ class IndonesiaBandungSource(Source):
             additional = []
 
             if "data" in data.keys():
-                for data_item in data["data"]:
+                for data_item in data["data"].values():
                     if not self.sample or (self.sample and len(additional) < 10):
                         additional.append({
                                         'url': data_item['uri'],
