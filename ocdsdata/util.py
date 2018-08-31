@@ -4,7 +4,7 @@ import requests
 RETRY_TIME = 10
 
 
-def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
+def get_url_request(url, headers=None, stream=False, tries=1, errors=None, verify_ssl=True):
     '''
     Handle transient network errors, and URLs with
     intermittent timeouts.
@@ -17,7 +17,7 @@ def get_url_request(url, headers=None, stream=False, tries=1, errors=None):
     if tries > 3:
         return (None, errors)
     try:
-        r = requests.get(url, headers=headers, stream=stream)
+        r = requests.get(url, headers=headers, stream=stream, verify=verify_ssl)
         r.raise_for_status()
     except requests.exceptions.Timeout:
         error_msg = 'Request timeout'
@@ -74,11 +74,11 @@ control_codes_to_filter_out = [
 ]
 
 
-def save_content(url, filepath, headers=None):
-    request, errors = get_url_request(url, stream=True, headers=headers)
+def save_content(url, filepath, headers=None, verify_ssl=True):
+    request, errors = get_url_request(url, stream=True, headers=headers, verify_ssl=verify_ssl)
 
     if not request:
-        return errors
+        return SaveContentResult(errors=errors)
 
     warnings = []
     try:

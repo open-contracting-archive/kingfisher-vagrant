@@ -31,6 +31,7 @@ use the same structure. The keys are:
 
 The data_type should be one of the following options:
 
+  *  release - the file is a release.
   *  record_package - the file is a record package.
   *  release_package - the file is a release package.
   *  record_package_list - the file is a list of record packages. eg
@@ -249,7 +250,9 @@ class Source:
                     if not isinstance(json_data, dict):
                         error_msg = "Can not process data in file {} as JSON is not an object".format(data['filename'])
 
-                    if data['data_type'] == 'release_package' or \
+                    if data['data_type'] == 'release':
+                        data_list = [json_data]
+                    elif data['data_type'] == 'release_package' or \
                             data['data_type'] == 'release_package_list_in_results' or \
                             data['data_type'] == 'release_package_list':
                         if 'releases' not in json_data:
@@ -271,9 +274,10 @@ class Source:
                     if error_msg:
                         raise Exception(error_msg)
                     package_data = {}
-                    for key, value in json_data.items():
-                        if key not in ('releases', 'records'):
-                            package_data[key] = value
+                    if not data['data_type'] == 'release':
+                        for key, value in json_data.items():
+                            if key not in ('releases', 'records'):
+                                package_data[key] = value
 
                     for row in data_list:
                         if not isinstance(row, dict):

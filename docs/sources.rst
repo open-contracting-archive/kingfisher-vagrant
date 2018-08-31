@@ -11,6 +11,8 @@ A full list of sources is:
   *  canada_buyandsell
   *  canada_montreal
   *  colombia
+  *  honduras_cost
+  *  indonesia_bandung
   *  mexico_administracion_publica_federal
   *  mexico_cdmx
   *  mexico_grupo_aeroporto
@@ -24,3 +26,4 @@ A full list of sources is:
   *  uk_contracts_finder
   *  ukraine
   *  uruguay
+  *  zambia
