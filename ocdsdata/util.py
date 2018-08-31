@@ -78,7 +78,7 @@ def save_content(url, filepath, headers=None, verify_ssl=True):
     request, errors = get_url_request(url, stream=True, headers=headers, verify_ssl=verify_ssl)
 
     if not request:
-        return errors
+        return SaveContentResult(errors=errors)
 
     warnings = []
     try:
