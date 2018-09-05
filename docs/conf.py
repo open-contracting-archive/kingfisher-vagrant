@@ -1,4 +1,4 @@
 master_doc = 'index'
 
-project = 'OCDS Data Tool'
+project = 'OCDS Kingfisher Tool'
 copyright = '2018, Open Contracting Data Standard'

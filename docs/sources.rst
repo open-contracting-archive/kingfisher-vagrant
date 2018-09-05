@@ -10,6 +10,7 @@ A full list of sources is:
   *  australia
   *  canada_buyandsell
   *  canada_montreal
+  *  chile_compra
   *  colombia
   *  honduras_cost
   *  indonesia_bandung
