@@ -1,7 +1,7 @@
 Command line tool - run option
 ==============================
 
-The run command actually runs the pipline.
+The run command actually runs the pipeline.
 
 Run it by passing the name of one or more sources to run:
 

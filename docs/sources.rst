@@ -10,7 +10,10 @@ A full list of sources is:
   *  australia
   *  canada_buyandsell
   *  canada_montreal
+  *  chile_compra
   *  colombia
+  *  honduras_cost
+  *  indonesia_bandung
   *  mexico_administracion_publica_federal
   *  mexico_cdmx
   *  mexico_grupo_aeroporto
@@ -24,3 +27,4 @@ A full list of sources is:
   *  uk_contracts_finder
   *  ukraine
   *  uruguay
+  *  zambia

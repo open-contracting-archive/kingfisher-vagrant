@@ -1,6 +1,5 @@
 import json
 
-import feedparser
 from ocdsdata.base import Source
 from ocdsdata import util
 from ocdsdata.util import save_content
@@ -51,5 +50,3 @@ class UruguaySource(Source):
                     })
 
         return self.SaveUrlResult(additional_files=additional)
-
-
