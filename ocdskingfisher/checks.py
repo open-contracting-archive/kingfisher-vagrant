@@ -8,7 +8,7 @@ import shutil
 
 
 def handle_package(package):
-    cove_temp_folder = tempfile.mkdtemp(prefix='ocdsdata-cove-', dir=tempfile.gettempdir())
+    cove_temp_folder = tempfile.mkdtemp(prefix='ocdskingfisher-cove-', dir=tempfile.gettempdir())
     try:
         return ocds_json_output(cove_temp_folder, None, None, convert=False, cache_schema=True, file_type='json', json_data=package)
     finally:
