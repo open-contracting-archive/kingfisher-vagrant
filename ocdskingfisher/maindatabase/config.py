@@ -14,7 +14,13 @@ def get_database_uri():
 
     config = configparser.ConfigParser()
     # User level config file.
-    read_files = config.read(os.path.expanduser('~/.config/ocdsdata/config.ini'))
+
+    if os.path.isfile(os.path.expanduser('~/.config/ocdskingfisher/config.ini')):
+        read_files = config.read(os.path.expanduser('~/.config/ocdskingfisher/config.ini'))
+    elif os.path.isfile(os.path.expanduser('~/.config/ocdsdata/config.ini')):
+        read_files = config.read(os.path.expanduser('~/.config/ocdsdata/config.ini'))
+    else:
+        read_files = []
 
     if len(read_files) == 0:
         print("There are no config files nor DB_URI, therefore we cannot start.")

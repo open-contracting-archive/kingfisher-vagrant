@@ -8,6 +8,16 @@ import ocdskingfisher.cli.util
 
 def main():
 
+    logging_config_file_full_paths = [
+        os.path.expanduser('~/.config/ocdskingfisher/logging.json'),
+        os.path.expanduser('~/.config/ocdsdata/logging.json'),
+    ]
+    for logging_config_file_full_path in logging_config_file_full_paths:
+        if os.path.isfile(logging_config_file_full_path):
+            with open(logging_config_file_full_path) as f:
+                logging.config.dictConfig(json.load(f))
+            break
+
     logging_config_file_full_path = os.path.expanduser('~/.config/ocdsdata/logging.json')
     if os.path.isfile(logging_config_file_full_path):
         with open(logging_config_file_full_path) as f:

@@ -122,7 +122,7 @@ class Source:
             data_version=self.data_version
         )
 
-        self.logger = logging.getLogger('ocdsdata.source')
+        self.logger = logging.getLogger('ocdskingfisher.source')
 
     """Returns an array with objects for each url.
 
