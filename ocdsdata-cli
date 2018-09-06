@@ -3,7 +3,7 @@ import argparse
 import os
 import logging.config
 import json
-import ocdsdata.cli.util
+import ocdskingfisher.cli.util
 
 
 def main():
@@ -19,7 +19,7 @@ def main():
 
     subparsers = parser.add_subparsers(dest='subcommand')
 
-    commands = ocdsdata.cli.util.gather_cli_commands_instances()
+    commands = ocdskingfisher.cli.util.gather_cli_commands_instances()
 
     for command in commands.values():
         command.configure_subparser(subparsers.add_parser(command.command))
