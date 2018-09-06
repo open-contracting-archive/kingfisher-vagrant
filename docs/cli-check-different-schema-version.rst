@@ -18,8 +18,8 @@ You must specify the source you want with the `source` option. You can also incl
 
 .. code-block:: shell-session
 
-    python ocdsdata-cli check-different-schema-version --source taiwan
-    python ocdsdata-cli check-different-schema-version --source taiwan --sample
+    python ocdskingfisher-cli check-different-schema-version --source taiwan
+    python ocdskingfisher-cli check-different-schema-version --source taiwan --sample
 
 It will look for existing sessions for the same source and sample flag as you specify, and by default check the latest one.
 
@@ -27,19 +27,19 @@ To select a specific existing session, pass the `dataversion` flag.
 
 .. code-block:: shell-session
 
-    python ocdsdata-cli check-different-schema-version --dataversion 2018-07-31-16-03-50 ...
+    python ocdskingfisher-cli check-different-schema-version --dataversion 2018-07-31-16-03-50 ...
 
 By default, it will convert to the latest version of the schema, but you can change that with the `schemaversion` option.
 
 .. code-block:: shell-session
 
-    python ocdsdata-cli check-different-schema-version --schemaversion 1.0 ...
+    python ocdskingfisher-cli check-different-schema-version --schemaversion 1.0 ...
 
 The tool will load files from disk. To change the location it loads from, pass the `basedir` option.
 
 .. code-block:: shell-session
 
-    python ocdsdata-cli check-different-schema-version --basedir /data ...
+    python ocdskingfisher-cli check-different-schema-version --basedir /data ...
 
 
 
