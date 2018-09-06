@@ -8,7 +8,7 @@ You can pass the `verbose` flag to all sub commands, to get more output printed 
 
 .. code-block:: shell-session
 
-    python ocdsdata-cli --verbose run ...
+    python ocdskingfisher-cli --verbose run ...
 
 .. toctree::
 

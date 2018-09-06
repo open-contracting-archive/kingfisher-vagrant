@@ -42,7 +42,7 @@ Example of creating an database user, database and setting up the schema:
 .. code-block:: shell-session
 
 
-    sudo -u postgres createuser ocdsdata --pwprompt
-    sudo -u postgres createdb ocdsdata -O ocdsdata --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8
-    export DB_URI='postgres://ocdsdata:PASSWORD YOU CHOSE@localhost/ocdsdata'
-    python ocdsdata-cli upgrade-database
+    sudo -u postgres createuser ocdskingfisher --pwprompt
+    sudo -u postgres createdb ocdskingfisher -O ocdskingfisher --encoding UTF8 --template template0 --lc-collate en_US.UTF-8 --lc-ctype en_US.UTF-8
+    export DB_URI='postgres://ocdskingfisher:PASSWORD YOU CHOSE@localhost/ocdskingfisher'
+    python ocdskingfisher-cli upgrade-database

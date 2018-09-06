@@ -20,19 +20,19 @@ setup(name='ocdsdata',
       url='https://open-contracting.org',
       license='BSD',
       packages=[
-            'ocdsdata',
-            'ocdsdata.sources',
-            'ocdsdata.maindatabase',
-            'ocdsdata.maindatabase.migrations',
-            'ocdsdata.maindatabase.migrations.versions',
-            'ocdsdata.metadatabase',
-            'ocdsdata.metadatabase.migrations',
-            'ocdsdata.metadatabase.migrations.versions',
-            'ocdsdata.cli',
-            'ocdsdata.cli.commands'
+            'ocdskingfisher',
+            'ocdskingfisher.sources',
+            'ocdskingfisher.maindatabase',
+            'ocdskingfisher.maindatabase.migrations',
+            'ocdskingfisher.maindatabase.migrations.versions',
+            'ocdskingfisher.metadatabase',
+            'ocdskingfisher.metadatabase.migrations',
+            'ocdskingfisher.metadatabase.migrations.versions',
+            'ocdskingfisher.cli',
+            'ocdskingfisher.cli.commands'
       ],
       scripts=['ocdsdata-cli'],
-      package_data={'ocdsdata': [
+      package_data={'ocdskingfisher': [
               'maindatabase/migrations/script.py.mako'
           ]},
       include_package_data=True

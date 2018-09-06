@@ -7,10 +7,10 @@ The connection settings should be configured before running it.
 
 .. code-block:: shell-session
 
-    python ocdsdata-cli upgrade-database
+    python ocdskingfisher-cli upgrade-database
 
 If you want to delete all the existing tables before setting up empty tables, pass the `deletefirst` flag.
 
 .. code-block:: shell-session
 
-    python ocdsdata-cli upgrade-database --deletefirst
+    python ocdskingfisher-cli upgrade-database --deletefirst
