@@ -40,7 +40,7 @@ def check_file(source, source_session_id, file_info, override_schema_version=Non
     with database.get_engine().begin() as connection:
 
         release_rows = connection.execute(
-            database.release_table.select().where(database.release_table.c.source_session_file_status_id == file_id)
+            database.release_table.select().where(database.release_table.c.collection_file_status_id == file_id)
         )
 
     for release_row in release_rows:
@@ -52,7 +52,7 @@ def check_file(source, source_session_id, file_info, override_schema_version=Non
     with database.get_engine().begin() as connection:
 
         record_rows = connection.execute(
-            database.record_table.select().where(database.record_table.c.source_session_file_status_id == file_id)
+            database.record_table.select().where(database.record_table.c.collection_file_status_id == file_id)
         )
 
     for record_row in record_rows:
