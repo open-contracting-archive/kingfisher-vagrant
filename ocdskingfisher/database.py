@@ -35,26 +35,26 @@ def init():
 
 metadata = sa.MetaData()
 
-source_session_table = sa.Table('source_session', metadata,
-                                sa.Column('id', sa.Integer, primary_key=True),
-                                sa.Column('source_id', sa.Text, nullable=False),
-                                sa.Column('data_version', sa.Text, nullable=False),
-                                sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=False),
-                                sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
-                                sa.Column('sample', sa.Boolean, nullable=False, default=False),
-                                sa.UniqueConstraint('source_id', 'data_version', 'sample'),
-                                )
+collection_table = sa.Table('collection', metadata,
+                            sa.Column('id', sa.Integer, primary_key=True),
+                            sa.Column('source_id', sa.Text, nullable=False),
+                            sa.Column('data_version', sa.Text, nullable=False),
+                            sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=False),
+                            sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
+                            sa.Column('sample', sa.Boolean, nullable=False, default=False),
+                            sa.UniqueConstraint('source_id', 'data_version', 'sample'),
+                            )
 
-source_session_file_status_table = sa.Table('source_session_file_status', metadata,
-                                            sa.Column('id', sa.Integer, primary_key=True),
-                                            sa.Column('source_session_id', sa.Integer,
-                                                      sa.ForeignKey("source_session.id"), nullable=False),
-                                            sa.Column('filename', sa.Text, nullable=True),
-                                            sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=True),
-                                            sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
-                                            sa.Column('warnings', JSONB, nullable=True),
-                                            sa.UniqueConstraint('source_session_id', 'filename'),
-                                            )
+collection_file_status_table = sa.Table('collection_file_status', metadata,
+                                        sa.Column('id', sa.Integer, primary_key=True),
+                                        sa.Column('collection_id', sa.Integer,
+                                                  sa.ForeignKey("collection.id"), nullable=False),
+                                        sa.Column('filename', sa.Text, nullable=True),
+                                        sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=True),
+                                        sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
+                                        sa.Column('warnings', JSONB, nullable=True),
+                                        sa.UniqueConstraint('collection_id', 'filename'),
+                                        )
 
 data_table = sa.Table('data', metadata,
                       sa.Column('id', sa.Integer, primary_key=True),
@@ -70,8 +70,8 @@ package_data_table = sa.Table('package_data', metadata,
 
 release_table = sa.Table('release', metadata,
                          sa.Column('id', sa.Integer, primary_key=True),
-                         sa.Column('source_session_file_status_id', sa.Integer,
-                                   sa.ForeignKey("source_session_file_status.id"), nullable=False),
+                         sa.Column('collection_file_status_id', sa.Integer,
+                                   sa.ForeignKey("collection_file_status.id"), nullable=False),
                          sa.Column('release_id', sa.Text, nullable=True),
                          sa.Column('ocid', sa.Text, nullable=True),
                          sa.Column('data_id', sa.Integer, sa.ForeignKey("data.id"), nullable=False),
@@ -80,8 +80,8 @@ release_table = sa.Table('release', metadata,
 
 record_table = sa.Table('record', metadata,
                         sa.Column('id', sa.Integer, primary_key=True),
-                        sa.Column('source_session_file_status_id', sa.Integer,
-                                  sa.ForeignKey("source_session_file_status.id"), nullable=False),
+                        sa.Column('collection_file_status_id', sa.Integer,
+                                  sa.ForeignKey("collection_file_status.id"), nullable=False),
                         sa.Column('ocid', sa.Text, nullable=True),
                         sa.Column('data_id', sa.Integer, sa.ForeignKey("data.id"), nullable=False),
                         sa.Column('package_data_id', sa.Integer, sa.ForeignKey("package_data.id"), nullable=False),
@@ -138,8 +138,10 @@ def delete_tables():
     engine.execute("drop table if exists release cascade")
     engine.execute("drop table if exists package_data cascade")
     engine.execute("drop table if exists data cascade")
-    engine.execute("drop table if exists source_session_file_status cascade")
-    engine.execute("drop table if exists source_session cascade")
+    engine.execute("drop table if exists collection_file_status cascade")
+    engine.execute("drop table if exists source_session_file_status cascade")  # This is the old table name
+    engine.execute("drop table if exists collection cascade")
+    engine.execute("drop table if exists source_session cascade")  # This is the old table name
     engine.execute("drop table if exists alembic_version cascade")
 
 
@@ -154,68 +156,68 @@ def create_tables():
 
 def is_store_done(source_id, data_version, sample):
     with get_engine().begin() as connection:
-        s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
-                                                        (source_session_table.c.data_version == data_version) &
-                                                        (source_session_table.c.sample == sample) &
-                                                        (source_session_table.c.store_end_at != None))  # noqa
+        s = sa.sql.select([collection_table]).where((collection_table.c.source_id == source_id) &
+                                                    (collection_table.c.data_version == data_version) &
+                                                    (collection_table.c.sample == sample) &
+                                                    (collection_table.c.store_end_at != None))  # noqa
         result = connection.execute(s)
         return True if result.fetchone() else False
 
 
 def is_store_in_progress(source_id, data_version, sample):
     with get_engine().begin() as connection:
-        s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
-                                                        (source_session_table.c.data_version == data_version) &
-                                                        (source_session_table.c.sample == sample) &
-                                                        (source_session_table.c.store_end_at == None))  # noqa
+        s = sa.sql.select([collection_table]).where((collection_table.c.source_id == source_id) &
+                                                    (collection_table.c.data_version == data_version) &
+                                                    (collection_table.c.sample == sample) &
+                                                    (collection_table.c.store_end_at == None))  # noqa
         result = connection.execute(s)
         return True if result.fetchone() else False
 
 
 def get_id_of_store_in_progress(source_id, data_version, sample):
     with get_engine().begin() as connection:
-        s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
-                                                        (source_session_table.c.data_version == data_version) &
-                                                        (source_session_table.c.sample == sample) &
-                                                        (source_session_table.c.store_end_at == None))  # noqa
+        s = sa.sql.select([collection_table]).where((collection_table.c.source_id == source_id) &
+                                                    (collection_table.c.data_version == data_version) &
+                                                    (collection_table.c.sample == sample) &
+                                                    (collection_table.c.store_end_at == None))  # noqa
         result = connection.execute(s)
         return result.fetchone()[0]
 
 
 def get_id_of_store(source_id, data_version, sample):
     with get_engine().begin() as connection:
-        s = sa.sql.select([source_session_table]).where((source_session_table.c.source_id == source_id) &
-                                                        (source_session_table.c.data_version == data_version) &
-                                                        (source_session_table.c.sample == sample))
+        s = sa.sql.select([collection_table]).where((collection_table.c.source_id == source_id) &
+                                                    (collection_table.c.data_version == data_version) &
+                                                    (collection_table.c.sample == sample))
         result = connection.execute(s)
         return result.fetchone()[0]
 
 
-def is_check_done(source_session_id):
+def is_check_done(collection_id):
     with get_engine().begin() as connection:
 
         # Have any releases NOT been done yet?
         sql = sa.sql.text("""SELECT count(*) FROM release
-              JOIN source_session_file_status ON source_session_file_status.id = release.source_session_file_status_id
+              JOIN collection_file_status ON collection_file_status.id = release.collection_file_status_id
               LEFT JOIN release_check ON release_check.release_id = release.id
               LEFT JOIN release_check_error ON release_check_error.release_id = release.id
-              WHERE source_session_file_status.source_session_id = :id
+              WHERE collection_file_status.collection_id = :id
                AND release_check_error.id IS NULL AND release_check.id IS NULL """)
 
-        result = connection.execute(sql, id=source_session_id)
+        result = connection.execute(sql, id=collection_id)
         count = result.fetchone()[0]
         if count > 0:
             return False
 
         # Have any records NOT been done yet?
         sql = sa.sql.text("""SELECT count(*) FROM record
-              JOIN source_session_file_status ON source_session_file_status.id = record.source_session_file_status_id
+              JOIN collection_file_status ON collection_file_status.id = record.collection_file_status_id
               LEFT JOIN record_check ON record_check.record_id = record.id
               LEFT JOIN record_check_error ON record_check_error.record_id = record.id
-              WHERE source_session_file_status.source_session_id = :id
+              WHERE collection_file_status.collection_id = :id
                AND record_check_error.id IS NULL AND record_check.id IS NULL """)
 
-        result = connection.execute(sql, id=source_session_id)
+        result = connection.execute(sql, id=collection_id)
         count = result.fetchone()[0]
         if count > 0:
             return False
@@ -231,7 +233,7 @@ def start_store(source_id, data_version, sample, metadata_db):
         if is_store_in_progress(source_id, data_version, sample):
             return get_id_of_store_in_progress(source_id, data_version, sample)
         else:
-            value = connection.execute(source_session_table.insert(), {
+            value = connection.execute(collection_table.insert(), {
                 'source_id': source_id,
                 'data_version': data_version,
                 'sample': sample,
@@ -241,8 +243,8 @@ def start_store(source_id, data_version, sample, metadata_db):
             for file_info in metadata_db.list_filestatus():
                 if not file_info['data_type'].startswith('meta'):
                     warnings = json.loads(file_info['fetch_warnings']) if file_info['fetch_warnings'] else []
-                    connection.execute(source_session_file_status_table.insert(), {
-                        'source_session_id': value.inserted_primary_key[0],
+                    connection.execute(collection_file_status_table.insert(), {
+                        'collection_id': value.inserted_primary_key[0],
                         'filename': file_info['filename'],
                         'warnings': warnings if len(warnings) > 0 else None
                     })
@@ -250,27 +252,27 @@ def start_store(source_id, data_version, sample, metadata_db):
             return value.inserted_primary_key[0]
 
 
-def end_store(source_session_id):
+def end_store(collection_id):
     with get_engine().begin() as connection:
 
         connection.execute(
-            source_session_table.update().where(source_session_table.c.id == source_session_id).values(store_end_at=datetime.datetime.utcnow())
+            collection_table.update().where(collection_table.c.id == collection_id).values(store_end_at=datetime.datetime.utcnow())
         )
 
 
-def is_store_file_done(source_session_id, file_info):
+def is_store_file_done(collection_id, file_info):
     with get_engine().begin() as connection:
-        s = sa.sql.select([source_session_file_status_table]).where((source_session_file_status_table.c.source_session_id == source_session_id) &
-            (source_session_file_status_table.c.filename == file_info['filename']) &
-            (source_session_file_status_table.c.store_end_at != None))  # noqa
+        s = sa.sql.select([collection_file_status_table]).where((collection_file_status_table.c.collection_id == collection_id) &
+                                                                (collection_file_status_table.c.filename == file_info['filename']) &
+                                                                (collection_file_status_table.c.store_end_at != None))  # noqa
         result = connection.execute(s)
         return True if result.fetchone() else False
 
 
-def get_id_of_store_file(source_session_id, file_info):
+def get_id_of_store_file(collection_id, file_info):
     with get_engine().begin() as connection:
-        s = sa.sql.select([source_session_file_status_table]).where((source_session_file_status_table.c.source_session_id == source_session_id) &
-            (source_session_file_status_table.c.filename == file_info['filename']))  # noqa
+        s = sa.sql.select([collection_file_status_table]).where((collection_file_status_table.c.collection_id == collection_id) &
+                                                                (collection_file_status_table.c.filename == file_info['filename']))  # noqa
         result = connection.execute(s)
         return result.fetchone()[0]
 
@@ -278,12 +280,12 @@ def get_id_of_store_file(source_session_id, file_info):
 class add_file():
     connection = None
     transaction = None
-    source_session_id = None
-    source_session_file_status_id = None
+    collection_id = None
+    collection_file_status_id = None
     file_info = None
 
-    def __init__(self, source_session_id, file_info):
-        self.source_session_id = source_session_id
+    def __init__(self, collection_id, file_info):
+        self.collection_id = collection_id
         self.file_info = file_info
 
     def __enter__(self):
@@ -291,18 +293,18 @@ class add_file():
         self.transaction = self.connection.begin()
 
         # Look up the id for this file
-        s = sa.sql.select([source_session_file_status_table])\
-            .where((source_session_file_status_table.c.source_session_id == self.source_session_id) &
-                   (source_session_file_status_table.c.filename == self.file_info['filename']))
+        s = sa.sql.select([collection_file_status_table])\
+            .where((collection_file_status_table.c.collection_id == self.collection_id) &
+                   (collection_file_status_table.c.filename == self.file_info['filename']))
         result = self.connection.execute(s)
-        source_session_file_status_table_row = result.fetchone()
+        collection_file_status_table_row = result.fetchone()
 
-        self.source_session_file_status_id = source_session_file_status_table_row.id
+        self.collection_file_status_id = collection_file_status_table_row.id
 
         # mark file as started
         self.connection.execute(
-            source_session_file_status_table.update()
-            .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
+            collection_file_status_table.update()
+            .where(collection_file_status_table.c.id == self.collection_file_status_id)
             .values(store_start_at=datetime.datetime.utcnow())
         )
 
@@ -319,8 +321,8 @@ class add_file():
         else:
 
             self.connection.execute(
-                source_session_file_status_table.update()
-                .where(source_session_file_status_table.c.id == self.source_session_file_status_id)
+                collection_file_status_table.update()
+                .where(collection_file_status_table.c.id == self.collection_file_status_id)
                 .values(store_end_at=datetime.datetime.utcnow())
             )
 
@@ -333,7 +335,7 @@ class add_file():
         package_data_id = self.get_id_for_package_data(package_data)
         data_id = self.get_id_for_data(row)
         self.connection.execute(record_table.insert(), {
-            'source_session_file_status_id': self.source_session_file_status_id,
+            'collection_file_status_id': self.collection_file_status_id,
             'ocid': ocid,
             'data_id': data_id,
             'package_data_id': package_data_id,
@@ -345,7 +347,7 @@ class add_file():
         package_data_id = self.get_id_for_package_data(package_data)
         data_id = self.get_id_for_data(row)
         self.connection.execute(release_table.insert(), {
-            'source_session_file_status_id': self.source_session_file_status_id,
+            'collection_file_status_id': self.collection_file_status_id,
             'release_id': release_id,
             'ocid': ocid,
             'data_id': data_id,
