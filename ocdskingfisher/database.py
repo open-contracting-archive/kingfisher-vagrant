@@ -426,3 +426,17 @@ def is_record_check_done(record_id, override_schema_version=None):
             return True
 
     return False
+
+
+def get_all_collections():
+    out = []
+    with ocdskingfisher.database.get_engine().begin() as connection:
+        s = ocdskingfisher.database.sa.sql.select([ocdskingfisher.database.collection_table])
+        for result in connection.execute(s):
+            out.append({
+                    "id": result['id'],
+                    "source_id": result['source_id'],
+                    "data_version": result['data_version'],
+                    "sample": result['sample'],
+                })
+    return out
