@@ -219,3 +219,8 @@ class MetadataDB(object):
                 row['file_status'][data['filename']] = data
 
             return row
+
+    def force_fetch_to_gather(self):
+        with self.engine.connect() as conn:
+            sql = sa.sql.text("""DELETE FROM filestatus WHERE fetch_success == 0""")
+            conn.execute(sql)

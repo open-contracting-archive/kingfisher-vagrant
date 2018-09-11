@@ -17,4 +17,5 @@ You can pass the `verbose` flag to all sub commands, to get more output printed 
    cli-upgrade-database.rst
    cli-check-different-schema-version.rst
    cli-list-collections.rst
+   cli-force-fetch-to-store.rst
 
