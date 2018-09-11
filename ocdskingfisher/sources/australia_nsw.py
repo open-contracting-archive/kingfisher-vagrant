@@ -5,10 +5,10 @@ from ocdskingfisher.base import Source
 from ocdskingfisher.util import save_content
 
 
-class AustraliaSource(Source):
-    publisher_name = 'Australia'
+class AustraliaNSWSource(Source):
+    publisher_name = 'Australia NSW'
     url = 'https://tenders.nsw.gov.au'
-    source_id = 'australia'
+    source_id = 'australia_nsw'
 
     def gather_all_download_urls(self):
         release_types = ['planning', 'tender', 'contract']
