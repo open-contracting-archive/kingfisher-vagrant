@@ -7,7 +7,7 @@ about all the API work that is needed to get the data.
 A full list of sources is:
 
   *  armenia
-  *  australia
+  *  australia_nsw
   *  canada_buyandsell
   *  canada_montreal
   *  chile_compra
