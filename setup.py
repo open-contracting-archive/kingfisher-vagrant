@@ -33,7 +33,8 @@ setup(name='ocdsdata',
       ],
       scripts=['ocdsdata-cli'],
       package_data={'ocdskingfisher': [
-              'maindatabase/migrations/script.py.mako'
+              'maindatabase/migrations/script.py.mako',
+              'metadatabase/migrations/script.py.mako'
           ]},
       include_package_data=True
       )
