@@ -528,3 +528,10 @@ def test_metadatabase_store():
             'filename': 'file1.json',
             'data_type': 'releases',
             'encoding': 'ascii'})
+
+
+def test_control_code_to_filter_out_to_human_readable():
+    for control_code_to_filter_out in util.control_codes_to_filter_out:
+        # This test just calls it and make sure it runs without crashing
+        # (some code was crashing, so wanted test to check all future values of control_codes_to_filter_out)
+        print(util.control_code_to_filter_out_to_human_readable(control_code_to_filter_out))
