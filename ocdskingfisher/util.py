@@ -87,7 +87,9 @@ def save_content(url, filepath, headers=None, verify_ssl=True):
                 for control_code_to_filter_out in control_codes_to_filter_out:
                     if control_code_to_filter_out in chunk:
                         chunk = chunk.replace(control_code_to_filter_out, b'')
-                        warnings.append('We had to replace control codes: ' + str(control_code_to_filter_out))
+                        warning = 'We had to replace control codes: ' + str(control_code_to_filter_out)
+                        if warning not in warnings:
+                            warnings.append(warning)
                 f.write(chunk)
         return SaveContentResult(warnings=warnings)
     except Exception as e:
