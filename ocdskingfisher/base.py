@@ -159,6 +159,10 @@ class Source:
 
         self.metadata_db.update_session_gather_end(True, None, None)
 
+    def is_gather_finished(self):
+        metadata = self.metadata_db.get_session()
+        return bool(metadata['gather_finished_datetime'])
+
     def run_fetch(self):
         self.logger.info("Starting run_fetch")
 
@@ -198,6 +202,10 @@ class Source:
             data = self.metadata_db.get_next_filestatus_to_fetch()
 
         self.metadata_db.update_session_fetch_end()
+
+    def is_fetch_finished(self):
+        metadata = self.metadata_db.get_session()
+        return bool(metadata['fetch_finished_datetime'])
 
     """Uploads the fetched data as record rows to the Database"""
     def run_store(self):
@@ -329,3 +337,7 @@ class Source:
         self.run_fetch()
         self.run_store()
         self.run_check()
+
+    def force_fetch_to_gather(self):
+        self.logger.info("Starting force_fetch_to_gather")
+        self.metadata_db.force_fetch_to_gather()
