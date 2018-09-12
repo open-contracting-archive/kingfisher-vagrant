@@ -1,4 +1,3 @@
-import os
 import ocdskingfisher.status
 import ocdskingfisher.cli.commands.base
 import ocdskingfisher.sources_util
@@ -11,12 +10,8 @@ class StatusCLICommand(ocdskingfisher.cli.commands.base.CLICommand):
         subparser.add_argument("source", help="Which source do you want to see status for?")
         subparser.add_argument("--dataversion", help="Specify a data version - defaults to latest one")
         subparser.add_argument("--sample", help="See status for a sample", action="store_true")
-        subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
 
     def run_command(self, args):
-
-        this_dir = os.path.dirname(os.path.realpath(__file__))
-        base_dir = args.basedir or os.path.join(this_dir, "..", "..", "..", "data")
 
         source_id = args.source
 
@@ -29,7 +24,7 @@ class StatusCLICommand(ocdskingfisher.cli.commands.base.CLICommand):
                 print(" - %s" % source_id)
             quit(-1)
 
-        source_status = ocdskingfisher.status.SourceStatus(base_dir=base_dir,
+        source_status = ocdskingfisher.status.SourceStatus(base_dir=self.config.data_dir,
                                                            source_id=source_id,
                                                            sample=args.sample,
                                                            data_version=args.dataversion

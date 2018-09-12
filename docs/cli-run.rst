@@ -25,12 +25,6 @@ There is a sample mode. This only fetches a small amount of data for each source
 
     python ocdskingfisher-cli run --sample ...
 
-The tool will save files to disk. To change the location it saves to, pass the `basedir` option.
-
-.. code-block:: shell-session
-
-    python ocdskingfisher-cli run --basedir /data ...
-
 It will look for existing sessions for the same source and sample flag as you specify, and by default resume the latest one.
 
 To make sure you start a new session, pass the `newversion` flag.

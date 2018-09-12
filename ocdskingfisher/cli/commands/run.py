@@ -1,5 +1,3 @@
-import os
-
 import ocdskingfisher.cli.commands.base
 import ocdskingfisher.sources_util
 import ocdskingfisher.database
@@ -8,13 +6,13 @@ import ocdskingfisher.database
 class RunCLICommand(ocdskingfisher.cli.commands.base.CLICommand):
     command = 'run'
 
-    def __init__(self):
+    def __init__(self, config=None):
+        self.config = config
         self.sources = ocdskingfisher.sources_util.gather_sources()
 
     def configure_subparser(self, subparser):
         subparser.add_argument("source", help="run one or more sources", nargs="*")
         subparser.add_argument("--all", help="run all sources",	action="store_true")
-        subparser.add_argument("--basedir", help="base dir - defaults to 'data' on current directory")
 
         subparser.add_argument("--onlygather", help="only run the gather stage", action="store_true")
         subparser.add_argument("--ignoregather", help="don't run the gather stage", action="store_true")
@@ -60,8 +58,6 @@ class RunCLICommand(ocdskingfisher.cli.commands.base.CLICommand):
                 print(" - %s" % source_id)
             quit(-1)
 
-        this_dir = os.path.dirname(os.path.realpath(__file__))
-        base_dir = args.basedir or os.path.join(this_dir, "..", "..", "..", "data")
         remove_dir = False
         sample_mode = args.sample
         data_version = args.dataversion
@@ -113,7 +109,7 @@ class RunCLICommand(ocdskingfisher.cli.commands.base.CLICommand):
 
         for source_info in run:
 
-            instance = source_info['source_class'](base_dir,
+            instance = source_info['source_class'](self.config.data_dir,
                                                    remove_dir=remove_dir,
                                                    sample=sample_mode,
                                                    data_version=data_version,

@@ -35,11 +35,4 @@ By default, it will convert to the latest version of the schema, but you can cha
 
     python ocdskingfisher-cli check-different-schema-version --schemaversion 1.0 ...
 
-The tool will load files from disk. To change the location it loads from, pass the `basedir` option.
-
-.. code-block:: shell-session
-
-    python ocdskingfisher-cli check-different-schema-version --basedir /data ...
-
-
 

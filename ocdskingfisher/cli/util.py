@@ -6,7 +6,7 @@ import importlib
 import ocdskingfisher.cli.commands.base
 
 
-def gather_cli_commands_instances():
+def gather_cli_commands_instances(config=None):
     commands = {}
     dir_path = os.path.dirname(os.path.realpath(__file__))
     sources_dir = os.path.join(dir_path, '..', '..', 'ocdskingfisher', 'cli', 'commands')
@@ -16,5 +16,5 @@ def gather_cli_commands_instances():
             value = getattr(module, item)
             if inspect.isclass(value) and issubclass(value, ocdskingfisher.cli.commands.base.CLICommand) \
                     and value is not ocdskingfisher.cli.commands.base.CLICommand:
-                commands[getattr(value, 'command')] = value()
+                commands[getattr(value, 'command')] = value(config=config)
     return commands

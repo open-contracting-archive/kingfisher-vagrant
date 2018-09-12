@@ -21,8 +21,3 @@ By default it will show the progress for the latest run, but you can pass the da
     python ocdskingfisher-cli status --dataversion  2018-07-31-16-03-50 ...
 
 
-The tool will load files from disk. To change the location it loads from, pass the `--basedir` option.
-
-.. code-block:: shell-session
-
-    python ocdskingfisher-cli status --basedir /data ...

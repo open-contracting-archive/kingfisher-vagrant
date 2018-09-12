@@ -4,9 +4,13 @@ import os
 import logging.config
 import json
 import ocdskingfisher.cli.util
+import ocdskingfisher.config
 
 
 def main():
+
+    config = ocdskingfisher.config.Config()
+    config.load_user_config()
 
     logging_config_file_full_paths = [
         os.path.expanduser('~/.config/ocdskingfisher/logging.json'),
@@ -29,7 +33,7 @@ def main():
 
     subparsers = parser.add_subparsers(dest='subcommand')
 
-    commands = ocdskingfisher.cli.util.gather_cli_commands_instances()
+    commands = ocdskingfisher.cli.util.gather_cli_commands_instances(config=config)
 
     for command in commands.values():
         command.configure_subparser(subparsers.add_parser(command.command))
