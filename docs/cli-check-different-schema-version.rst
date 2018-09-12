@@ -21,9 +21,9 @@ You must specify the source you want with the `source` option. You can also incl
     python ocdskingfisher-cli check-different-schema-version --source taiwan
     python ocdskingfisher-cli check-different-schema-version --source taiwan --sample
 
-It will look for existing sessions for the same source and sample flag as you specify, and by default check the latest one.
+It will look for existing collections with the same source and sample flag as you specify, and by default check the latest one.
 
-To select a specific existing session, pass the `dataversion` flag.
+To select a specific existing collection, pass the `dataversion` flag.
 
 .. code-block:: shell-session
 
