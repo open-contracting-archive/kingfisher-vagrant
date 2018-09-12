@@ -13,7 +13,7 @@ class Collection:
         self.on_disk = on_disk
 
 
-def get_all_collections(data_dir):
+def get_all_collections(config):
     out = []
 
     # Load from database
@@ -28,7 +28,7 @@ def get_all_collections(data_dir):
     # Load from disk
     for sample in [True, False]:
         for key in ocdskingfisher.sources_util.gather_sources().keys():
-            directory = os.path.join(data_dir, key + ("_sample" if sample else ""))
+            directory = os.path.join(config.data_dir, key + ("_sample" if sample else ""))
             if os.path.isdir(directory):
                 for version in os.listdir(directory):
                     if os.path.isdir(os.path.join(directory, version)) and \
