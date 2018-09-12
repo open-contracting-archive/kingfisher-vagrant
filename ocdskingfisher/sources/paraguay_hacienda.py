@@ -47,7 +47,7 @@ class ParaguayHaciendaSource(Source):
         for line in zipfile.open('cdp_%s.csv' % year).readlines():
             line = str(line).split(',')
             id = line[-4].replace('"', '').split('/')[-1]
-            if id is not '':
+            if id is not '' and not(id == 'apiDNCP'):
                 ids.append(id)
         return ids
 
@@ -57,7 +57,7 @@ class ParaguayHaciendaSource(Source):
 
     def save_content(self, url, filepath, headers=None):
         request, errors = get_url_request(url, stream=True, headers=headers)
-        if any('Request exception (Code %s): %s' % (401, 'Invalid or expired token') in s for s in errors):
+        if any('Request exception (Code %s)' % 401 in s for s in errors):
             self.access_token = None
             errors = self.save_content(url, filepath, headers={"Authorization": self.get_access_token()})
         if not request:
