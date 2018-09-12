@@ -1,4 +1,3 @@
-import os
 import ocdskingfisher.sources_util
 import ocdskingfisher.database
 
@@ -25,9 +24,6 @@ class CLICommand:
 
         sources = ocdskingfisher.sources_util.gather_sources()
 
-        this_dir = os.path.dirname(os.path.realpath(__file__))
-        data_dir = os.path.join(this_dir, "..", "..", "..", "data")
-
         sample_mode = args.sample
         data_version = args.dataversion
 
@@ -36,7 +32,7 @@ class CLICommand:
             quit(-1)
 
         # This will raise an error if the version specified does not exist on disk.
-        self.collection_instance = sources[args.run](data_dir,
+        self.collection_instance = sources[args.run](self.config.data_dir,
                                                      remove_dir=False,
                                                      sample=sample_mode,
                                                      data_version=data_version,
