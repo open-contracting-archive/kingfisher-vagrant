@@ -44,6 +44,16 @@ The data_type should be one of the following options:
      You may need these files to work out more files to download. See the ukraine source for an example.
 """
 
+ALLOWED_DATA_TYPES_EXCLUDING_META = [
+    'release',
+    'record_package',
+    'release_package',
+    'record_package_list',
+    'release_package_list',
+    'record_package_list_in_results',
+    'release_package_list_in_results',
+]
+
 
 class Source:
     publisher_name = None
