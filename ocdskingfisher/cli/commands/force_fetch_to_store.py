@@ -14,11 +14,11 @@ class ForceFetchToStoreCLICommand(ocdskingfisher.cli.commands.base.CLICommand):
 
         if not self.collection_instance.is_gather_finished():
             print("Gather is not finished; this must finish first!")
-            return -1
+            quit(-1)
 
         if self.collection_instance.is_fetch_finished():
             print("Fetch is already finished; there is no need for this!")
-            return -1
+            return
 
         self.collection_instance.force_fetch_to_gather()
         print("Forced!")
