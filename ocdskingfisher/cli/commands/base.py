@@ -16,7 +16,7 @@ class CLICommand:
         pass
 
     def configure_subparser_for_selecting_existing_collection(self, subparser):
-        subparser.add_argument("--run", help="source")
+        subparser.add_argument("source", help="source")
         subparser.add_argument("--dataversion", help="Specify a data version")
         subparser.add_argument("--sample", help="Sample source only", action="store_true")
 
@@ -27,14 +27,14 @@ class CLICommand:
         sample_mode = args.sample
         data_version = args.dataversion
 
-        if args.run not in sources:
+        if args.source not in sources:
             print("We can not find the source that you requested!")
             quit(-1)
 
         # This will raise an error if the version specified does not exist on disk.
-        self.collection_instance = sources[args.run](self.config.data_dir,
-                                                     remove_dir=False,
-                                                     sample=sample_mode,
-                                                     data_version=data_version,
-                                                     new_version=False
-                                                     )
+        self.collection_instance = sources[args.source](self.config.data_dir,
+                                                        remove_dir=False,
+                                                        sample=sample_mode,
+                                                        data_version=data_version,
+                                                        new_version=False
+                                                        )
