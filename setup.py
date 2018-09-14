@@ -10,7 +10,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = '\n' + f.read()
 
-setup(name='ocdsdata',
+setup(name='ocdskingfisher',
       version='0.0.1',
       description='Get, extract and process data in the Open Contracting Data Standard format',
       long_description=long_description,
@@ -31,7 +31,7 @@ setup(name='ocdsdata',
             'ocdskingfisher.cli',
             'ocdskingfisher.cli.commands'
       ],
-      scripts=['ocdsdata-cli'],
+      scripts=['ocdskingfisher-cli'],
       package_data={'ocdskingfisher': [
               'maindatabase/migrations/script.py.mako',
               'metadatabase/migrations/script.py.mako'
