@@ -6,6 +6,10 @@ from ocdskingfisher.util import save_content
 
 
 class AustraliaNSWSource(Source):
+    """
+    API documentation: https://github.com/NSW-eTendering/NSW-eTendering-API
+    """
+
     publisher_name = 'Australia NSW'
     url = 'https://tenders.nsw.gov.au'
     source_id = 'australia_nsw'

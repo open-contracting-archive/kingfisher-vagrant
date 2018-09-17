@@ -6,7 +6,7 @@ from ocdskingfisher.base import Source
 
 class MexicoINAISource(Source):
     publisher_name = 'Mexico > Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales'
-    url = 'https://datos.gob.mx/busca/dataset?q=organization:inai'
+    url = 'https://datos.gob.mx/busca/organization/inai'
     source_id = 'mexico_inai'
 
     def gather_all_download_urls(self):

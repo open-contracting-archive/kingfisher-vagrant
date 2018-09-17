@@ -13,6 +13,11 @@ REQUEST_TOKEN = "Basic " \
 
 
 class ParaguayDNCPSource(Source):
+    """
+    API documentation: https://www.contrataciones.gov.py/datos/api/v2/
+    Additional documentation: https://www.contrataciones.gov.py/datos/open-contracting-info
+    """
+
     publisher_name = 'Paraguay DNCP'
     url = 'https://www.contrataciones.gov.py/datos'
     source_id = 'paraguay_dncp'
