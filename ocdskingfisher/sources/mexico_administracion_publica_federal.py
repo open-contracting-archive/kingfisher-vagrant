@@ -3,6 +3,10 @@ from ocdskingfisher.base import Source
 
 
 class MexicoAdministracionPublicaFederal(Source):
+    """
+    Bulk downloads: https://datos.gob.mx/busca/dataset/concentrado-de-contrataciones-abiertas-de-la-apf
+    """
+
     publisher_name = 'Mexico Administracion Publica Fedaral'
     url = 'https://api.datos.gob.mx/v1/contratacionesabiertas'
     source_id = 'mexico_administracion_publica_federal'

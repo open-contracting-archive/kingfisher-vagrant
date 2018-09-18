@@ -3,6 +3,10 @@ from ocdskingfisher.base import Source
 
 
 class MexicoCDMXSource(Source):
+    """
+    API documentation: http://www.contratosabiertos.cdmx.gob.mx/datos-abiertos/documentacion-api-contratos
+    """
+
     publisher_name = 'Mexico CDMX'
     url = 'http://www.contratosabiertos.cdmx.gob.mx'
     source_id = 'mexico_cdmx'

@@ -2,6 +2,10 @@ from ocdskingfisher.base import Source
 
 
 class CanadaBuyAndSellSource(Source):
+    """
+    Bulk downloads: https://buyandsell.gc.ca/procurement-data/open-contracting-data-standard-pilot
+    """
+
     publisher_name = 'Buy And Sell'
     url = 'https://buyandsell.gc.ca'
     source_id = 'canada_buyandsell'

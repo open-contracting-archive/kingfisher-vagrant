@@ -2,6 +2,10 @@ from ocdskingfisher.base import Source
 
 
 class TaiwanSource(Source):
+    """
+    Bulk downloads: http://data.dsp.im/dataset/taiwan-open-contracting
+    """
+
     publisher_name = 'Taiwan'
     url = 'http://data.dsp.im'
     source_id = 'taiwan'

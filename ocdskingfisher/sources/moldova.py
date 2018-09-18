@@ -2,6 +2,10 @@ from ocdskingfisher.base import Source
 
 
 class MoldovaSource(Source):
+    """
+    Bulk downloads: http://opencontracting.date.gov.md/downloads
+    """
+
     publisher_name = 'Moldova'
     url = 'http://data.dsp.im'
     source_id = 'moldova'

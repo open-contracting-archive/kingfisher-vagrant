@@ -3,6 +3,10 @@ from ocdskingfisher.base import Source
 
 
 class ColombiaSource(Source):
+    """
+    API documentation and bulk downloads: https://www.colombiacompra.gov.co/transparencia/gestion-documental/datos-abiertos
+    """
+
     publisher_name = 'Colombia'
     url = 'https://api.colombiacompra.gov.co'
     source_id = 'colombia'

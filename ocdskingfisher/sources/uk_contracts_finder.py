@@ -3,6 +3,10 @@ from ocdskingfisher.base import Source
 
 
 class UKContractsFinderSource(Source):
+    """
+    API documentation: https://www.gov.uk/government/publications/open-contracting
+    """
+
     publisher_name = 'UK Contracts Finder'
     url = 'https://www.contractsfinder.service.gov.uk'
     source_id = 'uk_contracts_finder'

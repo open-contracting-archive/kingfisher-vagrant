@@ -7,6 +7,11 @@ from ocdskingfisher.base import Source
 
 
 class UkraineSource(Source):
+    """
+    API documentation: http://api-docs.openprocurement.org/
+    API base URL: https://public.api.openprocurement.org/api/2.3/tenders
+    """
+
     publisher_name = 'Ukraine'
     url = 'http://ocds.prozorro.openprocurement.io/'
     source_id = 'ukraine'
