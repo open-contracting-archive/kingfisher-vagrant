@@ -39,6 +39,10 @@ collection_table = sa.Table('collection', metadata,
                             sa.Column('id', sa.Integer, primary_key=True),
                             sa.Column('source_id', sa.Text, nullable=False),
                             sa.Column('data_version', sa.Text, nullable=False),
+                            sa.Column('gather_start_at', sa.DateTime(timezone=False), nullable=True),
+                            sa.Column('gather_end_at', sa.DateTime(timezone=False), nullable=True),
+                            sa.Column('fetch_start_at', sa.DateTime(timezone=False), nullable=True),
+                            sa.Column('fetch_end_at', sa.DateTime(timezone=False), nullable=True),
                             sa.Column('store_start_at', sa.DateTime(timezone=False), nullable=False),
                             sa.Column('store_end_at', sa.DateTime(timezone=False), nullable=True),
                             sa.Column('sample', sa.Boolean, nullable=False, default=False),
@@ -233,11 +237,16 @@ def start_store(source_id, data_version, sample, metadata_db):
         if is_store_in_progress(source_id, data_version, sample):
             return get_id_of_store_in_progress(source_id, data_version, sample)
         else:
+            metadatainfo = metadata_db.get_session()
             value = connection.execute(collection_table.insert(), {
                 'source_id': source_id,
                 'data_version': data_version,
                 'sample': sample,
-                'store_start_at': datetime.datetime.utcnow()
+                'store_start_at': datetime.datetime.utcnow(),
+                'gather_start_at': metadatainfo['gather_start_datetime'],
+                'gather_end_at': metadatainfo['gather_finished_datetime'],
+                'fetch_start_at': metadatainfo['fetch_start_datetime'],
+                'fetch_end_at': metadatainfo['fetch_finished_datetime'],
             })
 
             for file_info in metadata_db.list_filestatus():
