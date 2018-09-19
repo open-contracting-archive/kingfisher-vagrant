@@ -11,7 +11,7 @@ Note this forcing process is irreversible - once done, it can not be undone.
 
     python ocdskingfisher-cli --verbose run australia_nsw
     ..... get bored, stop process .....
-    python ocdskingfisher-cli force-fetch-to-store --run australia_nsw
+    python ocdskingfisher-cli force-fetch-to-store australia_nsw
     python ocdskingfisher-cli --verbose run australia_nsw
 
 This might be needed:

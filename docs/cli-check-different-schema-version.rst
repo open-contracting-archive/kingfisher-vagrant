@@ -14,12 +14,12 @@ The check-different-schema-version command does this.
 Note it does not upgrade the data properly; the only change it makes is to change the version field in the data to
 the version you specify.
 
-You must specify the source you want with the `source` option. You can also include the `sample` flag.
+You must specify the source you want as the first argument. You can also include the `sample` flag.
 
 .. code-block:: shell-session
 
-    python ocdskingfisher-cli check-different-schema-version --source taiwan
-    python ocdskingfisher-cli check-different-schema-version --source taiwan --sample
+    python ocdskingfisher-cli check-different-schema-version taiwan
+    python ocdskingfisher-cli check-different-schema-version taiwan --sample
 
 It will look for existing sessions for the same source and sample flag as you specify, and by default check the latest one.
 
