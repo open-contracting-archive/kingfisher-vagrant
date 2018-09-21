@@ -22,11 +22,6 @@ def main():
                 logging.config.dictConfig(json.load(f))
             break
 
-    logging_config_file_full_path = os.path.expanduser('~/.config/ocdsdata/logging.json')
-    if os.path.isfile(logging_config_file_full_path):
-        with open(logging_config_file_full_path) as f:
-            logging.config.dictConfig(json.load(f))
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", help="increase output verbosity",
                         action="store_true")
