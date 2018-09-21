@@ -1,8 +1,6 @@
-import json
+import feedparser
 
 from ocdskingfisher.base import Source
-from ocdskingfisher import util
-from ocdskingfisher.util import save_content
 
 
 class UruguaySource(Source):
@@ -11,42 +9,40 @@ class UruguaySource(Source):
     source_id = 'uruguay'
 
     def gather_all_download_urls(self):
-        url_base = 'https://catalogodatos.gub.uy'
-        url = url_base + '/api/3/action/datastore_search?resource_id=9fc590fd-0d33-4478-9193-9c44906ca388'
+        if self.sample:
+            return [{
+                'url': 'http://comprasestatales.gub.uy/ocds/rss/2017/12',
+                'filename': 'sample.json',
+                'data_type': 'meta',
+                'priority': 10,
+            }]
+
         out = []
-        data, error = util.get_url_request(url)
-
-        data = data.json()['result']
-        while len(data['records']) > 0:
-            for record in data['records']:
-                if self.sample and len(out) >= 10:
-                    break
+        for year in range(2017, 2019):
+            for month in range(1, 13):
                 out.append({
-                    'url': record['open_contracting_link'],
-                    'filename': '%s.json' % record['id_compra'],
-                    'data_type': 'record_package',
+                    'url': 'http://comprasestatales.gub.uy/ocds/rss/{}/{:02d}'.format(year, month),
+                    'filename': 'year-{}-month-{:02d}.json'.format(year, month),
+                    'data_type': 'meta',
+                    'priority': 10,
                 })
-            if self.sample:
-                break
-            url = url_base + data['_links']['next']
-            data, error = util.get_url_request(url)
-            data = data.json()['result']
-
         return out
 
     def save_url(self, filename, data, file_path):
-        save_content_response = save_content(data['url'], file_path)
-        if save_content_response.errors:
-            return self.SaveUrlResult(errors=save_content_response.errors, warnings=save_content_response.warnings)
-        additional = []
-        if data['data_type'] == 'record_package':
-            with open(file_path, 'r') as f:
-                json_data = json.load(f)
-                for release in json_data['records'][0]['releases']:
-                    additional.append({
-                        'url': release['url'],
-                        'filename': 'release-%s.json' % release['url'].split('/')[-1],
-                        'data_type': 'release_package',
-                    })
+        if data['data_type'] == 'meta':
 
-        return self.SaveUrlResult(additional_files=additional)
+            feed = feedparser.parse(data['url'])
+            additional = []
+            for item in feed.entries:
+                if self.sample and len(additional) == 10:
+                    break
+                additional.append({
+                    'url': item.link,
+                    'filename': '%s.json' % item.guid.split('/')[-1],
+                    'data_type': 'release_package',
+                })
+
+            return self.SaveUrlResult(additional_files=additional)
+
+        else:
+            return super(UruguaySource, self).save_url(file_name=filename, data=data, file_path=file_path)
