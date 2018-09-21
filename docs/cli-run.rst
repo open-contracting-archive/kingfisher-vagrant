@@ -25,15 +25,15 @@ There is a sample mode. This only fetches a small amount of data for each source
 
     python ocdskingfisher-cli run --sample ...
 
-It will look for existing sessions for the same source and sample flag as you specify, and by default resume the latest one.
+It will look for existing collections with the same source and sample flag as you specify, and by default resume the latest one.
 
-To make sure you start a new session, pass the `newversion` flag.
+To make sure you start a new collection, pass the `newversion` flag.
 
 .. code-block:: shell-session
 
     python ocdskingfisher-cli run --newversion  ...
 
-To select an existing session, pass the `dataversion` flag.
+To select an existing collection, pass the `dataversion` flag.
 
 .. code-block:: shell-session
 
