@@ -31,6 +31,7 @@ use the same structure. The keys are:
 
 The data_type should be one of the following options:
 
+  *  record - the file is a record.
   *  release - the file is a release.
   *  record_package - the file is a record package.
   *  release_package - the file is a release package.
@@ -258,7 +259,7 @@ class Source:
                     if not isinstance(json_data, dict):
                         error_msg = "Can not process data in file {} as JSON is not an object".format(data['filename'])
 
-                    if data['data_type'] == 'release':
+                    if data['data_type'] == 'release' or data['data_type'] == 'record':
                         data_list = [json_data]
                     elif data['data_type'] == 'release_package' or \
                             data['data_type'] == 'release_package_list_in_results' or \
@@ -292,7 +293,8 @@ class Source:
                             error_msg = "Row in data is not a object {}".format(data['filename'])
                             raise Exception(error_msg)
 
-                        if data['data_type'] == 'record_package' or \
+                        if data['data_type'] == 'record' or \
+                                data['data_type'] == 'record_package' or \
                                 data['data_type'] == 'record_package_list_in_results' or \
                                 data['data_type'] == 'record_package_list':
                             database_file.insert_record(row, package_data)
