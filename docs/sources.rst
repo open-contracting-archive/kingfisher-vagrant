@@ -22,6 +22,7 @@ A full list of sources is:
   *  moldova
   *  paraguay_dncp
   *  paraguay_hacienda
+  *  scotland
   *  taiwan
   *  uganda
   *  uk_contracts_finder
