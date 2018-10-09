@@ -12,7 +12,7 @@ class IndonesiaBandungSource(Source):
 
         if self.sample:
             return [{
-                'url': 'https://birms.bandung.go.id/beta/api/contracts/year/2017?page=1',
+                'url': 'https://birms.bandung.go.id/beta/api/packages/year/2017?page=1',
                 'filename': 'sample.json',
                 'data_type': 'meta',
                 'priority': 10
@@ -21,7 +21,7 @@ class IndonesiaBandungSource(Source):
         out = []
 
         for year in range(2016, 2019):
-            url = 'https://birms.bandung.go.id/beta/api/contracts/year/{}'.format(year)
+            url = 'https://birms.bandung.go.id/beta/api/packages/year/{}'.format(year)
             response, errors = util.get_url_request(url, verify_ssl=False)
             if errors:
                 raise Exception(errors)
@@ -30,7 +30,7 @@ class IndonesiaBandungSource(Source):
             last_page = data['last_page']
             for page in range(1, last_page+1):
                 out.append({
-                    'url': 'https://birms.bandung.go.id/beta/api/contracts/year/{}?page={}'.format(year, page),
+                    'url': 'https://birms.bandung.go.id/beta/api/packages/year/{}?page={}'.format(year, page),
                     'filename': 'year{}page{}.json'.format(year, page),
                     'data_type': 'meta',
                     'priority': 10
@@ -60,7 +60,7 @@ class IndonesiaBandungSource(Source):
                         additional.append({
                                         'url': data_item['uri'],
                                         'filename': '{}.json'.format(data_item['ocid']),
-                                        'data_type': 'release',
+                                        'data_type': 'release_package',
                                         'priority': 1,
                                     })
 
