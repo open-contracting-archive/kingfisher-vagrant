@@ -267,7 +267,8 @@ class Source:
                             error_msg = "Release list not found in file {}".format(data['filename'])
                         elif not isinstance(json_data['releases'], list):
                             error_msg = "Release list which is not a list found in file {}".format(data['filename'])
-                        data_list = json_data['releases']
+                        else:
+                            data_list = json_data['releases']
                     elif data['data_type'] == 'record_package' or \
                             data['data_type'] == 'record_package_list_in_results' or \
                             data['data_type'] == 'record_package_list':
