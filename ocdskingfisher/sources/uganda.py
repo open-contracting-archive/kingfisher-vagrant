@@ -8,7 +8,7 @@ class UgandaSource(Source):
     source_id = 'uganda'
 
     def gather_all_download_urls(self):
-        tags = ['planning', 'tender']  # , 'award', 'contract' <-- original fetcher also has these but these return 500?
+        tags = ['planning', 'tender', 'award', 'contract']
         out = []
 
         for tag in tags:
