@@ -6,6 +6,8 @@ about all the API work that is needed to get the data.
 
 A full list of sources is:
 
+  *  afghanistan_records
+  *  afghanistan_releases
   *  armenia
   *  australia_nsw
   *  canada_buyandsell
