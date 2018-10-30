@@ -20,7 +20,7 @@ class IndonesiaBandungSource(Source):
 
         out = []
 
-        for year in range(2016, 2019):
+        for year in range(2013, 2019):
             url = 'https://birms.bandung.go.id/beta/api/packages/year/{}'.format(year)
             response, errors = util.get_url_request(url, verify_ssl=False)
             if errors:
