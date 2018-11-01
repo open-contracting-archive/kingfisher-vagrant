@@ -1,7 +1,5 @@
 from ocdskingfisher import database
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cove_ocds.settings")  # noqa
-from cove_ocds.lib.api import ocds_json_output, APIException
+from libcoveocds.api import ocds_json_output, APIException
 import sqlalchemy as sa
 import tempfile
 import shutil
