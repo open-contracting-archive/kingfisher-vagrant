@@ -81,7 +81,7 @@ def control_code_to_filter_out_to_human_readable(control_code_to_filter_out):
         return control_code_to_filter_out
 
 
-def save_content(url, filepath, headers=None, verify_ssl=True):
+def save_content(url, filepath, headers=None, verify_ssl=True, replace_control_codes=True):
     request, errors = get_url_request(url, stream=True, headers=headers, verify_ssl=verify_ssl)
 
     if not request:
@@ -92,7 +92,7 @@ def save_content(url, filepath, headers=None, verify_ssl=True):
         with open(filepath, 'wb') as f:
             for chunk in request.iter_content(1024 ^ 2):
                 for control_code_to_filter_out in control_codes_to_filter_out:
-                    if control_code_to_filter_out in chunk:
+                    if replace_control_codes and control_code_to_filter_out in chunk:
                         chunk = chunk.replace(control_code_to_filter_out, b'')
                         warning = 'We had to replace control codes: ' \
                                   + control_code_to_filter_out_to_human_readable(control_code_to_filter_out)
