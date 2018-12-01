@@ -35,6 +35,8 @@ The data_type should be one of the following options:
   *  release - the file is a release.
   *  record_package - the file is a record package.
   *  release_package - the file is a release package.
+  *  record_package_json_lines - the file is JSON lines, and every line is a record package
+  *  release_package_json_lines - see last entry, but release packages.
   *  record_package_list - the file is a list of record packages. eg
      [  { record-package-1 } , { record-package-2 } ]
   *  release_package_list - see last entry, but release packages.
@@ -53,6 +55,8 @@ class Source:
     source_id = None
     sample = False
     data_version = None
+    ignore_release_package_json_lines_missing_releases_error = False
+
     """It is possible to pass extra arguments.
 
     This specifies a list of the extra arguments possible. Each item in the list should be a dict with the keys:
@@ -236,72 +240,82 @@ class Source:
                 try:
                     with open(os.path.join(self.full_directory, data['filename']),
                               encoding=data['encoding']) as f:
-                        file_json_data = json.load(f)
+                        if data['data_type'] == "record_package_json_lines" or data['data_type'] == "release_package_json_lines":
+                            raw_data = f.readline()
+                            while raw_data:
+                                self._run_store_json_blob(data, database_file, json.loads(raw_data))
+                                raw_data = f.readline()
+                        else:
+                            self._run_store_json_blob(data, database_file, json.load(f))
                 except Exception as e:
                     # TODO better way of dealing with this?
                     raise e
                     return
 
-                objects_list = []
-                if data['data_type'] == 'record_package_list_in_results':
-                    objects_list.extend(file_json_data['results'])
-                elif data['data_type'] == 'release_package_list_in_results':
-                    objects_list.extend(file_json_data['results'])
-                elif data['data_type'] == 'record_package_list' or data['data_type'] == 'release_package_list':
-                    objects_list.extend(file_json_data)
-                else:
-                    objects_list.append(file_json_data)
-
-                del file_json_data
-
-                for json_data in objects_list:
-                    error_msg = ''
-                    if not isinstance(json_data, dict):
-                        error_msg = "Can not process data in file {} as JSON is not an object".format(data['filename'])
-
-                    if data['data_type'] == 'release' or data['data_type'] == 'record':
-                        data_list = [json_data]
-                    elif data['data_type'] == 'release_package' or \
-                            data['data_type'] == 'release_package_list_in_results' or \
-                            data['data_type'] == 'release_package_list':
-                        if 'releases' not in json_data:
-                            error_msg = "Release list not found in file {}".format(data['filename'])
-                        elif not isinstance(json_data['releases'], list):
-                            error_msg = "Release list which is not a list found in file {}".format(data['filename'])
-                        data_list = json_data['releases']
-                    elif data['data_type'] == 'record_package' or \
-                            data['data_type'] == 'record_package_list_in_results' or \
-                            data['data_type'] == 'record_package_list':
-                        if 'records' not in json_data:
-                            error_msg = "Record list not found in file {}".format(data['filename'])
-                        elif not isinstance(json_data['records'], list):
-                            error_msg = "Record list which is not a list found in file {}".format(data['filename'])
-                        data_list = json_data['records']
-                    else:
-                        error_msg = "data_type not a known type"
-
-                    if error_msg:
-                        raise Exception(error_msg)
-                    package_data = {}
-                    if not data['data_type'] == 'release':
-                        for key, value in json_data.items():
-                            if key not in ('releases', 'records'):
-                                package_data[key] = value
-
-                    for row in data_list:
-                        if not isinstance(row, dict):
-                            error_msg = "Row in data is not a object {}".format(data['filename'])
-                            raise Exception(error_msg)
-
-                        if data['data_type'] == 'record' or \
-                                data['data_type'] == 'record_package' or \
-                                data['data_type'] == 'record_package_list_in_results' or \
-                                data['data_type'] == 'record_package_list':
-                            database_file.insert_record(row, package_data)
-                        else:
-                            database_file.insert_release(row, package_data)
-
         database.end_store(source_session_id)
+
+    def _run_store_json_blob(self, data, database_file, file_json_data):
+
+        objects_list = []
+        if data['data_type'] == 'record_package_list_in_results':
+            objects_list.extend(file_json_data['results'])
+        elif data['data_type'] == 'release_package_list_in_results':
+            objects_list.extend(file_json_data['results'])
+        elif data['data_type'] == 'record_package_list' or data['data_type'] == 'release_package_list':
+            objects_list.extend(file_json_data)
+        else:
+            objects_list.append(file_json_data)
+
+        del file_json_data
+
+        for json_data in objects_list:
+            if not isinstance(json_data, dict):
+                raise Exception("Can not process data in file {} as JSON is not an object".format(data['filename']))
+
+            if data['data_type'] == 'release' or data['data_type'] == 'record':
+                data_list = [json_data]
+            elif data['data_type'] == 'release_package' or \
+                    data['data_type'] == 'release_package_json_lines' or \
+                    data['data_type'] == 'release_package_list_in_results' or \
+                    data['data_type'] == 'release_package_list':
+                if 'releases' not in json_data:
+                    if data['data_type'] == 'release_package_json_lines' and \
+                            self.ignore_release_package_json_lines_missing_releases_error:
+                        return
+                    raise Exception("Release list not found in file {}".format(data['filename']))
+                elif not isinstance(json_data['releases'], list):
+                    raise Exception("Release list which is not a list found in file {}".format(data['filename']))
+                data_list = json_data['releases']
+            elif data['data_type'] == 'record_package' or \
+                    data['data_type'] == 'record_package_json_lines' or \
+                    data['data_type'] == 'record_package_list_in_results' or \
+                    data['data_type'] == 'record_package_list':
+                if 'records' not in json_data:
+                    raise Exception("Record list not found in file {}".format(data['filename']))
+                elif not isinstance(json_data['records'], list):
+                    raise Exception("Record list which is not a list found in file {}".format(data['filename']))
+                data_list = json_data['records']
+            else:
+                raise Exception("data_type not a known type")
+
+            package_data = {}
+            if not data['data_type'] == 'release':
+                for key, value in json_data.items():
+                    if key not in ('releases', 'records'):
+                        package_data[key] = value
+
+            for row in data_list:
+                if not isinstance(row, dict):
+                    raise Exception("Row in data is not a object {}".format(data['filename']))
+
+                if data['data_type'] == 'record' or \
+                        data['data_type'] == 'record_package' or \
+                        data['data_type'] == 'record_package_json_lines' or \
+                        data['data_type'] == 'record_package_list_in_results' or \
+                        data['data_type'] == 'record_package_list':
+                    database_file.insert_record(row, package_data)
+                else:
+                    database_file.insert_release(row, package_data)
 
     def save_url(self, file_name, data, file_path):
         save_content_response = save_content(data['url'], file_path)
