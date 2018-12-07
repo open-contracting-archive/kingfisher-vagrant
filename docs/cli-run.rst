@@ -19,7 +19,7 @@ You can run all sources with the `all` flag.
 It is not recommended to do this as some of the sources take a very long time to download!
 
 There is a sample mode. This only fetches a small amount of data for each source.
-(If you use the `all` flag we strongly recommend the `sample` flag to!)
+(If you use the `all` flag we strongly recommend the `sample` flag too!)
 
 .. code-block:: shell-session
 
