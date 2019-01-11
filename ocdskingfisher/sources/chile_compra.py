@@ -30,6 +30,8 @@ class ChileCompraSource(Source):
         return out
 
     def save_url(self, filename, data, file_path):
+
+        record_url = 'https://apis.mercadopublico.cl/OCDS/data/record/%s'
         if data['data_type'] == 'meta':
 
             response, errors = util.get_url_request(data['url'])
@@ -43,12 +45,21 @@ class ChileCompraSource(Source):
             if "ListadoOCDS" in data.keys():
                 for data_item in data["ListadoOCDS"]:
                     if not self.sample or (self.sample and len(additional) < 10):
+                        for stage in ['URLTender', 'URLAward']:
+                            if stage in data_item:
+                                name = stage.replace('URL', '')
+                                additional.append({
+                                                'url': data_item[stage],
+                                                'filename': 'data-%s-%s.json' % (data_item['Codigo'], name),
+                                                'data_type': 'release_package',
+                                                'priority': 1,
+                                            })
                         additional.append({
-                                        'url': data_item['URLTender'],
-                                        'filename': 'data-%s.json' % data_item['Codigo'],
-                                        'data_type': 'release_package',
-                                        'priority': 1,
-                                    })
+                            'url': record_url % data_item['Codigo'].replace('ocds-70d2nz-', ''),
+                            'filename': 'data-%s-record.json' % data_item['Codigo'],
+                            'data_type': 'record_package',
+                            'priority': 1,
+                        })
 
             return self.SaveUrlResult(additional_files=additional)
 
