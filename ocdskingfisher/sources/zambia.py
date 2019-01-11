@@ -1,6 +1,9 @@
-import datetime
+import hashlib
 from zipfile import ZipFile
 from io import BytesIO
+
+import requests
+
 from ocdskingfisher.base import Source
 from ocdskingfisher import util
 
@@ -12,34 +15,20 @@ class ZambiaSource(Source):
 
     def gather_all_download_urls(self):
 
+        base_url = 'https://www.zppa.org.zm/ocds/services/recordpackage/getrecordpackagelist'
         if self.sample:
             return [{
-                'url': 'https://www.zppa.org.zm/ocds/services/recordpackage/getrecordpackage/2017/12',
+                'url': requests.get(base_url).json()
+                ['packagesPerMonth'][0],
                 'filename': 'sample.json',
                 'data_type': 'record_package'
             }]
 
-        year = 2016
-        month = 6
-        now = datetime.datetime.now()
         out = []
-        while year != now.year or month != now.month:
-
-            # We specially move up before getting data.
-            # The current year/month seems to be a valid dowload, and this way we get it.
-            month += 1
-            if month > 12:
-                month = 1
-                year += 1
-
-            # One month is missing. I have no idea why.
-            if year == 2017 and month == 4:
-                continue
-
-            # now list the data
+        for url in requests.get(base_url).json()['packagesPerMonth']:
             out.append({
-                'url': 'https://www.zppa.org.zm/ocds/services/recordpackage/getrecordpackage/{}/{}'.format(year, month),
-                'filename': 'year{}month{}.json'.format(year, month),
+                'url': url,
+                'filename': 'record-package-%s.json' % hashlib.md5(url.encode('utf-8')).hexdigest(),
                 'data_type': 'record_package'
             })
         return out
