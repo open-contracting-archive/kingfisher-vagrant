@@ -1,24 +1,5 @@
-sudo: false
-addons:
-    chrome: stable
-    postgresql: "10"
-    apt:
-        packages:
-            - postgresql-10
-            - postgresql-client-10
-env:
-    global:
-        - PGPORT=5433
-        - DB_URI='postgres:///travis'
-services:
-    - postgresql
 language: python
-python:
-    - "3.5"
-
-install:
-    - "pip install -r requirements.txt"
-    - "pip install flake8"
+# This repository now only contains docs in the "master" branch, so nothing for Travis to do!
+# But we still want Travis as in the "archive" branch we have work for Travis to do.
 script:
-    - "flake8 ."
-    - "py.test"
+    - "echo Works"
