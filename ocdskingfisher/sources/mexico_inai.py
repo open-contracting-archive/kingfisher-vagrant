@@ -30,7 +30,7 @@ class MexicoINAISource(Source):
                     out.append({
                         'url': url,
                         'filename': '{}.json'.format(name),
-                        'data_type': 'release_package_list',
+                        'data_type': 'release_package',
                         'encoding': 'utf-8-sig',  # ignore BOM
                     })
                     if self.sample:
