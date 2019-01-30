@@ -8,6 +8,8 @@ Access
 
 The server can be found at 195.201.163.242. You can connect via SSH to run commands, or via a Postgres client to run queries on the database (see below)
 
+There is a development server at ocdskingfisher-dev.default.opendataservices.uk0.bigv.io. If you're involved in the development of new Kingfisher components, you may be asked to log into the dev server to try things out. If so, substitiute the address of the dev server for the address of the live server in the examples below. 
+
 Over the course of a typical use of Hosted Kingfisher, you'll need to log in to run scrapers, then log out and back in as a different user to run process operations, and potentially connect to Postgres to carry out database operations. 
 
 
