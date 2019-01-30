@@ -75,7 +75,9 @@ control_codes_to_filter_out = [
 
 
 def control_code_to_filter_out_to_human_readable(control_code_to_filter_out):
-    if len(control_code_to_filter_out) == 1:
+    if control_code_to_filter_out == b'\\u0000':
+        return '\\u0000'
+    elif len(control_code_to_filter_out) == 1:
         return 'chr('+str(ord(control_code_to_filter_out))+')'
     else:
         return control_code_to_filter_out
