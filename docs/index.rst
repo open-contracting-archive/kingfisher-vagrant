@@ -15,7 +15,13 @@ Kingfisher comprises three tools, which integrate to form an OCDS data pipeline:
 Hosted Kingfisher
 =================
 
-Kingfisher has been developed primarily for internal use by Open Contracting Partnership, and OCP maintains a hosted instance. If you work or OCP or are part of the OCDS Team, see `Hosted Kingfisher <https://ocdskingfisher.readthedocs.io/en/add-overview-dos/hosted.html>`_ for details of the server, and how to access it. 
+Kingfisher has been developed primarily for internal use by Open Contracting Partnership, and OCP maintains a hosted instance. If you work or OCP or are part of the OCDS Team, see :doc:`hosted` for details of the server, and how to access it. 
+
+Previous Versions
+=================
+
+In Febrary 2019, Kingfisher was completely rewritten. You can find details of previous versions on the :doc:`old` page.
+
 
 Typical Uses of Kingfisher in the OCDS Helpdesk
 -----------------------------------------------
