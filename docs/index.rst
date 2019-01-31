@@ -4,7 +4,7 @@ OCDS Kingfisher tool
 OCDS Kingfisher is a suite of tools for downloading, storing and analysing data from publishers of the Open Contracting Data Standard.
 
 Overview
-========
+--------
 
 Kingfisher comprises three tools, which integrate to form an OCDS data pipeline:
 
@@ -13,12 +13,12 @@ Kingfisher comprises three tools, which integrate to form an OCDS data pipeline:
 - A suite of queries that can be used to meaningfully interpret OCDS data sets
 
 Hosted Kingfisher
-=================
+-----------------
 
 Kingfisher has been developed primarily for internal use by Open Contracting Partnership, and OCP maintains a hosted instance. If you work or OCP or are part of the OCDS Team, see :doc:`hosted` for details of the server, and how to access it. 
 
 Previous Versions
-=================
+-----------------
 
 In Febrary 2019, Kingfisher was completely rewritten. You can find details of previous versions on the :doc:`old` page.
 
@@ -45,4 +45,13 @@ I'm helping a government publish OCDS data, and I want to check that the publish
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the data is already online, then use kingfisher-scrape to download it from the public portal. Email data@open-contracting.org if you require assistance with this. If the data isn't online, but you have it as JSON files on disk, you can use kingfisher-process to import it into a Postgres database, and then use the provided queries to start to understand the data. 
+
+
+Other Information
+-----------------
+
+.. toctree::
+
+   hosted.rst
+   old.rst
 
