@@ -32,6 +32,8 @@ If you're running process operations, SSH in as the *ocdskfp* user::
 
 Once logged in, you can run process operations as per the `kingfisher-process documentation <https://kingfisher-process.readthedocs.io/en/latest/cli.html>`_
 
+You can `browse the information in the web UI. <http://process.ocdskingfisher.opendataservices.coop/app>`_
+
 Access for Postgres Database queries
 ------------------------------------
 
