@@ -20,7 +20,7 @@ If you're running scrapers, SSH in as the *ocdskfs* user::
 
   ssh ocdskfs@195.201.163.242
 
-Once logged in, you can run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted-kingfisher.html>`_
+Once logged in, you can run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted.html>`_
 
 
 Access for kingfisher-process
