@@ -20,7 +20,7 @@ If you're running scrapers, SSH in as the *ocdskfs* user::
 
   ssh ocdskfs@195.201.163.242
 
-Once logged in, you can run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted-kingfisher.html>`_
+Once logged in, you can run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted.html>`_
 
 
 Access for kingfisher-process
@@ -31,6 +31,8 @@ If you're running process operations, SSH in as the *ocdskfp* user::
   ssh ocdskfp@195.201.163.242
 
 Once logged in, you can run process operations as per the `kingfisher-process documentation <https://kingfisher-process.readthedocs.io/en/latest/cli.html>`_
+
+You can `browse the information in the web UI. <http://process.ocdskingfisher.opendataservices.coop/app>`_
 
 Access for Postgres Database queries
 ------------------------------------
