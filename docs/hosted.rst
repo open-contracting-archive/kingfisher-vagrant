@@ -79,3 +79,7 @@ The development server is at::
     ocdskingfisher-dev.default.opendataservices.uk0.bigv.io
 
 The development server is largely configured in the same way as the production server, so logins and commands should still work in the same way. 
+
+To see the scrapyd web interface, visit: http://scrape.ocdskingfisher-dev.default.opendataservices.uk0.bigv.io/ The username and password can be supplied by Open Data Services Co-op on request.
+
+To see the Process app web interface, visit: http://process.ocdskingfisher-dev.default.opendataservices.uk0.bigv.io/app
