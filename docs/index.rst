@@ -54,4 +54,5 @@ Other Information
 
    hosted.rst
    old.rst
+   vagrant.rst
 
