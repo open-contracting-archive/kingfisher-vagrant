@@ -7,10 +7,12 @@ echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 
 apt-get update
-apt-get install -y python3 python3-pip postgresql-10 uwsgi apache2 libapache2-mod-proxy-uwsgi uwsgi-plugin-python3 supervisor redis
+apt-get install -y python3 python3-pip postgresql-10 uwsgi apache2 libapache2-mod-proxy-uwsgi uwsgi-plugin-python3 supervisor redis graphviz openjdk-8-jre-headless
 
 pip3 install sphinx virtualenv
 
+wget -O /bin/schemaspy.jar https://github.com/schemaspy/schemaspy/releases/download/v6.0.0/schemaspy-6.0.0.jar
+wget -O /bin/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
 
 # Set up the database
 
@@ -73,7 +75,6 @@ source .ve/bin/activate;
 ##### This file doesn't exist yet but when it does .... pip3 install -r requirements.txt
 deactivate
 chown -R vagrant /views/.ve
-
 
 
 

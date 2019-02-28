@@ -102,6 +102,12 @@ To run the app in debug mode on port 9090, try:
 
 When this is running, you should be able to see results in http://localhost:9090/app
 
+You can generate a detailed description of the database Schema with SchemaSpy:
+
+ .. code-block:: shell-session
+
+    java -jar /bin/schemaspy.jar -t pgsql -dp /bin/postgresql.jar   -s public  -db ocdskingfisher  -u ocdskingfisher -p ocdskingfisher -host localhost -o /vagrant/schemaspy
+
 
 Working with Views
 ==================
