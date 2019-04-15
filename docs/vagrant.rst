@@ -11,7 +11,7 @@ You will need:
   *  Vagrant https://www.vagrantup.com/
   *  VirtualBox https://www.virtualbox.org/
 
-(It may be possible to get this to work with other Virtulisation solutions, but VirtualBox is the one we have tested with.)
+(It may be possible to get this to work with other Virtulisation solutions, but VirtualBox is the one we have tested with. Also check your virtualization options to make the system work, if you are already virtualizing your server you may have problems with starting Vagrant)
 
 Setting up repositories
 =======================
