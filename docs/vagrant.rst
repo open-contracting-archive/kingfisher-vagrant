@@ -1,10 +1,3 @@
-Kingfisher Model-View-Controller
-----------------------
-
-.. image:: https://github.com/aguilerapy/kingfisher/blob/patch-1/kingfisher_model.png
-
-In the model you can see "scrape" retrieves the data and stores it in our server, so "process" puts them in the database, where "views" generate the graphics.
-
 Vagrant for developers
 ----------------------
 
