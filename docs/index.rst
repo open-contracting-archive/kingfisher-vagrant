@@ -10,7 +10,12 @@ Kingfisher comprises three tools, which integrate to form an OCDS data pipeline:
 
 - `kingfisher-scrape <https://github.com/open-contracting/kingfisher-scrape>`_ , for downloading data from public sources of OCDS data
 - `kingfisher-process <https://github.com/open-contracting/kingfisher-process>`_, for storing OCDS data, and performing operations on it, including transformation and validation. 
-- A suite of queries that can be used to meaningfully interpret OCDS data sets
+- `kingfisher-views <https://github.com/open-contracting/kingfisher-views>`_, A suite of queries that can be used to meaningfully interpret OCDS data sets
+
+.. image:: images/kingfisher_model.png
+
+In the model you can see "Kingfisher Scrape" retrieves the data and stores it in a server, then "Kingfisher Process" puts them in the database in JSON format and also makes transformations, and "Kingfisher views" transform the jsons into their tabulated format to finally use them for generate the graphics.
+
 
 Hosted Kingfisher
 -----------------
