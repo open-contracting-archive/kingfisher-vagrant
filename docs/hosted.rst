@@ -46,9 +46,11 @@ Once logged in, you can take advantage of the powerful server to carry out analy
 Access to the archives
 ----------------------
 
-There is an archive server which contains files that have been downloaded previously but are no longer held on the main server. In almost all cases, the data from them is still in the process database, but they are retained for reference. If you would like to access them, SSH in as the *archive* user::
+There is an archive server which contains files that have been downloaded previously but are no longer held on the main server. In some cases, the data from them is still in the process database, but they are retained for reference. If you would like to access them, SSH in as the *archive* user::
 
     ssh archive@archive.kingfisher.open-contracting.org
+
+
 
 Access for Postgres Database queries
 ------------------------------------
