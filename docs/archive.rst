@@ -23,6 +23,14 @@ The user account that runs it needs
   *  access to the database (a .pgpass file)
   *  sudo permission to delete files from the scrape account
 
+More than one instance of the script should not run at once. This is because they may clash, and try and archive the same collection at the same time.
+
+To ensure this, the script exits after it has found and archived one collection.
+
+The script is started once per day by a cron job.
+
+Output can be piped to a log file, for debugging purposes. On hosted Kingfisher, these are in /home/archive/logs/
+
 Installation on the Archive server
 ----------------------------------
 
