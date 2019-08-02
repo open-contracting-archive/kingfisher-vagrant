@@ -30,7 +30,7 @@ If you're running process operations, SSH in as the *ocdskfp* user::
 
   ssh ocdskfp@process.kingfisher.open-contracting.org
 
-Once logged in, you can run process operations as per the `kingfisher-process documentation <https://kingfisher-process.readthedocs.io/en/latest/cli.html>`_
+Once logged in, you can run process operations as per the `kingfisher-process documentation <https://kingfisher-process.readthedocs.io/en/latest/cli/index.html>`_
 
 You can `browse the information in the web UI. <http://process.ocdskingfisher.opendataservices.coop/app>`_
 
