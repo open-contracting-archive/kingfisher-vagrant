@@ -118,6 +118,21 @@ There is a virtual environment at `.ve`
 
 More information will follow soon. TODO
 
+Working with Apache and UWSGI servers
+=====================================
+
+These are the servers used on live, and you may need to check something on them instead of using the Flask development server.
+
+These are installed and configured and just need to be started:
+
+ .. code-block:: shell-session
+
+    sudo /etc/init.d/uwsgi start
+    sudo /etc/init.d/apache2 start
+
+
+Then browse at http://localhost:8080/app
+
 Guide: Running a scraper and seeing it appear in the database
 =============================================================
 

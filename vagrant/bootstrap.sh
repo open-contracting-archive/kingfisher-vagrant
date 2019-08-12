@@ -77,4 +77,14 @@ deactivate
 chown -R vagrant /views/.ve
 
 
+# Set up Apache and UWSGI servers for people wanting to test on real servers
+cp /vagrantconf/apache.conf /etc/apache2/sites-enabled/kingfisherprocess.conf
+a2enmod  proxy proxy_uwsgi proxy_http
+systemctl stop apache2
+systemctl disable apache2
+
+cp /vagrantconf/uwsgi.ini /etc/uwsgi/apps-enabled/kingfisherprocess.ini
+cp /vagrantconf/wsgi.py /process/
+systemctl stop uwsgi
+systemctl disable uwsgi
 
