@@ -71,19 +71,3 @@ Access for Redash
 
 A Redash server is available. Contact Open Data Services for access. 
 
-Access for development
-----------------------
-
-If you're developing new scrapers or working on any of the code for Kingfisher, then you may access a development server in order to try things out. The development server is low-spec, so intensive operations may fail. Don't rely on this server address, as it may change, or additional servers may be provided for your use. Please ensure that any development is co-ordinated with Open Data Services Co-Op. 
-
-The development server is at::
-
-
-    dev.kingfisher.opencontracting.uk0.bigv.io
-
-The development server is largely configured in the same way as the production server, so logins and commands should still work in the same way. 
-
-To see the scrapyd web interface, visit: http://scrape.dev.kingfisher.opencontracting.uk0.bigv.io The username and password can be supplied by Open Data Services Co-op on request.
-
-To see the Process app web interface, visit: http://process.dev.kingfisher.opencontracting.uk0.bigv.io/app
-
