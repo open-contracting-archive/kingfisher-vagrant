@@ -41,6 +41,16 @@ echo "DBNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-process/c
 echo "[WEB]" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
 echo "API_KEYS = cat,dog" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
 
+mkdir -p /home/vagrant/.config/ocdskingfisher-views
+
+echo "[DBHOST]" > /home/vagrant/.config/ocdskingfisher-views/config.ini
+echo "HOSTNAME = localhost" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
+echo "PORT = 5432" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
+echo "USERNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
+echo "PASSWORD = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
+echo "DBNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
+
+
 chown -R vagrant /home/vagrant/.config
 
 
