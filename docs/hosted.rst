@@ -43,6 +43,19 @@ If you're running analysis operations, SSH in as the *analysis* user::
 
 Once logged in, you can take advantage of the powerful server to carry out analysis operations, such as using flatten-tool on files, more quickly than on your local machine. The analysis user has read-only access to the files downloaded by the scrapers. Please remember to delete your files when you're done! 
 
+The tools available are:
+
+* jq
+* flatten-tool. This is in /home/analysis/flatten-tool and there is a virtual environment in `.ve`.
+* ocdskit. This is in /home/analysis/ocdskit and there is a virtual environment in `.ve`.
+
+Transferring files between users
+--------------------------------
+
+Currently Scrape, Process and Analysis are all users on the same server.
+
+If you want to transfer files between them, the easiest way is to make sure the user that owns the files makes them world readable. You can then copy them or read them directly from the other users.
+
 Access to the archives
 ----------------------
 
