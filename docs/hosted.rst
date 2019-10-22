@@ -34,6 +34,12 @@ Once logged in, you can run process operations as per the `kingfisher-process do
 
 You can `browse the information in the web UI. <http://process.ocdskingfisher.opendataservices.coop/app>`_
 
+The tools available are:
+
+* jq
+* flatten-tool
+* ocdskit
+
 Access for analysis
 -------------------
 
@@ -46,8 +52,8 @@ Once logged in, you can take advantage of the powerful server to carry out analy
 The tools available are:
 
 * jq
-* flatten-tool. This is in /home/analysis/flatten-tool and there is a virtual environment in `.ve`.
-* ocdskit. This is in /home/analysis/ocdskit and there is a virtual environment in `.ve`.
+* flatten-tool
+* ocdskit
 
 Transferring files between users
 --------------------------------
