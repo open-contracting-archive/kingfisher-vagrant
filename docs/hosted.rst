@@ -62,6 +62,20 @@ Currently Scrape, Process and Analysis are all users on the same server.
 
 If you want to transfer files between them, the easiest way is to make sure the user that owns the files makes them world readable. You can then copy them or read them directly from the other users.
 
+To make files world readable, you need to first make sure the files themselves are world readable::
+
+    chmod a+r files.json
+
+You also need to make sure the directory the files are in have the correct permissions to allow users to look inside them::
+
+    chmod a+rx /home/user/path/to/files/
+
+This must be set for all parent directories to::
+
+    chmod a+rx /home/user/path/to/
+    chmod a+rx /home/user/path/
+
+
 Access to the archives
 ----------------------
 
