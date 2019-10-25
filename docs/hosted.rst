@@ -34,6 +34,12 @@ Once logged in, you can run process operations as per the `kingfisher-process do
 
 You can `browse the information in the web UI. <http://process.ocdskingfisher.opendataservices.coop/app>`_
 
+The tools available are:
+
+* jq
+* flatten-tool
+* ocdskit
+
 Access for analysis
 -------------------
 
@@ -42,6 +48,33 @@ If you're running analysis operations, SSH in as the *analysis* user::
     ssh analysis@analyse.kingfisher.open-contracting.org
 
 Once logged in, you can take advantage of the powerful server to carry out analysis operations, such as using flatten-tool on files, more quickly than on your local machine. The analysis user has read-only access to the files downloaded by the scrapers. Please remember to delete your files when you're done! 
+
+The tools available are:
+
+* jq
+* flatten-tool
+* ocdskit
+
+Transferring files between users
+--------------------------------
+
+Currently Scrape, Process and Analysis are all users on the same server.
+
+If you want to transfer files between them, the easiest way is to make sure the user that owns the files makes them world readable. You can then copy them or read them directly from the other users.
+
+First, make sure the files themselves are world readable::
+
+    chmod a+r files.json
+
+You also need to make sure the directory the files are in have the correct permissions to allow users to look inside them::
+
+    chmod a+rx /home/user/path/to/files/
+
+This must be set for all parent directories too::
+
+    chmod a+rx /home/user/path/to/
+    chmod a+rx /home/user/path/
+
 
 Access to the archives
 ----------------------
