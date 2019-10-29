@@ -99,6 +99,18 @@ localhost:*port*:*database*:*username*:*password*
 
 These should be all the details you need to connect with a Postgres client.
 
+**Querying the database using psql**
+
+When connected to the kingfisher process server, the `psql` command can be used to query the database from the command line.
+
+To connect to the database use the following command::
+
+    psql -d ocdskingfisherprocess -h localhost -U ocdskfpreadonly
+
+To query the database, enter a query at the psql command prompt and **end it with the `;` character**::
+
+    ocdskingfisherprocess=> select distinct source_id from collection
+
 Access for Redash
 -----------------
 
