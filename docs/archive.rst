@@ -40,7 +40,3 @@ Simply make sure the archive account
 
   *  can be accessed over SSH
   *  has a /home/archive/data/ folder
-
-
-
-

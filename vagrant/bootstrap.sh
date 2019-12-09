@@ -97,4 +97,3 @@ cp /vagrantconf/uwsgi.ini /etc/uwsgi/apps-enabled/kingfisherprocess.ini
 cp /vagrantconf/wsgi.py /process/
 systemctl stop uwsgi
 systemctl disable uwsgi
-

@@ -12,7 +12,6 @@ From time to time, we create development servers to try things out before deploy
 
 Over the course of a typical use of Hosted Kingfisher, you'll need to log in to run scrapers, then log out and back in as a different user to run process operations, and potentially connect to Postgres to carry out database operations. 
 
-
 Access for kingfisher-scrape
 ----------------------------
 
@@ -21,7 +20,6 @@ If you're running scrapers, SSH in as the *ocdskfs* user::
   ssh ocdskfs@scrape.kingfisher.open-contracting.org
 
 Once logged in, you can run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted.html>`_
-
 
 Access for kingfisher-process
 -----------------------------
@@ -75,15 +73,12 @@ This must be set for all parent directories too::
     chmod a+rx /home/user/path/to/
     chmod a+rx /home/user/path/
 
-
 Access to the archives
 ----------------------
 
 There is an archive server which contains files that have been downloaded previously but are no longer held on the main server. In some cases, the data from them is still in the process database, but they are retained for reference. If you would like to access them, SSH in as the *archive* user::
 
     ssh archive@archive.kingfisher.open-contracting.org
-
-
 
 Access for Postgres Database queries
 ------------------------------------
@@ -115,4 +110,3 @@ Access for Redash
 -----------------
 
 A Redash server is available. Contact Open Data Services for access. 
-

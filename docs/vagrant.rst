@@ -69,7 +69,6 @@ Simply type
 
 You can run standalone Scrapy commands straight away - see https://kingfisher-scrape.readthedocs.io/en/latest/use-standalone.html
 
-
 Working with Process
 ====================
 
@@ -79,12 +78,10 @@ There is a virtual environment at `.ve`
 
 So, after you have opened a shell inside the Vagrant box, try:
 
-
  .. code-block:: shell-session
 
     cd /process
     source .ve/bin/activate
-
 
 You can access the database by simply typing `db`.
 
@@ -108,7 +105,6 @@ You can generate a detailed description of the database Schema with SchemaSpy:
 
     java -jar /bin/schemaspy.jar -t pgsql -dp /bin/postgresql.jar   -s public  -db ocdskingfisher  -u ocdskingfisher -p ocdskingfisher -host localhost -o /vagrant/schemaspy
 
-
 Working with Views
 ==================
 
@@ -130,7 +126,6 @@ These are installed and configured and just need to be started:
     sudo /etc/init.d/uwsgi start
     sudo /etc/init.d/apache2 start
 
-
 Then browse at http://localhost:8080/app
 
 Guide: Running a scraper and seeing it appear in the database
@@ -150,7 +145,6 @@ In the first one, we are going to run the process app:
 Leave that running.
 
 Open a second shell and run:
-
 
  .. code-block:: shell-session
 
@@ -173,7 +167,6 @@ Simply type
 
     vagrant halt
 
-
 If you break the Vagrant Box
 ============================
 
@@ -183,13 +176,10 @@ That's totally fine!
 
 The whole point is there should be no data you care about inside the Vagrant box, and thus you should feel free to destroy it and recreate it at any time.
 
-
  .. code-block:: shell-session
 
     vagrant destroy
     vagrant up
-
-
 
 Removing totally the Vagrant Box
 ================================
@@ -199,4 +189,3 @@ Simply type
  .. code-block:: shell-session
 
     vagrant destroy
-

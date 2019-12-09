@@ -16,7 +16,6 @@ Kingfisher comprises three tools, which integrate to form an OCDS data pipeline:
 
 In the model you can see "Kingfisher Scrape" retrieves the data and stores it in a server, then "Kingfisher Process" puts them in the database in JSON format and also makes transformations, and "Kingfisher views" transform the jsons into their tabulated format to finally use them for generate the graphics.
 
-
 Hosted Kingfisher
 -----------------
 
@@ -45,7 +44,6 @@ I'm helping a government publish OCDS data, and I want to check that the publish
 
 If the data is already online, then use kingfisher-scrape to download it from the public portal. Email data@open-contracting.org if you require assistance with this. If the data isn't online, but you have it as JSON files on disk, you can use kingfisher-process to import it into a Postgres database, and then use the provided queries to start to understand the data. 
 
-
 Other Information
 -----------------
 
@@ -54,4 +52,3 @@ Other Information
    hosted.rst
    vagrant.rst
    archive.rst
-
