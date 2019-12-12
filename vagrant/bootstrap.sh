@@ -40,6 +40,9 @@ echo "PASSWORD = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-process
 echo "DBNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
 echo "[WEB]" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
 echo "API_KEYS = cat,dog" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
+echo "[REDIS]" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
+echo "HOST = localhost" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
+
 
 mkdir -p /home/vagrant/.config/ocdskingfisher-views
 
