@@ -64,7 +64,7 @@ Simply type
 
  .. code-block:: shell-session
 
-    cd /scrape
+    cd /vagrant/scrape
     source .ve/bin/activate
 
 You can run standalone Scrapy commands straight away - see https://kingfisher-scrape.readthedocs.io/en/latest/use-standalone.html
@@ -80,7 +80,7 @@ So, after you have opened a shell inside the Vagrant box, try:
 
  .. code-block:: shell-session
 
-    cd /process
+    cd /vagrant/process
     source .ve/bin/activate
 
 You can access the database by simply typing `db`.
@@ -137,7 +137,7 @@ In the first one, we are going to run the process app:
 
  .. code-block:: shell-session
 
-    cd /process
+    cd /vagrant/process
     source .ve/bin/activate
     python ocdskingfisher-process-cli upgrade-database
     FLASK_APP=ocdskingfisherprocess.web.app FLASK_ENV=development KINGFISHER_PROCESS_WEB_API_KEYS=cat flask run --host 0 --port 9090
@@ -148,7 +148,7 @@ Open a second shell and run:
 
  .. code-block:: shell-session
 
-    cd /scrape
+    cd /vagrant/scrape
     source .ve/bin/activate
     source env.sh
     scrapy crawl canada_buyandsell -a sample=true
