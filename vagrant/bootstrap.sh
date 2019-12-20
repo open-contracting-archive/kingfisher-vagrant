@@ -7,7 +7,7 @@ echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 
 apt-get update
-apt-get install -y python3 python3-pip postgresql-10 uwsgi apache2 libapache2-mod-proxy-uwsgi uwsgi-plugin-python3 supervisor redis graphviz openjdk-8-jre-headless libpq-dev
+DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip postgresql-10 uwsgi apache2 libapache2-mod-proxy-uwsgi uwsgi-plugin-python3 supervisor redis graphviz openjdk-8-jre-headless libpq-dev
 
 pip3 install sphinx virtualenv
 
@@ -75,22 +75,24 @@ chown vagrant /vagrant/scrape/env.sh
 cd /vagrant/scrape
 virtualenv .ve -p python3
 source .ve/bin/activate;
-pip3 install -r requirements_dev.txt
+# pip install can fail if .ve already exists, and we don't want errors to stop buliding totally. So always pass.
+pip3 install -r requirements_dev.txt  || true
 deactivate
 chown -R vagrant /vagrant/scrape/.ve
 
 cd /vagrant/process
 virtualenv .ve -p python3
 source .ve/bin/activate;
-pip3 install -r requirements.txt
-pip3 install flake8 pytest
+# pip install can fail if .ve already exists, and we don't want errors to stop buliding totally. So always pass.
+pip3 install -r requirements_dev.txt  || true
 deactivate
 chown -R vagrant /vagrant/process/.ve
 
 cd /vagrant/views
 virtualenv .ve -p python3
 source .ve/bin/activate;
-##### This file doesn't exist yet but when it does .... pip3 install -r requirements.txt
+# pip install can fail if .ve already exists, and we don't want errors to stop buliding totally. So always pass.
+pip3 install -r requirements_dev.txt  || true
 deactivate
 chown -R vagrant /vagrant/views/.ve
 
