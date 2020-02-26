@@ -67,7 +67,7 @@ Simply type
     cd /vagrant/scrape
     source .ve/bin/activate
 
-You can run standalone Scrapy commands straight away - see https://kingfisher-scrape.readthedocs.io/en/latest/use-standalone.html
+You can run standalone Scrapy commands straight away - see https://kingfisher-scrape.readthedocs.io/en/latest/use-cases/local.html
 
 Working with Process
 ====================
