@@ -8,9 +8,9 @@ Overview
 
 Kingfisher comprises three tools, which integrate to form an OCDS data pipeline:
 
-- `kingfisher-scrape <https://kingfisher-scrape.readthedocs.io/latest/en/>`_ , for downloading data from public sources of OCDS data
-- `kingfisher-process <https://kingfisher-process.readthedocs.io/latest/en/>`_, for storing OCDS data, and performing operations on it, including transformation and validation. 
-- `kingfisher-views <https://kingfisher-views.readthedocs.io/latest/en/>`_, A suite of queries that can be used to meaningfully interpret OCDS data sets
+- `kingfisher-scrape <https://kingfisher-scrape.readthedocs.io/en/latest/>`_ , for downloading data from public sources of OCDS data
+- `kingfisher-process <https://kingfisher-process.readthedocs.io/en/latest/>`_, for storing OCDS data, and performing operations on it, including transformation and validation. 
+- `kingfisher-views <https://kingfisher-views.readthedocs.io/en/latest/>`_, a suite of queries that can be used to meaningfully interpret OCDS data sets
 
 .. image:: images/kingfisher_model.png
 
