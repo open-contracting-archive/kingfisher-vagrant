@@ -1,3 +1,8 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# Docs at https://ocdskingfisher.readthedocs.io/en/latest/vagrant.html
+
 Vagrant.configure(2) do |config|
 
   config.vm.box = "ubuntu/xenial64"
