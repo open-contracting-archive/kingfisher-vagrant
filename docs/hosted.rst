@@ -6,11 +6,11 @@ Open Contracting Partnership operates a hosted instance of the Kingfisher tool s
 Access
 ------
 
-You can connect to the server via SSH to run commands, or via a Postgres client to run queries on the database. Details of this are below. 
+You can connect to the server via SSH to run commands, or via a Postgres client to run queries on the database. Details of this are below.
 
-From time to time, we create development servers to try things out before deploying them. If you're involved in the development of new Kingfisher components, you may be asked to log into the dev server to try things out. If so, substitiute the address of the dev server you've been provided with for the address of the live server in the examples below. 
+From time to time, we create development servers to try things out before deploying them. If you're involved in the development of new Kingfisher components, you may be asked to log into the dev server to try things out. If so, substitiute the address of the dev server you've been provided with for the address of the live server in the examples below.
 
-Over the course of a typical use of Hosted Kingfisher, you'll need to log in to run scrapers, then log out and back in as a different user to run process operations, and potentially connect to Postgres to carry out database operations. 
+Over the course of a typical use of Hosted Kingfisher, you'll need to log in to run scrapers, then log out and back in as a different user to run process operations, and potentially connect to Postgres to carry out database operations.
 
 Access for kingfisher-scrape
 ----------------------------
@@ -19,7 +19,9 @@ If you're running scrapers, SSH in as the *ocdskfs* user::
 
   ssh ocdskfs@scrape.kingfisher.open-contracting.org
 
-Once logged in, you can run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted.html>`_
+Once logged in, you should navigate to the ``ocdskingfisherscrape`` directory. Start a tmux session with ``tmux`` and start a Python Virtual Environment with ``source .ve/bin/activate``.
+
+ You may now run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted.html>`_
 
 Access for kingfisher-process
 -----------------------------
@@ -45,7 +47,7 @@ If you're running analysis operations, SSH in as the *analysis* user::
 
     ssh analysis@analyse.kingfisher.open-contracting.org
 
-Once logged in, you can take advantage of the powerful server to carry out analysis operations, such as using flatten-tool on files, more quickly than on your local machine. The analysis user has read-only access to the files downloaded by the scrapers. Please remember to delete your files when you're done! 
+Once logged in, you can take advantage of the powerful server to carry out analysis operations, such as using flatten-tool on files, more quickly than on your local machine. The analysis user has read-only access to the files downloaded by the scrapers. Please remember to delete your files when you're done!
 
 The tools available are:
 
@@ -83,7 +85,7 @@ There is an archive server which contains files that have been downloaded previo
 Access for Postgres Database queries
 ------------------------------------
 
-In order to access the database, you'll need a Postgres client such as `pgadmin <https://www.pgadmin.org/>`, and some details that are stored on the server. 
+In order to access the database, you'll need a Postgres client such as `pgadmin <https://www.pgadmin.org/>`, and some details that are stored on the server.
 
 To obtain the details, SSH into the server as the *ocdskfp* user (as above), and then run:::
   cat ~/.pgpass
@@ -109,4 +111,4 @@ To query the database, enter a query at the psql command prompt and **end it wit
 Access for Redash
 -----------------
 
-A Redash server is available. Contact Open Data Services for access. 
+A Redash server is available. Contact Open Data Services for access.
