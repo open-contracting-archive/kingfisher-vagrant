@@ -1,5 +1,0 @@
-language: python
-# This repository now only contains docs in the "master" branch, so nothing for Travis to do!
-# But we still want Travis as in the "archive" branch we have work for Travis to do.
-script:
-    - "echo Works"
