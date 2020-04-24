@@ -114,6 +114,17 @@ There is a virtual environment at `.ve`
 
 More information will follow soon. TODO
 
+Working with the database
+=========================
+
+If you want to access the database from your local machine, you can.
+
+* Server: localhost
+* Port: 7070
+* Username: ocdskingfisher
+* Password: ocdskingfisher
+* Database: ocdskingfisher
+
 Working with Apache and UWSGI servers
 =====================================
 

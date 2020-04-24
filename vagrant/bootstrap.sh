@@ -9,6 +9,16 @@ locale-gen
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip postgresql-10 uwsgi apache2 libapache2-mod-proxy-uwsgi uwsgi-plugin-python3 supervisor redis graphviz openjdk-8-jre-headless libpq-dev
 
+# Set up the database for remote access
+
+echo "listen_addresses = '*'" >> /etc/postgresql/10/main/postgresql.conf
+echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/10/main/pg_hba.conf
+/etc/init.d/postgresql restart
+sleep 5
+
+# Download more software
+# (Give database time to restart fully!)
+
 pip3 install sphinx virtualenv
 
 wget -O /bin/schemaspy.jar https://github.com/schemaspy/schemaspy/releases/download/v6.0.0/schemaspy-6.0.0.jar
@@ -75,7 +85,7 @@ chown vagrant /vagrant/scrape/env.sh
 cd /vagrant/scrape
 virtualenv .ve -p python3
 source .ve/bin/activate;
-# pip install can fail if .ve already exists, and we don't want errors to stop buliding totally. So always pass.
+# pip install can fail if .ve already exists, and we don't want errors to stop building totally. So always pass.
 pip3 install -r requirements_dev.txt  || true
 deactivate
 chown -R vagrant /vagrant/scrape/.ve
@@ -83,16 +93,18 @@ chown -R vagrant /vagrant/scrape/.ve
 cd /vagrant/process
 virtualenv .ve -p python3
 source .ve/bin/activate;
-# pip install can fail if .ve already exists, and we don't want errors to stop buliding totally. So always pass.
+# pip install can fail if .ve already exists, and we don't want errors to stop building totally. So always pass.
 pip3 install -r requirements_dev.txt  || true
+KINGFISHER_PROCESS_DB_URI="postgresql://ocdskingfisher:ocdskingfisher@localhost:5432/ocdskingfisher" python ocdskingfisher-process-cli upgrade-database
 deactivate
 chown -R vagrant /vagrant/process/.ve
 
 cd /vagrant/views
 virtualenv .ve -p python3
 source .ve/bin/activate;
-# pip install can fail if .ve already exists, and we don't want errors to stop buliding totally. So always pass.
+# pip install can fail if .ve already exists, and we don't want errors to stop building totally. So always pass.
 pip3 install -r requirements_dev.txt  || true
+KINGFISHER_VIEWS_DB_URI="postgresql://ocdskingfisher:ocdskingfisher@localhost:5432/ocdskingfisher" PYTHONPATH="/vagrant/views:$PYTHONPATH"  alembic --raiseerr --config ocdskingfisherviews/alembic.ini upgrade head
 deactivate
 chown -R vagrant /vagrant/views/.ve
 
