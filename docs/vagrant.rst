@@ -108,11 +108,18 @@ You can generate a detailed description of the database Schema with SchemaSpy:
 Working with Views
 ==================
 
-You will find all the files inside the vagrant box in `/views`
+You will find all the files inside the vagrant box in `/vagrant/views`
 
 There is a virtual environment at `.ve`
 
-More information will follow soon. TODO
+So, after you have opened a shell inside the Vagrant box, try:
+
+ .. code-block:: shell-session
+
+    cd /vagrant/views
+    source .ve/bin/activate
+
+You can then run commands as documented `in the Views documentation <https://kingfisher-views.readthedocs.io/en/latest/>`_.
 
 Working with the database
 =========================
