@@ -124,7 +124,16 @@ You can then run commands as documented `in the Views documentation <https://kin
 Working with the database
 =========================
 
-If you want to access the database from your local machine, you can.
+
+There is a short cut. After you have opened a shell inside the Vagrant box, run:
+
+ .. code-block:: shell-session
+
+    db
+
+This will open a psql shell.
+
+But if you want to access the database from your local machine, you can (for example, a graphical program like pgAdmin). Use these settings:
 
 * Server: localhost
 * Port: 7070
