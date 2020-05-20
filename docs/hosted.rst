@@ -15,13 +15,7 @@ Over the course of a typical use of Hosted Kingfisher, you'll need to log in to 
 Access for kingfisher-scrape
 ----------------------------
 
-If you're running scrapers, SSH in as the *ocdskfs* user::
-
-  ssh ocdskfs@scrape.kingfisher.open-contracting.org
-
-Once logged in, you should navigate to the ``ocdskingfisherscrape`` directory. Start a tmux session with ``tmux`` and start a Python Virtual Environment with ``source .ve/bin/activate``.
-
- You may now run scrapers as per the `kingfisher-scrape documentation <https://kingfisher-scrape.readthedocs.io/en/latest/use-hosted.html>`_
+kingfisher-scrape SSH access has been replaced by `kingfisher-collection scrapyd access <https://ocdsdeploy.readthedocs.io/en/latest/use/kingfisher-collect.html>`_.
 
 Access for kingfisher-process
 -----------------------------
