@@ -1,7 +1,5 @@
 # OCDS Kingfisher
 
-OCDS Kingfisher is a suite of tools for downloading, storing and analysing data from publishers of the Open Contracting Data Standard. Each of its components can be used independently to fit in with a wide range of use cases. 
+Kingfisher is a family of tools to [collect](https://kingfisher-collect.readthedocs.io/en/latest/), [pre-process](https://kingfisher-process.readthedocs.io/en/latest/), [summarize](https://kingfisher-views.readthedocs.io/en/latest/) and [query](https://kingfisher-colab.readthedocs.io/en/latest/) OCDS data.
 
-For details on the components and how to use the tools to create an OCDS data pipeline, see https://ocdskingfisher.readthedocs.io/en/master/ (or the docs folder in this code).
-
-If you downloaded Kingfisher before February 2019, see the 'archive' branch for code and documentation. 
+This repository collects issues that relate to multiple Kingfisher repositories. It also provides a Vagrant box, for developers to easily deploy the Kingfisher tools on personal computers.
