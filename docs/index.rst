@@ -51,4 +51,3 @@ Other Information
 
    hosted.rst
    vagrant.rst
-   archive.rst
