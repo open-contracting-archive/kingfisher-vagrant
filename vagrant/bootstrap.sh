@@ -29,14 +29,10 @@ wget -O /bin/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.2
 sudo su --login -c "psql -c \"CREATE USER ocdskingfisher WITH PASSWORD 'ocdskingfisher';\"" postgres
 sudo su --login -c "psql -c \"CREATE DATABASE ocdskingfisher WITH OWNER ocdskingfisher ENCODING 'UTF8'  LC_COLLATE='en_GB.UTF-8' LC_CTYPE='en_GB.UTF-8'  TEMPLATE=template0 ;\"" postgres
 sudo su --login -c "psql -c \"CREATE SCHEMA views AUTHORIZATION ocdskingfisher ;\" ocdskingfisher" postgres
-sudo su --login -c "psql -c \"CREATE SCHEMA view_info AUTHORIZATION ocdskingfisher ;\" ocdskingfisher" postgres
-sudo su --login -c "psql -c \"CREATE SCHEMA view_meta AUTHORIZATION ocdskingfisher ;\" ocdskingfisher" postgres
 
 sudo su --login -c "psql -c \"CREATE USER test WITH PASSWORD 'test';\"" postgres
 sudo su --login -c "psql -c \"CREATE DATABASE test WITH OWNER test ENCODING 'UTF8'  LC_COLLATE='en_GB.UTF-8' LC_CTYPE='en_GB.UTF-8'  TEMPLATE=template0 ;\"" postgres
 sudo su --login -c "psql -c \"CREATE SCHEMA views AUTHORIZATION test ;\" test" postgres
-sudo su --login -c "psql -c \"CREATE SCHEMA view_info AUTHORIZATION test ;\" test" postgres
-sudo su --login -c "psql -c \"CREATE SCHEMA view_meta AUTHORIZATION test ;\" test" postgres
 
 echo "alias db='psql -U  ocdskingfisher ocdskingfisher  -hlocalhost'" >> /home/vagrant/.bashrc
 echo "localhost:5432:ocdskingfisher:ocdskingfisher:ocdskingfisher" > /home/vagrant/.pgpass
