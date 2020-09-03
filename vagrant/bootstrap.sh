@@ -54,6 +54,7 @@ echo "API_KEYS = cat,dog" >> /home/vagrant/.config/ocdskingfisher-process/config
 echo "[REDIS]" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
 echo "HOST = localhost" >> /home/vagrant/.config/ocdskingfisher-process/config.ini
 
+# Set up the Views config file
 
 mkdir -p /home/vagrant/.config/ocdskingfisher-views
 
@@ -63,6 +64,19 @@ echo "PORT = 5432" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
 echo "USERNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
 echo "PASSWORD = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
 echo "DBNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-views/config.ini
+
+
+# Set up the Archive config file
+
+mkdir -p /home/vagrant/.config/ocdskingfisher-archive
+
+echo "[DBHOST]" > /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "HOSTNAME = localhost" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "PORT = 5432" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "USERNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "PASSWORD = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "DBNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+
 
 
 chown -R vagrant /home/vagrant/.config
@@ -75,6 +89,7 @@ echo "export KINGFISHER_API_URI=http://localhost:9090" >> /vagrant/scrape/env.sh
 echo "export KINGFISHER_API_KEY=cat" >> /vagrant/scrape/env.sh
 
 chown vagrant /vagrant/scrape/env.sh
+
 
 # Create and Install Virtual Environments
 
@@ -104,6 +119,13 @@ KINGFISHER_VIEWS_DB_URI="postgresql://ocdskingfisher:ocdskingfisher@localhost:54
 deactivate
 chown -R vagrant /vagrant/views/.ve
 
+cd /vagrant/archive
+virtualenv .ve -p python3
+source .ve/bin/activate;
+# pip install can fail if .ve already exists, and we don't want errors to stop building totally. So always pass.
+pip3 install -r requirements_dev.txt  || true
+deactivate
+chown -R vagrant /vagrant/archive/.ve
 
 # Set up Apache and UWSGI servers for people wanting to test on real servers
 cp /vagrant/vagrant/apache.conf /etc/apache2/sites-enabled/kingfisherprocess.conf
