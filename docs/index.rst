@@ -30,6 +30,7 @@ You then need to check out the repositories with the actual code. Note these mus
     git clone git@github.com:open-contracting/kingfisher-scrape.git scrape
     git clone git@github.com:open-contracting/kingfisher-process.git process
     git clone git@github.com:open-contracting/kingfisher-views.git views
+    git clone git@github.com:open-contracting/kingfisher-archive archive
 
 Starting and building the Vagrant box
 -------------------------------------

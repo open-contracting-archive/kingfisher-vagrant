@@ -18,6 +18,10 @@ Vagrant.configure(2) do |config|
         normal.vm.synced_folder ".", "/vagrant",  :owner=> 'vagrant', :group=>'users', :mount_options => ['dmode=777', 'fmode=777']
 
         normal.vm.provider "virtualbox" do |vb|
+          # Some versions of VB have a length limit, and some version of Vagrant try and set a name that is to long
+          # So set one explicitly 
+          vb.name = "ocds-kingfisher"
+
            # Display the VirtualBox GUI when booting the machine
            vb.gui = false
 
