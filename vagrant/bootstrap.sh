@@ -7,7 +7,7 @@ echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip postgresql-10 uwsgi apache2 libapache2-mod-proxy-uwsgi uwsgi-plugin-python3 supervisor redis graphviz openjdk-8-jre-headless libpq-dev
+DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip postgresql-10 uwsgi apache2 libapache2-mod-proxy-uwsgi uwsgi-plugin-python3 supervisor redis graphviz openjdk-8-jre-headless libpq-dev lzip
 
 # Set up the database for remote access
 
@@ -76,6 +76,12 @@ echo "PORT = 5432" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
 echo "USERNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
 echo "PASSWORD = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
 echo "DBNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "[DIRECTORIES]" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "DATA = /vagrant/scrape/data" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "[S3]" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "BUCKETNAME = ocp-kingfisher-dev" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "[DBARCHIVE]" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
+echo "FILEPATH = /vagrant/archive/database.sqlite" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
 
 
 cp /vagrant/vagrant/archive-logging.json /home/vagrant/.config/ocdskingfisher-archive/logging.json
