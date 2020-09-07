@@ -78,6 +78,7 @@ echo "PASSWORD = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive
 echo "DBNAME = ocdskingfisher" >> /home/vagrant/.config/ocdskingfisher-archive/config.ini
 
 
+cp /vagrant/vagrant/archive-logging.json /home/vagrant/.config/ocdskingfisher-archive/logging.json
 
 chown -R vagrant /home/vagrant/.config
 
