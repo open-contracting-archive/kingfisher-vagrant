@@ -122,7 +122,7 @@ virtualenv .ve -p python3
 source .ve/bin/activate;
 # pip install can fail if .ve already exists, and we don't want errors to stop building totally. So always pass.
 pip3 install -r requirements_dev.txt  || true
-KINGFISHER_VIEWS_DB_URI="postgresql://ocdskingfisher:ocdskingfisher@localhost:5432/ocdskingfisher" PYTHONPATH="/vagrant/views:$PYTHONPATH"  alembic --raiseerr --config ocdskingfisherviews/alembic.ini upgrade head
+KINGFISHER_VIEWS_DB_URI="postgresql://ocdskingfisher:ocdskingfisher@localhost:5432/ocdskingfisher" PYTHONPATH="/vagrant/views:$PYTHONPATH" python ocdskingfisher-views-cli install
 deactivate
 chown -R vagrant /vagrant/views/.ve
 
