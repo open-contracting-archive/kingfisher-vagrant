@@ -18,13 +18,13 @@ Setting up repositories
 
 To use it, check out the main repository somewhere on your disk.
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     git clone git@github.com:open-contracting/kingfisher.git somewhere_you_decide
 
 You then need to check out the repositories with the actual code. Note these must be within the location you just created - so change to that folder. Also use the names specified here, as the Vagrantfile will refer to these.
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     cd somewhere_you_decide
     git clone git@github.com:open-contracting/kingfisher-scrape.git scrape
@@ -37,7 +37,7 @@ Starting and building the Vagrant box
 
 Simply type
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     vagrant up
 
@@ -46,7 +46,7 @@ Opening (and exiting) a shell in the Vagrant box
 
 Simply type
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     vagrant ssh
 
@@ -63,7 +63,7 @@ So, after you have opened a shell inside the Vagrant box, try:
 
 Simply type
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     cd /vagrant/scrape
     source .ve/bin/activate
@@ -79,7 +79,7 @@ There is a virtual environment at `.ve`
 
 So, after you have opened a shell inside the Vagrant box, try:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     cd /vagrant/process
     source .ve/bin/activate
@@ -88,13 +88,13 @@ You can access the database by simply typing `db`.
 
 There is a test database  - to run tests in try:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     KINGFISHER_PROCESS_DB_URI=postgresql://test:test@localhost:5432/test pytest tests/
 
 To run the app in debug mode on port 9090, try:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     FLASK_APP=ocdskingfisherprocess.web.app FLASK_ENV=development KINGFISHER_PROCESS_WEB_API_KEYS=cat flask run --host 0 --port 9090
 
@@ -102,7 +102,7 @@ When this is running, you should be able to see results in http://localhost:9090
 
 You can generate a detailed description of the database Schema with SchemaSpy:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     java -jar /bin/schemaspy.jar -t pgsql -dp /bin/postgresql.jar   -s public  -db ocdskingfisher  -u ocdskingfisher -p ocdskingfisher -host localhost -o /vagrant/schemaspy
 
@@ -115,7 +115,7 @@ There is a virtual environment at `.ve`
 
 So, after you have opened a shell inside the Vagrant box, try:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     cd /vagrant/views
     source .ve/bin/activate
@@ -127,7 +127,7 @@ Working with the database
 
 There is a short cut. After you have opened a shell inside the Vagrant box, run:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     db
 
@@ -148,7 +148,7 @@ These are the servers used on live, and you may need to check something on them 
 
 These are installed and configured and just need to be started:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     sudo /etc/init.d/uwsgi start
     sudo /etc/init.d/apache2 start
@@ -162,7 +162,7 @@ You will need two shells open.
 
 In the first one, we are going to run the process app:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     cd /vagrant/process
     source .ve/bin/activate
@@ -173,7 +173,7 @@ Leave that running.
 
 Open a second shell and run:
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     cd /vagrant/scrape
     source .ve/bin/activate
@@ -190,7 +190,7 @@ Finishing work with the Vagrant Box
 
 Simply type
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     vagrant halt
 
@@ -203,7 +203,7 @@ That's totally fine!
 
 The whole point is there should be no data you care about inside the Vagrant box, and thus you should feel free to destroy it and recreate it at any time.
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     vagrant destroy
     vagrant up
@@ -213,6 +213,6 @@ Removing totally the Vagrant Box
 
 Simply type
 
- .. code-block:: shell-session
+ .. code-block:: shell
 
     vagrant destroy
